@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getUserCreditsInfo, addUserCredits, UserCreditInfo } from "@/services/adminService";
 import { 
@@ -19,21 +19,41 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
 
 const Admin = () => {
   const [selectedUserEmail, setSelectedUserEmail] = useState("");
   const [creditAmount, setCreditAmount] = useState(5);
   const [isAdding, setIsAdding] = useState(false);
+  const { user } = useAuth();
   const navigate = useNavigate();
+  
+  // Add debugging to check if the component mounts
+  useEffect(() => {
+    console.log("Admin component mounted");
+  }, []);
   
   const { 
     data: userCredits, 
     isLoading, 
-    refetch 
+    refetch,
+    error: userCreditsError
   } = useQuery({
     queryKey: ['userCredits'],
-    queryFn: getUserCreditsInfo
+    queryFn: getUserCreditsInfo,
+    onSuccess: (data) => {
+      console.log("User credits loaded:", data);
+    },
+    onError: (error) => {
+      console.error("Error fetching user credits:", error);
+      toast.error("Failed to load user information");
+    }
   });
+
+  // Log the current state for debugging
+  useEffect(() => {
+    console.log("Current userCredits state:", userCredits);
+  }, [userCredits]);
 
   const handleAddCredits = async () => {
     if (!selectedUserEmail) {
@@ -43,16 +63,28 @@ const Admin = () => {
 
     setIsAdding(true);
     try {
-      await addUserCredits(selectedUserEmail, creditAmount);
-      await refetch(); // Refresh the data after adding credits
-      setSelectedUserEmail(""); // Reset selection
-      
-      // Force reload the admin page to show the updated credits
-      navigate(0);
+      const success = await addUserCredits(selectedUserEmail, creditAmount);
+      if (success) {
+        await refetch(); // Refresh the data after adding credits
+        setSelectedUserEmail(""); // Reset selection
+        setCreditAmount(5); // Reset credit amount
+        toast.success(`Added ${creditAmount} credits to ${selectedUserEmail}`);
+      }
+    } catch (error) {
+      console.error("Error adding credits:", error);
+      toast.error("Failed to add credits. Please try again.");
     } finally {
       setIsAdding(false);
     }
   };
+
+  // Check for admin access
+  useEffect(() => {
+    // This is a simple check that should be replaced with proper role-based access control
+    if (user && !user.email?.includes('admin')) {
+      console.log("Non-admin user attempting to access admin page:", user.email);
+    }
+  }, [user]);
 
   return (
     <>
@@ -70,6 +102,12 @@ const Admin = () => {
             Refresh
           </Button>
         </div>
+
+        {userCreditsError && (
+          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
+            <p>Error loading user data. Please try refreshing the page.</p>
+          </div>
+        )}
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-lg font-medium mb-4">Add Credits to User</h2>
@@ -92,6 +130,11 @@ const Admin = () => {
                   )}
                 </SelectContent>
               </Select>
+              {(!userCredits || userCredits.length === 0) && !isLoading && (
+                <p className="text-sm text-red-500 mt-1">
+                  No users found. Make sure you have user data in the database.
+                </p>
+              )}
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Credits to Add</label>
