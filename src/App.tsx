@@ -19,12 +19,8 @@ import { supabase } from '@/integrations/supabase/client';
 
 // Configure the Supabase auth settings to handle redirects properly
 supabase.auth.setSession({
-  refresh_token: "",
   access_token: "",
-  expires_in: -1,
-  expires_at: -1,
-  provider_token: null,
-  provider_refresh_token: null,
+  refresh_token: ""
 });
 
 const queryClient = new QueryClient();
