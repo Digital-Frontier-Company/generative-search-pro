@@ -19,6 +19,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") || "";
     
     if (!supabaseUrl || !supabaseServiceKey) {
+      console.error("Missing Supabase configuration");
       return new Response(
         JSON.stringify({ error: "Missing Supabase configuration" }),
         { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
@@ -31,11 +32,14 @@ serve(async (req) => {
     const { email, credits } = await req.json();
     
     if (!email || !credits || credits <= 0) {
+      console.error("Invalid request data:", { email, credits });
       return new Response(
         JSON.stringify({ error: "Valid email and credit amount are required" }),
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    console.log(`Adding ${credits} credits to user ${email}`);
     
     // Call the database function to add credits
     const { data, error } = await supabase.rpc("add_user_credits", {
@@ -50,6 +54,8 @@ serve(async (req) => {
         { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+    
+    console.log("Credits added successfully, new credits:", data);
     
     return new Response(
       JSON.stringify({ success: true, new_credits: data }),

@@ -41,13 +41,6 @@ const Admin = () => {
   } = useQuery({
     queryKey: ['userCredits'],
     queryFn: getUserCreditsInfo,
-    onSuccess: (data) => {
-      console.log("User credits loaded:", data);
-    },
-    onError: (error) => {
-      console.error("Error fetching user credits:", error);
-      toast.error("Failed to load user information");
-    }
   });
 
   // Log the current state for debugging

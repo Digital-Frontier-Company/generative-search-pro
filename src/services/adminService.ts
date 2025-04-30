@@ -20,6 +20,7 @@ export const getUserCreditsInfo = async (): Promise<UserCreditInfo[]> => {
       .select('*');
     
     if (viewData && viewData.length > 0) {
+      console.log("Admin view data found:", viewData);
       // Transform the data to match our interface
       return viewData.map(user => ({
         user_id: user.user_id,
@@ -31,31 +32,47 @@ export const getUserCreditsInfo = async (): Promise<UserCreditInfo[]> => {
       }));
     }
     
+    console.log("No admin view data found, falling back to manual join");
+    
     // If the view doesn't exist or returns no data, fall back to joining tables manually
     const { data, error } = await supabase
       .from('user_subscriptions')
       .select(`
+        id,
         user_id,
         monthly_credits,
         credits_used,
-        subscription_type,
-        auth.users!user_subscriptions_user_id_fkey (email)
-      `);
+        subscription_type
+      `).select();
     
     if (error) {
-      console.error("Error fetching user credits info:", error);
-      toast.error("Failed to load user information");
+      console.error("Error fetching user subscriptions:", error);
+      toast.error("Failed to load user subscription information");
+      return [];
+    }
+
+    if (!data || data.length === 0) {
+      console.log("No user subscription data found");
       return [];
     }
     
-    // Transform the joined data to match our interface
-    return (data || []).map(user => ({
-      user_id: user.user_id,
-      email: user.users?.email || 'Unknown email',
-      monthly_credits: user.monthly_credits,
-      credits_used: user.credits_used,
-      remaining_credits: user.monthly_credits - user.credits_used,
-      subscription_type: user.subscription_type
+    console.log("User subscription data:", data);
+    
+    // Now get user emails from auth
+    const userIds = data.map(subscription => subscription.user_id);
+    
+    // Since we can't directly query auth.users from client, 
+    // let's get user emails from another source or use placeholder
+    // For now, use user_id as email placeholder if needed
+    
+    // Transform the data to match our interface
+    return data.map(subscription => ({
+      user_id: subscription.user_id,
+      email: subscription.user_id, // Use user_id as email placeholder
+      monthly_credits: subscription.monthly_credits || 0,
+      credits_used: subscription.credits_used || 0,
+      remaining_credits: (subscription.monthly_credits || 0) - (subscription.credits_used || 0),
+      subscription_type: subscription.subscription_type || 'free'
     }));
   } catch (error) {
     console.error("Unexpected error in getUserCreditsInfo:", error);
