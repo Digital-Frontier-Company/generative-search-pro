@@ -12,6 +12,13 @@ import { Loader2, Plus, RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
 import { useNavigate } from "react-router-dom";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const Admin = () => {
   const [selectedUserEmail, setSelectedUserEmail] = useState("");
@@ -69,18 +76,22 @@ const Admin = () => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium mb-1">User Email</label>
-              <select 
-                className="w-full p-2 border rounded-md" 
-                value={selectedUserEmail}
-                onChange={(e) => setSelectedUserEmail(e.target.value)}
-              >
-                <option value="">Select a user</option>
-                {userCredits?.map((user) => (
-                  <option key={user.user_id} value={user.email}>
-                    {user.email}
-                  </option>
-                ))}
-              </select>
+              <Select value={selectedUserEmail} onValueChange={setSelectedUserEmail}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select a user" />
+                </SelectTrigger>
+                <SelectContent>
+                  {userCredits && userCredits.length > 0 ? (
+                    userCredits.map((user) => (
+                      <SelectItem key={user.user_id} value={user.email}>
+                        {user.email}
+                      </SelectItem>
+                    ))
+                  ) : (
+                    <SelectItem value="" disabled>No users found</SelectItem>
+                  )}
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Credits to Add</label>
