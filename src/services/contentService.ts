@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
@@ -64,6 +65,12 @@ interface ContentGenerationResponse {
 // Type alias for database content block row
 type ContentBlockRow = Database['public']['Tables']['content_blocks']['Row'];
 
+// Extended database row type to include the hero_answer field
+// This is a temporary solution until the database types are updated
+interface ExtendedContentBlockRow extends ContentBlockRow {
+  hero_answer?: string;
+}
+
 export const getUserContentHistory = async () => {
   try {
     const { data, error } = await supabase
@@ -74,7 +81,7 @@ export const getUserContentHistory = async () => {
     if (error) throw error;
     
     // Convert data to ContentBlock type
-    const contentHistory: ContentBlock[] = data.map((item: ContentBlockRow) => ({
+    const contentHistory: ContentBlock[] = data.map((item: any) => ({
       id: item.id,
       title: item.title,
       heroAnswer: item.hero_answer || undefined,  // Map from database field name
