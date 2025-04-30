@@ -28,23 +28,70 @@ serve(async (req) => {
     const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-    
-    // Set the OpenAI API key in the database using the set_openai_key function
-    const { data, error } = await supabase.rpc('set_openai_key', {
-      api_key: apiKey
-    });
-    
-    if (error) {
-      throw error;
+    if (!supabaseUrl || !supabaseServiceKey) {
+      return new Response(JSON.stringify({ 
+        error: 'Missing Supabase configuration', 
+        details: 'Check that SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are set in the environment.' 
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
     }
     
-    return new Response(JSON.stringify({ success: true, message: 'API key set successfully' }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-    });
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+    
+    // If we're using the Supabase secrets directly
+    if (apiKey === 'using-supabase-secrets') {
+      const openaiKey = Deno.env.get('OPENAI_API_KEY');
+      
+      if (!openaiKey) {
+        return new Response(JSON.stringify({ 
+          error: 'OpenAI API key not found in Supabase secrets',
+          details: 'The OPENAI_API_KEY secret needs to be set in the Supabase dashboard.'
+        }), {
+          status: 404,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        });
+      }
+      
+      // Set the OpenAI API key in the database using the set_openai_key function
+      const { data, error } = await supabase.rpc('set_openai_key', {
+        api_key: openaiKey
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'API key from Supabase secrets set successfully' 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    } else {
+      // Set the user-provided OpenAI API key in the database
+      const { data, error } = await supabase.rpc('set_openai_key', {
+        api_key: apiKey
+      });
+      
+      if (error) {
+        throw error;
+      }
+      
+      return new Response(JSON.stringify({ 
+        success: true, 
+        message: 'User-provided API key set successfully' 
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
   } catch (error) {
     console.error('Error setting OpenAI API key:', error);
-    return new Response(JSON.stringify({ error: error.message }), {
+    return new Response(JSON.stringify({ 
+      error: 'Failed to set OpenAI API key', 
+      details: error.message 
+    }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });

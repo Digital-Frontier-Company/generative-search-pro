@@ -93,6 +93,10 @@ export type Database = {
         Args: { "": string } | { "": unknown }
         Returns: unknown
       }
+      get_openai_embedding: {
+        Args: { query_text: string }
+        Returns: string
+      }
       halfvec_avg: {
         Args: { "": number[] }
         Returns: unknown
@@ -126,7 +130,7 @@ export type Database = {
         Returns: unknown
       }
       increment_credits: {
-        Args: Record<PropertyKey, never>
+        Args: Record<PropertyKey, never> | { user_id: number; amount: number }
         Returns: number
       }
       ivfflat_bit_support: {

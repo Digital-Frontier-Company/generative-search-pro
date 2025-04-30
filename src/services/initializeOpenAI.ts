@@ -11,6 +11,7 @@ export const initializeOpenAIKey = async () => {
     
     if (error) {
       console.error('Failed to initialize OpenAI key:', error);
+      toast.error('Failed to initialize OpenAI integration. Some features may not work properly.');
       return false;
     }
     
@@ -18,6 +19,7 @@ export const initializeOpenAIKey = async () => {
     return true;
   } catch (error) {
     console.error('Error initializing OpenAI key:', error);
+    toast.error('Error initializing OpenAI integration. Please try again later.');
     return false;
   }
 };
