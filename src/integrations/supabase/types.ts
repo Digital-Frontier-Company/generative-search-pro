@@ -40,7 +40,15 @@ export type Database = {
           title?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "content_blocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       user_subscriptions: {
         Row: {
@@ -82,13 +90,35 @@ export type Database = {
           updated_at?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      admin_user_credits: {
+        Row: {
+          credits_used: number | null
+          email: string | null
+          monthly_credits: number | null
+          remaining_credits: number | null
+          subscription_type: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
+      add_user_credits: {
+        Args: { user_email: string; credit_amount: number }
+        Returns: number
+      }
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown

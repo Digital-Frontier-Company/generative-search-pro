@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
 import ContentGenerator from "./pages/ContentGenerator";
 import ContentHistory from "./pages/ContentHistory";
+import Admin from "./pages/Admin";
 import { initializeOpenAIKey } from "./services/initializeOpenAI";
 
 const queryClient = new QueryClient();
@@ -63,6 +64,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <ContentHistory />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/admin" 
+                  element={
+                    <ProtectedRoute>
+                      <Admin />
                     </ProtectedRoute>
                   } 
                 />

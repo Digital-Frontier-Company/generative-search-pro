@@ -3,7 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { 
-  Search, BellRing, Moon, Sun, Menu, X, LogOut 
+  Search, BellRing, Moon, Sun, Menu, X, LogOut, Shield 
 } from "lucide-react";
 import {
   DropdownMenu,
@@ -30,6 +30,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const handleLogin = () => navigate('/auth');
   const handleSignUp = () => navigate('/auth', { state: { signUp: true } });
   const handleDashboard = () => navigate('/dashboard');
+  const handleAdmin = () => navigate('/admin');
   
   const handleLogout = async () => {
     try {
@@ -65,6 +66,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
             <>
               <Button variant="ghost" onClick={() => navigate('/dashboard')}>Dashboard</Button>
               <Button variant="ghost" onClick={() => navigate('/history')}>History</Button>
+              <Button variant="ghost" onClick={() => navigate('/admin')}>Admin</Button>
               <Button variant="ghost" onClick={() => navigate('/settings')}>Settings</Button>
             </>
           ) : (
@@ -110,6 +112,10 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={handleDashboard}>Dashboard</DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleAdmin}>
+                    <Shield className="mr-2 h-4 w-4" />
+                    <span>Admin</span>
+                  </DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Logout</span>
@@ -148,6 +154,9 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                 </Button>
                 <Button variant="ghost" onClick={() => { navigate('/history'); setIsMobileMenuOpen(false); }}>
                   History
+                </Button>
+                <Button variant="ghost" onClick={() => { navigate('/admin'); setIsMobileMenuOpen(false); }}>
+                  Admin
                 </Button>
                 <Button variant="ghost" onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false); }}>
                   Settings
