@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -51,6 +50,16 @@ export interface SubscriptionData {
   };
 }
 
+// Define the expected response shape from the generate-content function
+interface ContentGenerationResponse {
+  id: number;
+  title: string;
+  content: string;
+  heroAnswer?: string; // Added heroAnswer as optional
+  metadata: ContentBlockMetadata;
+  // other fields if necessary
+}
+
 export const getUserContentHistory = async () => {
   try {
     const { data, error } = await supabase
@@ -64,7 +73,7 @@ export const getUserContentHistory = async () => {
     const contentHistory: ContentBlock[] = data.map(item => ({
       id: item.id,
       title: item.title,
-      heroAnswer: item.heroAnswer || undefined,  // Add heroAnswer field
+      heroAnswer: item.hero_answer || undefined,  // Map from database field name
       content: item.content || '',
       metadata: item.metadata as ContentBlockMetadata,
       created_at: item.created_at,
@@ -122,7 +131,7 @@ export const checkUserSubscription = async (): Promise<SubscriptionData> => {
 export const generateContent = async (request: ContentGenerationRequest): Promise<ContentBlock> => {
   try {
     // Call the Supabase Edge Function to generate content
-    const { data, error } = await supabase.functions.invoke('generate-content', {
+    const { data, error } = await supabase.functions.invoke<ContentGenerationResponse>('generate-content', {
       body: JSON.stringify(request)
     });
     
@@ -132,7 +141,7 @@ export const generateContent = async (request: ContentGenerationRequest): Promis
     const contentBlock: ContentBlock = {
       id: data.id || Date.now(),
       title: data.title,
-      heroAnswer: data.heroAnswer || undefined,
+      heroAnswer: data.heroAnswer || undefined, // Now TypeScript knows this property can exist
       content: data.content,
       metadata: data.metadata || {},
       created_at: new Date().toISOString(),
@@ -164,6 +173,7 @@ export const searchContent = async (request: ContentSearchRequest): Promise<Cont
     const searchResults: ContentBlock[] = data.map((item: any) => ({
       id: item.id,
       title: item.title,
+      heroAnswer: item.hero_answer || undefined, // Handle hero_answer field from database results
       content: item.content,
       metadata: item.metadata || {},
       created_at: item.created_at,
