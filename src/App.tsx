@@ -14,6 +14,7 @@ import NotFound from "./pages/NotFound";
 import ContentGenerator from "./pages/ContentGenerator";
 import ContentHistory from "./pages/ContentHistory";
 import Admin from "./pages/Admin";
+import Upgrade from "./pages/Upgrade";
 import { initializeOpenAIKey } from "./services/initializeOpenAI";
 import { supabase } from '@/integrations/supabase/client';
 
@@ -79,6 +80,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <Admin />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/upgrade" 
+                  element={
+                    <ProtectedRoute>
+                      <Upgrade />
                     </ProtectedRoute>
                   } 
                 />
