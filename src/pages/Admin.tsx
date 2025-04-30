@@ -11,11 +11,13 @@ import { Input } from "@/components/ui/input";
 import { Loader2, Plus, RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
+import { useNavigate } from "react-router-dom";
 
 const Admin = () => {
   const [selectedUserEmail, setSelectedUserEmail] = useState("");
   const [creditAmount, setCreditAmount] = useState(5);
   const [isAdding, setIsAdding] = useState(false);
+  const navigate = useNavigate();
   
   const { 
     data: userCredits, 
@@ -35,8 +37,11 @@ const Admin = () => {
     setIsAdding(true);
     try {
       await addUserCredits(selectedUserEmail, creditAmount);
-      refetch(); // Refresh the data after adding credits
+      await refetch(); // Refresh the data after adding credits
       setSelectedUserEmail(""); // Reset selection
+      
+      // Force reload the admin page to show the updated credits
+      navigate(0);
     } finally {
       setIsAdding(false);
     }
