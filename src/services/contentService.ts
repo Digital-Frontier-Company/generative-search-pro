@@ -54,9 +54,19 @@ export const checkUserSubscription = async () => {
 
 export const incrementUserCredits = async () => {
   try {
+    // Update credits_used directly instead of using rpc function
+    const { data: userData, error: userError } = await supabase
+      .from('user_subscriptions')
+      .select('credits_used')
+      .single();
+    
+    if (userError) throw userError;
+    
+    const newCreditCount = (userData?.credits_used || 0) + 1;
+    
     const { error } = await supabase
       .from('user_subscriptions')
-      .update({ credits_used: supabase.rpc('increment_credits') });
+      .update({ credits_used: newCreditCount });
     
     if (error) throw error;
     
