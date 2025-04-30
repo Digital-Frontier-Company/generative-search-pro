@@ -1,16 +1,17 @@
 
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { Json } from "@/integrations/supabase/types";
 
 export type ContentBlockMetadata = {
-  seoTitle: string;
-  metaDescription: string;
-  ogTitle: string;
-  ogDescription: string;
-  twitterTitle: string;
-  twitterDescription: string;
-  jsonLdSchema: Record<string, any>;
-  ctaVariants: string[];
+  seoTitle?: string;
+  metaDescription?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  twitterTitle?: string;
+  twitterDescription?: string;
+  jsonLdSchema?: Record<string, any>;
+  ctaVariants?: string[];
 };
 
 export type ContentBlock = {
@@ -53,10 +54,13 @@ export const checkUserSubscription = async () => {
 
 export const incrementUserCredits = async () => {
   try {
+    const userId = (await supabase.auth.getUser()).data.user?.id;
+    if (!userId) throw new Error('User not authenticated');
+    
     const { error } = await supabase
       .from('user_subscriptions')
       .update({ credits_used: supabase.rpc('increment', { x: 1 }) })
-      .eq('user_id', supabase.auth.getUser().then(res => res.data.user?.id));
+      .eq('user_id', userId);
     
     if (error) throw error;
     
@@ -146,7 +150,18 @@ export const generateContent = async (request: ContentGenerationRequest) => {
     // Update credit usage
     await incrementUserCredits();
     
-    return data;
+    // Fix the returned data to match ContentBlock type
+    const contentBlock: ContentBlock = {
+      id: data.id,
+      title: data.title,
+      content: data.content,
+      metadata: data.metadata as ContentBlockMetadata,
+      created_at: data.created_at,
+      generated_at: data.generated_at,
+      user_id: data.user_id || ''
+    };
+    
+    return contentBlock;
   } catch (error) {
     console.error('Error generating content:', error);
     toast.error('Failed to generate content. Please try again.');
@@ -163,7 +178,18 @@ export const getUserContentHistory = async () => {
     
     if (error) throw error;
     
-    return data;
+    // Convert data to ContentBlock type
+    const contentHistory: ContentBlock[] = data.map(item => ({
+      id: item.id,
+      title: item.title,
+      content: item.content || '',
+      metadata: item.metadata as ContentBlockMetadata,
+      created_at: item.created_at,
+      generated_at: item.generated_at || '',
+      user_id: item.user_id || ''
+    }));
+    
+    return contentHistory;
   } catch (error) {
     console.error('Error fetching content history:', error);
     toast.error('Failed to load content history');
@@ -181,7 +207,18 @@ export const getContentBlock = async (id: number) => {
     
     if (error) throw error;
     
-    return data;
+    // Convert data to ContentBlock type
+    const contentBlock: ContentBlock = {
+      id: data.id,
+      title: data.title,
+      content: data.content || '',
+      metadata: data.metadata as ContentBlockMetadata,
+      created_at: data.created_at,
+      generated_at: data.generated_at || '',
+      user_id: data.user_id || ''
+    };
+    
+    return contentBlock;
   } catch (error) {
     console.error(`Error fetching content with id ${id}:`, error);
     toast.error('Failed to load content');
