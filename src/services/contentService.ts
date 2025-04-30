@@ -2,6 +2,7 @@
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Json } from "@/integrations/supabase/types";
+import { validateContentSchema } from "@/utils/schemaValidator";
 
 export type ContentBlockMetadata = {
   seoTitle?: string;
@@ -12,11 +13,13 @@ export type ContentBlockMetadata = {
   twitterDescription?: string;
   jsonLdSchema?: Record<string, any>;
   ctaVariants?: string[];
+  schemaWarnings?: string[];
 };
 
 export type ContentBlock = {
   id: number;
   title: string;
+  heroAnswer?: string;  // New hero answer field
   content: string;
   metadata: ContentBlockMetadata;
   created_at: string;
@@ -94,9 +97,31 @@ export const generateContent = async (request: ContentGenerationRequest) => {
       throw new Error('No content was generated');
     }
     
+    // If we have schema validation issues, show a warning to the user
+    if (generatedData.metadata?.schemaWarnings) {
+      toast.warning('Schema validation issues were detected', { 
+        description: 'The generated schema may have some issues. Check the metadata tab for details.',
+        duration: 5000
+      });
+    }
+    
+    // Validate the schema with our more comprehensive client-side validator
+    if (generatedData.metadata?.jsonLdSchema && request.contentType) {
+      const { isValid, recommendations } = validateContentSchema(
+        generatedData.metadata.jsonLdSchema, 
+        request.contentType
+      );
+      
+      // Store the recommendations in the metadata
+      if (!isValid || (recommendations && recommendations.length > 0)) {
+        generatedData.metadata.schemaRecommendations = recommendations;
+      }
+    }
+    
     // Store the generated content with vector embedding if available
     const insertData: any = {
       title: generatedData.title,
+      heroAnswer: generatedData.heroAnswer || null,  // Store the hero answer
       content: generatedData.content,
       metadata: generatedData.metadata,
       generated_at: new Date().toISOString()
@@ -123,6 +148,7 @@ export const generateContent = async (request: ContentGenerationRequest) => {
     const contentBlock: ContentBlock = {
       id: data.id,
       title: data.title,
+      heroAnswer: data.heroAnswer || undefined,  // Include hero answer
       content: data.content,
       metadata: data.metadata as ContentBlockMetadata,
       created_at: data.created_at,

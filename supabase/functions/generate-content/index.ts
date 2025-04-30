@@ -9,6 +9,67 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Simple schema validation function for the edge function
+// This is a simplified version of the client-side validator
+function validateSchema(schema: any): { isValid: boolean; issues: string[] | null } {
+  if (!schema || typeof schema !== 'object') {
+    return { isValid: false, issues: ["Schema must be an object"] };
+  }
+  
+  const issues: string[] = [];
+  
+  // Basic schema validation
+  if (!schema['@context']) issues.push("Missing @context property");
+  if (!schema['@type']) issues.push("Missing @type property");
+  
+  // Type-specific validation
+  if (schema['@type'] === 'FAQPage' && (!schema.mainEntity || !Array.isArray(schema.mainEntity))) {
+    issues.push("FAQPage schema must include mainEntity array");
+  }
+  
+  if (['Article', 'BlogPosting', 'NewsArticle'].includes(schema['@type'])) {
+    if (!schema.headline) issues.push("Article schema should include headline");
+  }
+  
+  return {
+    isValid: issues.length === 0,
+    issues: issues.length > 0 ? issues : null
+  };
+}
+
+// Define system prompts based on content type
+const getSystemPrompt = (topic: string, contentType: string | undefined, toneStyle: string | undefined, targetAudience: string | undefined, keywords: string[] | undefined) => {
+  let systemPrompt = `You are an expert SEO content creator specializing in Answer Engine Optimization (AEO). 
+Create high-quality, factual content about the topic "${topic}" with a "${toneStyle || 'professional'}" tone`;
+  
+  if (targetAudience) {
+    systemPrompt += ` for a "${targetAudience}" audience`;
+  }
+  
+  systemPrompt += `. Focus on the keywords: ${keywords?.join(', ') || topic}.
+Follow these guidelines:
+1. Create detailed, factual content with a clear answer-first approach
+2. Include a hero answer (≤ 50 words) at the beginning that directly answers the main question
+3. Use proper HTML formatting with semantic headings (h1, h2, h3, etc.), paragraphs, and lists
+4. Include relevant FAQs that target users might ask
+5. Generate complete SEO metadata including title tags, meta descriptions, Open Graph data
+6. Provide 3 unique CTA variants that could be used with this content
+7. Include a properly formatted JSON-LD schema that follows Schema.org standards`;
+
+  // Content type specific instructions
+  const contentTypeInstructions = {
+    'blog': 'Format as an engaging blog post with introduction, body sections, and conclusion.',
+    'article': 'Format as an informative article with detailed sections and subsections.',
+    'faq': 'Format with an emphasis on questions and answers, with comprehensive FAQ section and a FAQPage JSON-LD schema.',
+  };
+
+  if (contentType && contentTypeInstructions[contentType as keyof typeof contentTypeInstructions]) {
+    systemPrompt += `\n\n${contentTypeInstructions[contentType as keyof typeof contentTypeInstructions]}`;
+  }
+  
+  return systemPrompt;
+};
+
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -26,33 +87,8 @@ serve(async (req) => {
       });
     }
 
-    // Construct system prompt based on content type and parameters
-    let systemPrompt = `You are an expert SEO content creator specializing in Answer Engine Optimization (AEO). 
-Create high-quality, factual content about the topic "${topic}" with a "${toneStyle || 'professional'}" tone`;
-    
-    if (targetAudience) {
-      systemPrompt += ` for a "${targetAudience}" audience`;
-    }
-    
-    systemPrompt += `. Focus on the keywords: ${keywords?.join(', ') || topic}.
-Follow these guidelines:
-1. Create detailed, factual content with a clear answer-first approach
-2. Use proper HTML formatting with semantic headings (h1, h2, h3, etc.), paragraphs, and lists
-3. Include relevant FAQs that target users might ask
-4. Generate complete SEO metadata including title tags, meta descriptions, Open Graph data, and JSON-LD schema
-5. Provide 3 unique CTA variants that could be used with this content`;
-
-    // Content type specific instructions
-    const contentTypeInstructions = {
-      'blog': 'Format as an engaging blog post with introduction, body sections, and conclusion.',
-      'article': 'Format as an informative article with detailed sections and subsections.',
-      'faq': 'Format with an emphasis on questions and answers, with comprehensive FAQ section.',
-    };
-
-    if (contentType && contentTypeInstructions[contentType]) {
-      systemPrompt += `\n\n${contentTypeInstructions[contentType]}`;
-    }
-
+    // Get appropriate system prompt
+    const systemPrompt = getSystemPrompt(topic, contentType, toneStyle, targetAudience, keywords);
     const userPrompt = `Create complete content about "${topic}" focusing on keywords: ${keywords?.join(', ') || topic}.`;
 
     // Call OpenAI API to generate content
@@ -78,6 +114,7 @@ Follow these guidelines:
               type: 'object',
               properties: {
                 title: { type: 'string', description: 'The title of the content' },
+                heroAnswer: { type: 'string', description: 'Direct answer to the topic, 50 words or less' },
                 content: { type: 'string', description: 'The HTML content body' },
                 metadata: {
                   type: 'object',
@@ -98,7 +135,7 @@ Follow these guidelines:
                   required: ['seoTitle', 'metaDescription', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'jsonLdSchema', 'ctaVariants']
                 }
               },
-              required: ['title', 'content', 'metadata']
+              required: ['title', 'heroAnswer', 'content', 'metadata']
             }
           }
         ],
@@ -127,8 +164,21 @@ Follow these guidelines:
 
       const functionArgs = JSON.parse(functionCall.arguments);
       
+      // Validate the schema
+      const schemaValidation = validateSchema(functionArgs.metadata?.jsonLdSchema);
+      
+      // Add validation results to the returned data
+      functionArgs.schemaValidation = schemaValidation;
+      
+      // If there are issues with the schema, try to fix them or add warnings
+      if (!schemaValidation.isValid && functionArgs.metadata?.jsonLdSchema) {
+        console.log("Schema validation issues:", schemaValidation.issues);
+        // Add the validation issues to the response but don't block content generation
+        functionArgs.metadata.schemaWarnings = schemaValidation.issues;
+      }
+      
       // Generate embedding for the content
-      const contentForEmbedding = `${functionArgs.title} ${functionArgs.content.replace(/<[^>]*>/g, ' ')}`;
+      const contentForEmbedding = `${functionArgs.title} ${functionArgs.heroAnswer} ${functionArgs.content.replace(/<[^>]*>/g, ' ')}`;
       
       // Call OpenAI API to generate embedding
       const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
