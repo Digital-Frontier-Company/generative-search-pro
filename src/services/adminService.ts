@@ -24,7 +24,7 @@ export const getUserCreditsInfo = async (): Promise<UserCreditInfo[]> => {
       // Transform the data to match our interface
       return viewData.map(user => ({
         user_id: user.user_id,
-        email: user.email,
+        email: user.email || user.user_id,
         monthly_credits: user.monthly_credits || 0,
         credits_used: user.credits_used || 0,
         remaining_credits: user.remaining_credits || 0,
@@ -34,16 +34,19 @@ export const getUserCreditsInfo = async (): Promise<UserCreditInfo[]> => {
     
     console.log("No admin view data found, falling back to manual join");
     
-    // If the view doesn't exist or returns no data, fall back to joining tables manually
+    // If the view doesn't exist or returns no data, fetch users first
+    const { data: authUsers, error: authError } = await supabase
+      .from('auth_users_view')
+      .select('id, email');
+      
+    if (authError) {
+      console.error("Error fetching auth users:", authError);
+    }
+    
+    // Then fetch subscriptions
     const { data, error } = await supabase
       .from('user_subscriptions')
-      .select(`
-        id,
-        user_id,
-        monthly_credits,
-        credits_used,
-        subscription_type
-      `).select();
+      .select('*');
     
     if (error) {
       console.error("Error fetching user subscriptions:", error);
@@ -58,22 +61,26 @@ export const getUserCreditsInfo = async (): Promise<UserCreditInfo[]> => {
     
     console.log("User subscription data:", data);
     
-    // Now get user emails from auth
-    const userIds = data.map(subscription => subscription.user_id);
-    
-    // Since we can't directly query auth.users from client, 
-    // let's get user emails from another source or use placeholder
-    // For now, use user_id as email placeholder if needed
+    // Create a map of user IDs to emails
+    const userEmailMap = new Map();
+    if (authUsers && authUsers.length > 0) {
+      authUsers.forEach(user => {
+        userEmailMap.set(user.id, user.email);
+      });
+    }
     
     // Transform the data to match our interface
-    return data.map(subscription => ({
-      user_id: subscription.user_id,
-      email: subscription.user_id, // Use user_id as email placeholder
-      monthly_credits: subscription.monthly_credits || 0,
-      credits_used: subscription.credits_used || 0,
-      remaining_credits: (subscription.monthly_credits || 0) - (subscription.credits_used || 0),
-      subscription_type: subscription.subscription_type || 'free'
-    }));
+    return data.map(subscription => {
+      const email = userEmailMap.get(subscription.user_id) || subscription.user_id;
+      return {
+        user_id: subscription.user_id,
+        email: email,
+        monthly_credits: subscription.monthly_credits || 0,
+        credits_used: subscription.credits_used || 0,
+        remaining_credits: (subscription.monthly_credits || 0) - (subscription.credits_used || 0),
+        subscription_type: subscription.subscription_type || 'free'
+      };
+    });
   } catch (error) {
     console.error("Unexpected error in getUserCreditsInfo:", error);
     toast.error("An unexpected error occurred while loading user data");

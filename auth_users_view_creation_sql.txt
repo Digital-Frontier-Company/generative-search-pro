@@ -1,0 +1,11 @@
+
+-- This is NOT executed automatically. You need to run this SQL in your Supabase SQL Editor
+-- This creates a view that safely exposes user emails for the admin functionality
+-- Only run this if you don't have admin_user_credits view yet
+
+CREATE OR REPLACE VIEW public.auth_users_view AS 
+SELECT id, email 
+FROM auth.users;
+
+-- Grant access to the authenticated users (adjust permissions as needed)
+GRANT SELECT ON public.auth_users_view TO authenticated;

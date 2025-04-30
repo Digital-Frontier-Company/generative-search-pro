@@ -41,6 +41,16 @@ const Admin = () => {
   } = useQuery({
     queryKey: ['userCredits'],
     queryFn: getUserCreditsInfo,
+    onSuccess: (data) => {
+      console.log("User credits loaded successfully:", data);
+      if (data.length === 0) {
+        toast.warning("No user credits data found. Make sure the database is properly set up.");
+      }
+    },
+    onError: (error) => {
+      console.error("Error loading user credits:", error);
+      toast.error("Failed to load user data. Please check console for details.");
+    }
   });
 
   // Log the current state for debugging
@@ -61,7 +71,6 @@ const Admin = () => {
         await refetch(); // Refresh the data after adding credits
         setSelectedUserEmail(""); // Reset selection
         setCreditAmount(5); // Reset credit amount
-        toast.success(`Added ${creditAmount} credits to ${selectedUserEmail}`);
       }
     } catch (error) {
       console.error("Error adding credits:", error);
@@ -188,7 +197,12 @@ const Admin = () => {
               </Table>
             </div>
           ) : (
-            <p className="text-center py-8 text-gray-500">No user data available</p>
+            <div className="text-center py-8 px-4">
+              <p className="text-gray-500 mb-2">No user data available</p>
+              <p className="text-sm text-gray-400">
+                Make sure the admin_user_credits view exists or check that users are registered in the system.
+              </p>
+            </div>
           )}
         </div>
       </div>
