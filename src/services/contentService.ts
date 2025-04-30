@@ -22,6 +22,7 @@ export type ContentBlock = {
   created_at: string;
   generated_at: string;
   user_id: string;
+  similarity?: number;
 };
 
 export type ContentGenerationRequest = {
@@ -30,6 +31,12 @@ export type ContentGenerationRequest = {
   toneStyle?: string;
   targetAudience?: string;
   contentType?: 'blog' | 'article' | 'faq';
+};
+
+export type ContentSearchRequest = {
+  query: string;
+  threshold?: number;
+  limit?: number;
 };
 
 export const checkUserSubscription = async () => {
@@ -87,15 +94,23 @@ export const generateContent = async (request: ContentGenerationRequest) => {
       throw new Error('No content was generated');
     }
     
-    // Store the generated content with vector embedding
+    // Store the generated content with vector embedding if available
+    const insertData: any = {
+      title: generatedData.title,
+      content: generatedData.content,
+      metadata: generatedData.metadata,
+      generated_at: new Date().toISOString()
+    };
+    
+    // If embedding was generated, add it to the insert data
+    if (generatedData.embedding) {
+      insertData.content_embedding = generatedData.embedding;
+    }
+    
+    // Insert the content into the database
     const { data, error } = await supabase
       .from('content_blocks')
-      .insert({
-        title: generatedData.title,
-        content: generatedData.content,
-        metadata: generatedData.metadata,
-        generated_at: new Date().toISOString()
-      })
+      .insert(insertData)
       .select()
       .single();
       
@@ -177,5 +192,46 @@ export const getContentBlock = async (id: number) => {
     console.error(`Error fetching content with id ${id}:`, error);
     toast.error('Failed to load content');
     return null;
+  }
+};
+
+// New function to search content using vector similarity
+export const searchContent = async (request: ContentSearchRequest) => {
+  try {
+    toast.info('Searching content...', { id: 'search' });
+    
+    const { query, threshold = 0.5, limit = 5 } = request;
+    
+    const { data, error } = await supabase.rpc('match_content_by_query', {
+      query_text: query,
+      match_threshold: threshold,
+      match_count: limit
+    });
+    
+    if (error) {
+      console.error('Error searching content:', error);
+      toast.error('Search failed. Please try again.');
+      return [];
+    }
+    
+    toast.dismiss('search');
+    
+    // Convert data to ContentBlock type
+    const searchResults: ContentBlock[] = data.map(item => ({
+      id: item.id,
+      title: item.title,
+      content: item.content || '',
+      metadata: item.metadata as ContentBlockMetadata,
+      created_at: item.created_at,
+      generated_at: item.generated_at || '',
+      user_id: item.user_id || '',
+      similarity: item.similarity
+    }));
+    
+    return searchResults;
+  } catch (error) {
+    console.error('Error searching content:', error);
+    toast.error('Search failed. Please try again.');
+    return [];
   }
 };

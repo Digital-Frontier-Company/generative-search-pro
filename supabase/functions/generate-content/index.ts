@@ -127,7 +127,35 @@ Follow these guidelines:
 
       const functionArgs = JSON.parse(functionCall.arguments);
       
-      // Return the formatted content
+      // Generate embedding for the content
+      const contentForEmbedding = `${functionArgs.title} ${functionArgs.content.replace(/<[^>]*>/g, ' ')}`;
+      
+      // Call OpenAI API to generate embedding
+      const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${openAIApiKey}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          model: 'text-embedding-3-small',
+          input: contentForEmbedding
+        }),
+      });
+      
+      const embeddingData = await embeddingResponse.json();
+      
+      if (embeddingData.error) {
+        console.error("Error generating embedding:", embeddingData.error);
+        // Continue even if embedding fails
+        console.log("Proceeding without embedding");
+      } else {
+        // Add embedding to the return data
+        functionArgs.embedding = embeddingData.data[0].embedding;
+        console.log("Embedding generated successfully");
+      }
+      
+      // Return the formatted content with embedding
       return new Response(JSON.stringify(functionArgs), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });

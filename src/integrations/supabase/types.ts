@@ -149,6 +149,27 @@ export type Database = {
         Args: { "": string } | { "": unknown } | { "": unknown }
         Returns: unknown
       }
+      match_content_by_query: {
+        Args: {
+          query_text: string
+          match_threshold?: number
+          match_count?: number
+        }
+        Returns: {
+          id: number
+          title: string
+          content: string
+          metadata: Json
+          created_at: string
+          generated_at: string
+          user_id: string
+          similarity: number
+        }[]
+      }
+      set_openai_key: {
+        Args: { api_key: string }
+        Returns: undefined
+      }
       sparsevec_out: {
         Args: { "": unknown }
         Returns: unknown

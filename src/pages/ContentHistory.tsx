@@ -24,10 +24,12 @@ import { ContentBlock, getUserContentHistory } from "@/services/contentService";
 import { formatDistanceToNow } from "date-fns";
 import { Eye, ArrowRight, RefreshCw, Loader2 } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
+import ContentSearch from "@/components/ContentSearch";
 
 const ContentHistory = () => {
   const navigate = useNavigate();
   const [selectedContent, setSelectedContent] = useState<ContentBlock | null>(null);
+  const [searchResults, setSearchResults] = useState<ContentBlock[] | null>(null);
   
   const { 
     data: contentBlocks, 
@@ -48,8 +50,16 @@ const ContentHistory = () => {
   
   const handleRefresh = () => {
     refetch();
+    setSearchResults(null);
     toast.success("Content history refreshed");
   };
+
+  const handleSearchResults = (results: ContentBlock[]) => {
+    setSearchResults(results);
+  };
+
+  const displayedContent = searchResults || contentBlocks;
+  const isSearchMode = searchResults !== null;
 
   return (
     <div className="container max-w-7xl mx-auto py-8">
@@ -80,18 +90,35 @@ const ContentHistory = () => {
         </div>
       </div>
       
+      {/* Search Component */}
+      <Card className="mb-6">
+        <CardHeader className="pb-3">
+          <CardTitle>Search Content</CardTitle>
+          <CardDescription>
+            Search your content using natural language queries
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <ContentSearch onSearchResults={handleSearchResults} />
+        </CardContent>
+      </Card>
+      
       {isLoading ? (
         <Card>
           <CardContent className="py-10 flex items-center justify-center">
             <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
           </CardContent>
         </Card>
-      ) : contentBlocks && contentBlocks.length > 0 ? (
+      ) : displayedContent && displayedContent.length > 0 ? (
         <Card>
           <CardHeader>
-            <CardTitle>Generated Content</CardTitle>
+            <CardTitle>
+              {isSearchMode ? 'Search Results' : 'Generated Content'}
+            </CardTitle>
             <CardDescription>
-              Your previously generated content items
+              {isSearchMode 
+                ? `Found ${displayedContent.length} matching results` 
+                : 'Your previously generated content items'}
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -101,11 +128,12 @@ const ContentHistory = () => {
                   <TableHead>Title</TableHead>
                   <TableHead>Type</TableHead>
                   <TableHead>Created</TableHead>
+                  {isSearchMode && <TableHead>Relevance</TableHead>}
                   <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {contentBlocks.map((content) => (
+                {displayedContent.map((content) => (
                   <TableRow key={content.id}>
                     <TableCell className="font-medium">{content.title}</TableCell>
                     <TableCell>
@@ -114,6 +142,13 @@ const ContentHistory = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>{formatDistanceToNow(new Date(content.created_at), { addSuffix: true })}</TableCell>
+                    {isSearchMode && (
+                      <TableCell>
+                        <Badge variant="secondary">
+                          {Math.round((content.similarity || 0) * 100)}%
+                        </Badge>
+                      </TableCell>
+                    )}
                     <TableCell className="text-right">
                       <Button
                         variant="ghost"
@@ -129,6 +164,13 @@ const ContentHistory = () => {
               </TableBody>
             </Table>
           </CardContent>
+          {isSearchMode && (
+            <CardFooter>
+              <Button variant="outline" onClick={() => setSearchResults(null)}>
+                Clear Search Results
+              </Button>
+            </CardFooter>
+          )}
         </Card>
       ) : (
         <Card>
@@ -136,13 +178,23 @@ const ContentHistory = () => {
             <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
               <ArrowRight className="h-6 w-6 text-muted-foreground" />
             </div>
-            <h3 className="mb-2 text-lg font-medium">No content found</h3>
+            <h3 className="mb-2 text-lg font-medium">
+              {isSearchMode ? 'No search results found' : 'No content found'}
+            </h3>
             <p className="mb-4 text-sm text-muted-foreground">
-              You haven't generated any content yet. Start creating your first content piece.
+              {isSearchMode 
+                ? 'Try a different search query or refine your search terms.' 
+                : "You haven't generated any content yet. Start creating your first content piece."}
             </p>
-            <Button onClick={() => navigate('/generator')}>
-              Create Content
-            </Button>
+            {isSearchMode ? (
+              <Button onClick={() => setSearchResults(null)}>
+                Back to All Content
+              </Button>
+            ) : (
+              <Button onClick={() => navigate('/generator')}>
+                Create Content
+              </Button>
+            )}
           </CardContent>
         </Card>
       )}
