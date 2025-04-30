@@ -34,47 +34,30 @@ export const getUserCreditsInfo = async (): Promise<UserCreditInfo[]> => {
     
     console.log("No admin view data found, falling back to manual join");
     
-    // If the view doesn't exist or returns no data, fetch users first
-    const { data: authUsers, error: authError } = await supabase
-      .from('auth_users_view')
-      .select('id, email');
-      
-    if (authError) {
-      console.error("Error fetching auth users:", authError);
-    }
-    
-    // Then fetch subscriptions
-    const { data, error } = await supabase
+    // If the view doesn't exist, fetch users first by direct query
+    // Note: We're not using auth_users_view anymore since it's not in the types
+    const { data: subscriptionData, error: subError } = await supabase
       .from('user_subscriptions')
       .select('*');
     
-    if (error) {
-      console.error("Error fetching user subscriptions:", error);
+    if (subError) {
+      console.error("Error fetching user subscriptions:", subError);
       toast.error("Failed to load user subscription information");
       return [];
     }
 
-    if (!data || data.length === 0) {
+    if (!subscriptionData || subscriptionData.length === 0) {
       console.log("No user subscription data found");
       return [];
     }
     
-    console.log("User subscription data:", data);
+    console.log("User subscription data:", subscriptionData);
     
-    // Create a map of user IDs to emails
-    const userEmailMap = new Map();
-    if (authUsers && authUsers.length > 0) {
-      authUsers.forEach(user => {
-        userEmailMap.set(user.id, user.email);
-      });
-    }
-    
-    // Transform the data to match our interface
-    return data.map(subscription => {
-      const email = userEmailMap.get(subscription.user_id) || subscription.user_id;
+    // Transform the data to match our interface without relying on user emails
+    return subscriptionData.map(subscription => {
       return {
         user_id: subscription.user_id,
-        email: email,
+        email: subscription.user_id, // Use user_id as email since we can't fetch emails directly
         monthly_credits: subscription.monthly_credits || 0,
         credits_used: subscription.credits_used || 0,
         remaining_credits: (subscription.monthly_credits || 0) - (subscription.credits_used || 0),

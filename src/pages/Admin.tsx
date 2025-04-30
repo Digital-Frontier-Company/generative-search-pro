@@ -41,15 +41,17 @@ const Admin = () => {
   } = useQuery({
     queryKey: ['userCredits'],
     queryFn: getUserCreditsInfo,
-    onSuccess: (data) => {
-      console.log("User credits loaded successfully:", data);
-      if (data.length === 0) {
-        toast.warning("No user credits data found. Make sure the database is properly set up.");
+    meta: {
+      onSuccess: (data: UserCreditInfo[]) => {
+        console.log("User credits loaded successfully:", data);
+        if (data.length === 0) {
+          toast.warning("No user credits data found. Make sure the database is properly set up.");
+        }
+      },
+      onError: (error: Error) => {
+        console.error("Error loading user credits:", error);
+        toast.error("Failed to load user data. Please check console for details.");
       }
-    },
-    onError: (error) => {
-      console.error("Error loading user credits:", error);
-      toast.error("Failed to load user data. Please check console for details.");
     }
   });
 
@@ -201,6 +203,9 @@ const Admin = () => {
               <p className="text-gray-500 mb-2">No user data available</p>
               <p className="text-sm text-gray-400">
                 Make sure the admin_user_credits view exists or check that users are registered in the system.
+              </p>
+              <p className="text-sm text-gray-400 mt-2">
+                You may need to run the SQL commands in auth_users_view_creation_sql.txt in your Supabase project.
               </p>
             </div>
           )}
