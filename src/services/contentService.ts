@@ -1,5 +1,6 @@
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { Database } from '@/integrations/supabase/types';
 
 // Types
 export interface ContentBlockMetadata {
@@ -55,10 +56,13 @@ interface ContentGenerationResponse {
   id: number;
   title: string;
   content: string;
-  heroAnswer?: string; // Added heroAnswer as optional
+  heroAnswer?: string; 
   metadata: ContentBlockMetadata;
   // other fields if necessary
 }
+
+// Type alias for database content block row
+type ContentBlockRow = Database['public']['Tables']['content_blocks']['Row'];
 
 export const getUserContentHistory = async () => {
   try {
@@ -70,7 +74,7 @@ export const getUserContentHistory = async () => {
     if (error) throw error;
     
     // Convert data to ContentBlock type
-    const contentHistory: ContentBlock[] = data.map(item => ({
+    const contentHistory: ContentBlock[] = data.map((item: ContentBlockRow) => ({
       id: item.id,
       title: item.title,
       heroAnswer: item.hero_answer || undefined,  // Map from database field name
