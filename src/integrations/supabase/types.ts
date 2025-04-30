@@ -125,6 +125,10 @@ export type Database = {
         Args: { "": unknown }
         Returns: unknown
       }
+      increment_credits: {
+        Args: Record<PropertyKey, never>
+        Returns: number
+      }
       ivfflat_bit_support: {
         Args: { "": unknown }
         Returns: unknown
