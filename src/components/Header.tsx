@@ -11,10 +11,16 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const navigate = useNavigate();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const { user, signOut } = useAuth();
+  
+  // Automatically determine authentication status from auth context
+  const isUserAuthenticated = !!user || isAuthenticated;
   
   // Placeholder for theme toggle (to be implemented)
   const [theme, setTheme] = useState<'light' | 'dark'>('light');
@@ -24,9 +30,21 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const handleLogin = () => navigate('/auth');
   const handleSignUp = () => navigate('/auth', { state: { signUp: true } });
   const handleDashboard = () => navigate('/dashboard');
-  const handleLogout = () => {
-    // This would handle the actual logout through Supabase
-    navigate('/');
+  
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      toast.success("You've been signed out successfully");
+      navigate('/');
+    } catch (error) {
+      toast.error("Failed to sign out. Please try again.");
+    }
+  };
+
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    if (!user?.email) return 'U';
+    return user.email.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -43,7 +61,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
         
         {/* Desktop Navigation */}
         <div className="hidden md:flex items-center gap-6">
-          {isAuthenticated ? (
+          {isUserAuthenticated ? (
             <>
               <Button variant="ghost" onClick={() => navigate('/dashboard')}>Dashboard</Button>
               <Button variant="ghost" onClick={() => navigate('/history')}>History</Button>
@@ -60,7 +78,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
         
         {/* Desktop Actions */}
         <div className="hidden md:flex items-center gap-3">
-          {isAuthenticated ? (
+          {isUserAuthenticated ? (
             <>
               <Button variant="ghost" size="icon">
                 <Search className="h-5 w-5" />
@@ -85,9 +103,9 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative flex items-center gap-2">
                     <div className="w-8 h-8 rounded-full bg-aeo-blue/20 flex items-center justify-center">
-                      <span className="font-medium text-sm text-aeo-blue">JD</span>
+                      <span className="font-medium text-sm text-aeo-blue">{getUserInitials()}</span>
                     </div>
-                    <span className="hidden sm:inline-block">John Doe</span>
+                    <span className="hidden sm:inline-block">{user?.email?.split('@')[0] || 'User'}</span>
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -123,7 +141,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
       {isMobileMenuOpen && (
         <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-100 shadow-md p-4 z-10 animate-fade-in">
           <div className="flex flex-col space-y-3">
-            {isAuthenticated ? (
+            {isUserAuthenticated ? (
               <>
                 <Button variant="ghost" onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }}>
                   Dashboard

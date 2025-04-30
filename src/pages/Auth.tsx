@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/card";
 import { ArrowLeft, Mail } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthError } from "@supabase/supabase-js";
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -26,31 +28,73 @@ const Auth = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isMagicLink, setIsMagicLink] = useState(false);
   
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data } = await supabase.auth.getSession();
+      if (data?.session) {
+        navigate('/dashboard');
+      }
+    };
+    
+    checkSession();
+    
+    // Listen for auth changes
+    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
+        navigate('/dashboard');
+      }
+    });
+    
+    return () => {
+      if (authListener?.subscription) {
+        authListener.subscription.unsubscribe();
+      }
+    };
+  }, [navigate]);
+  
   const handleToggleMode = () => setIsSignUp(!isSignUp);
   
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate authentication - in real app, this would connect to Supabase
     try {
       if (isMagicLink) {
-        // Simulate magic link
-        setTimeout(() => {
-          toast.success("Magic link sent to your email!");
-          setIsLoading(false);
-        }, 1000);
-        return;
-      }
-      
-      // Simulate standard login/signup
-      setTimeout(() => {
-        setIsLoading(false);
-        // Simulate success and redirect to dashboard
+        // Send magic link email
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+        });
+        
+        if (error) throw error;
+        
+        toast.success("Magic link sent to your email!");
+      } else if (isSignUp) {
+        // Sign up with email and password
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+        });
+        
+        if (error) throw error;
+        
+        toast.success("Account created! Please check your email for verification.");
+      } else {
+        // Sign in with email and password
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        
+        if (error) throw error;
+        
+        toast.success("Successfully logged in!");
         navigate('/dashboard');
-      }, 1500);
+      }
     } catch (error) {
-      toast.error("Authentication failed. Please try again.");
+      const authError = error as AuthError;
+      toast.error(authError.message || "Authentication failed. Please try again.");
+    } finally {
       setIsLoading(false);
     }
   };
