@@ -10,6 +10,8 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Dashboard from "./pages/Dashboard";
 import NotFound from "./pages/NotFound";
+import ContentGenerator from "./pages/ContentGenerator";
+import ContentHistory from "./pages/ContentHistory";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +30,22 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Dashboard />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/generator" 
+              element={
+                <ProtectedRoute>
+                  <ContentGenerator />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/history" 
+              element={
+                <ProtectedRoute>
+                  <ContentHistory />
                 </ProtectedRoute>
               } 
             />

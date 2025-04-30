@@ -11,19 +11,76 @@ export type Database = {
     Tables: {
       content_blocks: {
         Row: {
+          content: string | null
           content_embedding: string | null
           created_at: string
+          generated_at: string | null
           id: number
+          metadata: Json | null
+          title: string
+          user_id: string | null
         }
         Insert: {
+          content?: string | null
           content_embedding?: string | null
           created_at?: string
+          generated_at?: string | null
           id?: number
+          metadata?: Json | null
+          title?: string
+          user_id?: string | null
         }
         Update: {
+          content?: string | null
           content_embedding?: string | null
           created_at?: string
+          generated_at?: string | null
           id?: number
+          metadata?: Json | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_subscriptions: {
+        Row: {
+          created_at: string | null
+          credits_used: number
+          id: string
+          monthly_credits: number
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          subscription_end_date: string | null
+          subscription_start_date: string | null
+          subscription_type: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          credits_used?: number
+          id?: string
+          monthly_credits?: number
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_end_date?: string | null
+          subscription_start_date?: string | null
+          subscription_type?: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          credits_used?: number
+          id?: string
+          monthly_credits?: number
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          subscription_end_date?: string | null
+          subscription_start_date?: string | null
+          subscription_type?: string
+          updated_at?: string | null
+          user_id?: string
         }
         Relationships: []
       }
