@@ -63,15 +63,15 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Custom colors for our AEO tool
+				// Updated custom colors for darker navy blue, red, and black theme
 				aeo: {
-					'blue': '#2563eb',
-					'indigo': '#4f46e5',
-					'purple': '#7e22ce',
-					'light-blue': '#93c5fd',
-					'light-purple': '#c4b5fd',
-					'dark-blue': '#1e3a8a',
-					'dark-purple': '#581c87'
+					'navy': '#1e3a5f',
+					'dark-navy': '#0f1d2e',
+					'red': '#dc2626',
+					'dark-red': '#991b1b',
+					'black': '#000000',
+					'charcoal': '#1a1a1a',
+					'light-navy': '#3b5a7d'
 				}
 			},
 			borderRadius: {
