@@ -53,8 +53,12 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-aeo-navy to-aeo-red flex items-center justify-center">
-              <span className="text-white font-bold">F</span>
+            <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+              <img 
+                src="/lovable-uploads/3a1bfbb8-748f-4538-8f38-ad6eb16424ca.png" 
+                alt="FrontierAEO Logo" 
+                className="w-full h-full object-cover"
+              />
             </div>
             <span className="font-bold text-xl hidden sm:block text-foreground">FrontierAEO</span>
           </a>
