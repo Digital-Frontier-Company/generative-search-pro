@@ -1,3 +1,4 @@
+
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
@@ -90,12 +91,23 @@ export const getUserContentHistory = async () => {
 
 export const generateContent = async (request: ContentGenerationRequest): Promise<ContentBlock> => {
   try {
+    console.log('Generating content with request:', request);
+    
     // Call the Supabase Edge Function to generate content
     const { data, error } = await supabase.functions.invoke<ContentGenerationResponse>('generate-content', {
       body: JSON.stringify(request)
     });
     
-    if (error) throw error;
+    if (error) {
+      console.error('Supabase function error:', error);
+      throw error;
+    }
+    
+    if (!data) {
+      throw new Error('No data returned from content generation');
+    }
+    
+    console.log('Content generated successfully:', data);
     
     // Format the response into a ContentBlock
     const contentBlock: ContentBlock = {
@@ -111,7 +123,7 @@ export const generateContent = async (request: ContentGenerationRequest): Promis
     return contentBlock;
   } catch (error) {
     console.error('Error generating content:', error);
-    toast.error('Failed to generate content');
+    toast.error('Failed to generate content. Please check your API key configuration.');
     throw error;
   }
 };

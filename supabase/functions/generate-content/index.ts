@@ -1,8 +1,7 @@
 
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-
-const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,7 +9,6 @@ const corsHeaders = {
 };
 
 // Simple schema validation function for the edge function
-// This is a simplified version of the client-side validator
 function validateSchema(schema: any): { isValid: boolean; issues: string[] | null } {
   if (!schema || typeof schema !== 'object') {
     return { isValid: false, issues: ["Schema must be an object"] };
@@ -87,9 +85,27 @@ serve(async (req) => {
       });
     }
 
+    // Get OpenAI API key from Supabase secrets
+    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    
+    if (!openAIApiKey) {
+      console.error('OpenAI API key not found in environment variables');
+      return new Response(JSON.stringify({ 
+        error: 'OpenAI API key not configured',
+        details: 'Please ensure OPENAI_API_KEY is set in Supabase secrets'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      });
+    }
+
+    console.log('OpenAI API key found, proceeding with content generation');
+
     // Get appropriate system prompt
     const systemPrompt = getSystemPrompt(topic, contentType, toneStyle, targetAudience, keywords);
     const userPrompt = `Create complete content about "${topic}" focusing on keywords: ${keywords?.join(', ') || topic}.`;
+
+    console.log('Calling OpenAI API...');
 
     // Call OpenAI API to generate content
     const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -170,15 +186,16 @@ serve(async (req) => {
       // Add validation results to the returned data
       functionArgs.schemaValidation = schemaValidation;
       
-      // If there are issues with the schema, try to fix them or add warnings
+      // If there are issues with the schema, add warnings
       if (!schemaValidation.isValid && functionArgs.metadata?.jsonLdSchema) {
         console.log("Schema validation issues:", schemaValidation.issues);
-        // Add the validation issues to the response but don't block content generation
         functionArgs.metadata.schemaWarnings = schemaValidation.issues;
       }
       
       // Generate embedding for the content
       const contentForEmbedding = `${functionArgs.title} ${functionArgs.heroAnswer} ${functionArgs.content.replace(/<[^>]*>/g, ' ')}`;
+      
+      console.log('Generating embedding...');
       
       // Call OpenAI API to generate embedding
       const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
@@ -197,12 +214,54 @@ serve(async (req) => {
       
       if (embeddingData.error) {
         console.error("Error generating embedding:", embeddingData.error);
-        // Continue even if embedding fails
         console.log("Proceeding without embedding");
       } else {
-        // Add embedding to the return data
         functionArgs.embedding = embeddingData.data[0].embedding;
         console.log("Embedding generated successfully");
+      }
+
+      // Store the content in the database
+      const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+      
+      if (supabaseUrl && supabaseServiceKey) {
+        console.log('Storing content in database...');
+        
+        const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        
+        // Get user ID from the request headers
+        const authHeader = req.headers.get('authorization');
+        let userId = null;
+        
+        if (authHeader) {
+          try {
+            const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+            userId = user?.id;
+          } catch (e) {
+            console.log('Could not get user from auth header');
+          }
+        }
+        
+        const { data: insertData, error: insertError } = await supabase
+          .from('content_blocks')
+          .insert({
+            title: functionArgs.title,
+            content: functionArgs.content,
+            hero_answer: functionArgs.heroAnswer,
+            metadata: functionArgs.metadata,
+            content_embedding: functionArgs.embedding,
+            user_id: userId,
+            generated_at: new Date().toISOString()
+          })
+          .select()
+          .single();
+        
+        if (insertError) {
+          console.error('Error storing content:', insertError);
+        } else {
+          console.log('Content stored successfully with ID:', insertData.id);
+          functionArgs.id = insertData.id;
+        }
       }
       
       // Return the formatted content with embedding

@@ -9,6 +9,45 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      company: {
+        Row: {
+          attrs: Json | null
+          created_at: string | null
+          id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attrs?: Json | null
+          created_at?: string | null
+          id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attrs?: Json | null
+          created_at?: string | null
+          id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      contacts: {
+        Row: {
+          attrs: Json | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          attrs?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          attrs?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       content_blocks: {
         Row: {
           content: string | null
@@ -49,6 +88,18 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      customers: {
+        Row: {
+          attrs: Json | null
+        }
+        Insert: {
+          attrs?: Json | null
+        }
+        Update: {
+          attrs?: Json | null
+        }
+        Relationships: []
       }
       user_subscriptions: {
         Row: {
