@@ -1,4 +1,3 @@
-
 import React, { useEffect } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
@@ -17,6 +16,7 @@ import Admin from "./pages/Admin";
 import Upgrade from "./pages/Upgrade";
 import { initializeOpenAIKey } from "./services/initializeOpenAI";
 import { supabase } from '@/integrations/supabase/client';
+import Settings from "./pages/Settings";
 
 // Configure the Supabase auth settings to handle redirects properly
 supabase.auth.setSession({
@@ -72,6 +72,14 @@ const App = () => {
                   element={
                     <ProtectedRoute>
                       <ContentHistory />
+                    </ProtectedRoute>
+                  } 
+                />
+                <Route 
+                  path="/settings" 
+                  element={
+                    <ProtectedRoute>
+                      <Settings />
                     </ProtectedRoute>
                   } 
                 />

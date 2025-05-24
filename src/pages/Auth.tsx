@@ -1,239 +1,255 @@
 
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { ArrowLeft, Mail } from "lucide-react";
-import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
-import { AuthError } from "@supabase/supabase-js";
+import { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Eye, EyeOff } from 'lucide-react';
+import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState('login');
+  
   const navigate = useNavigate();
   const location = useLocation();
-  const initialSignUp = location.state?.signUp || false;
+  const { user } = useAuth();
   
-  const [isSignUp, setIsSignUp] = useState(initialSignUp);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
-  const [isMagicLink, setIsMagicLink] = useState(false);
-  
-  // Check if user is already logged in
+  const from = location.state?.from || '/dashboard';
+
   useEffect(() => {
-    const checkSession = async () => {
-      const { data } = await supabase.auth.getSession();
-      if (data?.session) {
-        navigate('/dashboard');
-      }
-    };
-    
-    checkSession();
-    
-    // Listen for auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange((event, session) => {
-      if (session && (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED')) {
-        navigate('/dashboard');
-      }
-    });
-    
-    return () => {
-      if (authListener?.subscription) {
-        authListener.subscription.unsubscribe();
-      }
-    };
-  }, [navigate]);
-  
-  const handleToggleMode = () => setIsSignUp(!isSignUp);
-  
-  const handleSubmit = async (e: React.FormEvent) => {
+    if (user) {
+      navigate(from, { replace: true });
+    }
+  }, [user, navigate, from]);
+
+  const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
-    
+    setLoading(true);
+
     try {
-      if (isMagicLink) {
-        // Send magic link email
-        const { error } = await supabase.auth.signInWithOtp({
-          email,
-        });
-        
-        if (error) throw error;
-        
-        toast.success("Magic link sent to your email!");
-      } else if (isSignUp) {
-        // Sign up with email and password
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        toast.success("Account created! Please check your email for verification.");
-      } else {
-        // Sign in with email and password
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
-        });
-        
-        if (error) throw error;
-        
-        toast.success("Successfully logged in!");
-        navigate('/dashboard');
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim(),
+        password,
+      });
+
+      if (error) {
+        if (error.message.includes('Invalid login credentials')) {
+          toast.error('Invalid email or password. Please check your credentials.');
+        } else if (error.message.includes('Email not confirmed')) {
+          toast.error('Please check your email and click the confirmation link before signing in.');
+        } else {
+          toast.error(error.message);
+        }
+        return;
       }
+
+      toast.success('Signed in successfully!');
+      navigate(from, { replace: true });
     } catch (error) {
-      const authError = error as AuthError;
-      toast.error(authError.message || "Authentication failed. Please try again.");
+      console.error('Sign in error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
-  
-  const handleMagicLinkToggle = () => {
-    setIsMagicLink(!isMagicLink);
-    setPassword("");
+
+  const handleSignUp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.signUp({
+        email: email.trim(),
+        password,
+        options: {
+          data: {
+            full_name: fullName.trim(),
+          },
+        },
+      });
+
+      if (error) {
+        if (error.message.includes('already registered')) {
+          toast.error('This email is already registered. Please sign in instead.');
+          setActiveTab('login');
+        } else {
+          toast.error(error.message);
+        }
+        return;
+      }
+
+      toast.success('Account created successfully! Please check your email for verification.');
+      setActiveTab('login');
+    } catch (error) {
+      console.error('Sign up error:', error);
+      toast.error('An unexpected error occurred. Please try again.');
+    } finally {
+      setLoading(false);
+    }
   };
-  
+
+  if (user) {
+    return null;
+  }
+
   return (
-    <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-      <Button 
-        variant="ghost" 
-        onClick={() => navigate('/')} 
-        className="absolute top-4 left-4 flex items-center gap-2"
-      >
-        <ArrowLeft className="h-4 w-4" />
-        Back to Home
-      </Button>
-      
-      <div className="w-full max-w-md">
-        <div className="mb-6 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-xl bg-gradient-to-tr from-aeo-blue to-aeo-purple flex items-center justify-center">
-              <span className="text-white font-bold text-xl">F</span>
-            </div>
-          </div>
-          <h1 className="text-2xl font-bold">
-            {isMagicLink ? "Magic Link Sign In" : isSignUp ? "Create an Account" : "Welcome Back"}
-          </h1>
-          <p className="text-gray-500 mt-2">
-            {isMagicLink ? "We'll send a secure link to your email" : 
-              isSignUp ? "Start optimizing your content for AI engines" : 
-              "Sign in to your FrontierAEO account"}
-          </p>
-        </div>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
+      <Card className="w-full max-w-md">
+        <CardHeader className="text-center">
+          <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
+          <CardDescription>
+            Sign in to your account or create a new one
+          </CardDescription>
+        </CardHeader>
         
-        <Card>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="pt-6">
-              <div className="space-y-4">
+        <CardContent>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="login">Sign In</TabsTrigger>
+              <TabsTrigger value="signup">Sign Up</TabsTrigger>
+            </TabsList>
+            
+            <TabsContent value="login" className="space-y-4 mt-4">
+              <form onSubmit={handleSignIn} className="space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="email">Email</Label>
                   <Input
                     id="email"
-                    placeholder="you@example.com"
                     type="email"
+                    placeholder="Enter your email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </div>
                 
-                {!isMagicLink && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <Label htmlFor="password">Password</Label>
-                      {!isSignUp && (
-                        <a 
-                          href="#" 
-                          className="text-xs text-aeo-blue hover:underline"
-                          onClick={(e) => {
-                            e.preventDefault();
-                            handleMagicLinkToggle();
-                          }}
-                        >
-                          Use magic link instead
-                        </a>
-                      )}
-                    </div>
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
                     <Input
                       id="password"
-                      placeholder={isSignUp ? "Create a secure password" : "Enter your password"}
-                      type="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Enter your password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       required
                     />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
-                )}
-              </div>
-            </CardContent>
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Signing in...
+                    </>
+                  ) : (
+                    'Sign In'
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
             
-            <CardFooter className="flex flex-col">
-              <Button 
-                type="submit" 
-                className="w-full bg-aeo-blue hover:bg-aeo-blue/90"
-                disabled={isLoading}
-              >
-                {isLoading ? (
-                  <div className="flex items-center">
-                    <svg className="animate-spin -ml-1 mr-3 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Processing...
+            <TabsContent value="signup" className="space-y-4 mt-4">
+              <form onSubmit={handleSignUp} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="fullName">Full Name</Label>
+                  <Input
+                    id="fullName"
+                    type="text"
+                    placeholder="Enter your full name"
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="email">Email</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="Enter your email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                  />
+                </div>
+                
+                <div className="space-y-2">
+                  <Label htmlFor="password">Password</Label>
+                  <div className="relative">
+                    <Input
+                      id="password"
+                      type={showPassword ? 'text' : 'password'}
+                      placeholder="Create a password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      required
+                      minLength={6}
+                    />
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? (
+                        <EyeOff className="h-4 w-4" />
+                      ) : (
+                        <Eye className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
-                ) : isMagicLink ? (
-                  <span className="flex items-center">
-                    Send Magic Link
-                    <Mail className="ml-2 h-4 w-4" />
-                  </span>
-                ) : isSignUp ? "Create Account" : "Sign In"}
-              </Button>
-              
-              {!isMagicLink && (
-                <p className="text-center text-sm text-gray-500 mt-4">
-                  {isSignUp ? "Already have an account? " : "Don't have an account? "}
-                  <a 
-                    href="#" 
-                    className="text-aeo-blue hover:underline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleToggleMode();
-                    }}
-                  >
-                    {isSignUp ? "Sign in" : "Sign up"}
-                  </a>
-                </p>
-              )}
-              
-              {isMagicLink && (
-                <p className="text-center text-sm text-gray-500 mt-4">
-                  <a 
-                    href="#" 
-                    className="text-aeo-blue hover:underline"
-                    onClick={(e) => {
-                      e.preventDefault();
-                      handleMagicLinkToggle();
-                    }}
-                  >
-                    Use password instead
-                  </a>
-                </p>
-              )}
-            </CardFooter>
-          </form>
-        </Card>
-      </div>
+                  <p className="text-xs text-muted-foreground">
+                    Password must be at least 6 characters long
+                  </p>
+                </div>
+                
+                <Button type="submit" className="w-full" disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Creating account...
+                    </>
+                  ) : (
+                    'Create Account'
+                  )}
+                </Button>
+              </form>
+            </TabsContent>
+          </Tabs>
+        </CardContent>
+        
+        <CardFooter className="text-center">
+          <p className="text-sm text-muted-foreground">
+            By continuing, you agree to our Terms of Service and Privacy Policy.
+          </p>
+        </CardFooter>
+      </Card>
     </div>
   );
 };

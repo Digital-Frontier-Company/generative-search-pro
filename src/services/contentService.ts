@@ -62,9 +62,17 @@ interface ExtendedContentBlockRow extends ContentBlockRow {
 
 export const getUserContentHistory = async () => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('Please sign in to view your content history');
+      return [];
+    }
+
     const { data, error } = await supabase
       .from('content_blocks')
       .select('*')
+      .eq('user_id', user.id)
       .order('created_at', { ascending: false });
     
     if (error) throw error;
@@ -73,7 +81,7 @@ export const getUserContentHistory = async () => {
     const contentHistory: ContentBlock[] = data.map((item: any) => ({
       id: item.id,
       title: item.title,
-      heroAnswer: item.hero_answer || undefined,  // Map from database field name
+      heroAnswer: item.hero_answer || undefined,
       content: item.content || '',
       metadata: item.metadata as ContentBlockMetadata,
       created_at: item.created_at,
@@ -91,11 +99,21 @@ export const getUserContentHistory = async () => {
 
 export const generateContent = async (request: ContentGenerationRequest): Promise<ContentBlock> => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('Please sign in to generate content');
+      throw new Error('User not authenticated');
+    }
+
     console.log('Generating content with request:', request);
     
     // Call the Supabase Edge Function to generate content
     const { data, error } = await supabase.functions.invoke<ContentGenerationResponse>('generate-content', {
-      body: JSON.stringify(request)
+      body: JSON.stringify({
+        ...request,
+        user_id: user.id
+      })
     });
     
     if (error) {
@@ -117,7 +135,8 @@ export const generateContent = async (request: ContentGenerationRequest): Promis
       content: data.content,
       metadata: data.metadata || {},
       created_at: new Date().toISOString(),
-      generated_at: new Date().toISOString()
+      generated_at: new Date().toISOString(),
+      user_id: user.id
     };
     
     return contentBlock;
@@ -130,6 +149,13 @@ export const generateContent = async (request: ContentGenerationRequest): Promis
 
 export const searchContent = async (request: ContentSearchRequest): Promise<ContentBlock[]> => {
   try {
+    const { data: { user } } = await supabase.auth.getUser();
+    
+    if (!user) {
+      toast.error('Please sign in to search content');
+      return [];
+    }
+
     // Call the Supabase function to search content
     const { data, error } = await supabase.functions.invoke('match-content-by-query', {
       body: JSON.stringify({
