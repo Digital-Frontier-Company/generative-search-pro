@@ -4,9 +4,11 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Zap, Database, Globe, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
 const Index = () => {
   const navigate = useNavigate();
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
+  
   const faqs = [{
     question: "What is Answer Engine Optimization (AEO)?",
     answer: "AEO is a strategy that focuses on optimizing content specifically for AI-powered answer engines and featured snippets. Unlike traditional SEO that aims for general rankings, AEO targets the specific formats and structures that help content get selected for direct answers in search results."
@@ -23,6 +25,7 @@ const Index = () => {
     question: "Can I customize the generated content?",
     answer: "Yes, all generated content can be customized before export. You can edit the hero answer, FAQs, meta descriptions, and other components to better match your brand voice and specific needs."
   }];
+  
   const featureBlocks = [{
     icon: <Zap className="w-10 h-10 text-aeo-blue" />,
     title: "AI-Optimized Content Generation",
@@ -40,6 +43,7 @@ const Index = () => {
     title: "One-Click Export",
     description: "Export your optimized content as HTML or JSON for easy integration with your website or CMS."
   }];
+  
   const pricingPlans = [{
     name: "Free",
     price: "$0",
@@ -66,35 +70,47 @@ const Index = () => {
     }),
     highlighted: true
   }];
-  return <div className="min-h-screen flex flex-col">
+  
+  return (
+    <div className="min-h-screen flex flex-col">
       <Header />
       
-      {/* Hero Section */}
-      <section className="hero-gradient py-16 md:py-24 bg-gray-950">
-        <div className="container mx-auto px-4">
+      {/* Hero Section with AEO Background */}
+      <section 
+        className="py-16 md:py-24 relative overflow-hidden"
+        style={{
+          backgroundImage: `url('/lovable-uploads/717aff3d-6077-4d2f-bac2-4b52d09ea2dc.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
+        <div className="absolute inset-0 bg-black/50"></div>
+        <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6">
-              <span className="gradient-text">Optimize Your Content</span>
-              <br /> for AI Answer Engines
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
+              <span className="text-white">Optimize Your Content</span>
+              <br /> 
+              <span className="text-red-400">for AI Answer Engines</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-600 mb-10">
+            <p className="text-lg md:text-xl text-gray-200 mb-10">
               Generate optimized content that ranks in featured snippets and AI answer boxes. Improve visibility with structured data and AEO best practices.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" onClick={() => navigate('/auth', {
-              state: {
-                signUp: true
-              }
-            })} className="bg-aeo-blue hover:bg-aeo-blue/90">
+                state: {
+                  signUp: true
+                }
+              })} className="bg-red-600 hover:bg-red-700 text-white">
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-black">
                 View Examples
               </Button>
             </div>
             <div className="mt-16">
-              <div className="bg-white rounded-xl shadow-xl border border-gray-100 overflow-hidden">
+              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-100 overflow-hidden">
                 <div className="bg-gray-50 border-b border-gray-100 p-4">
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
@@ -108,7 +124,7 @@ const Index = () => {
                     <div className="text-sm text-gray-500 mb-2">Enter your target keyword:</div>
                     <div className="flex gap-4">
                       <div className="flex-1 p-3 border rounded-lg bg-gray-50 text-gray-400">best coffee grinder for home</div>
-                      <Button className="bg-aeo-indigo hover:bg-aeo-indigo/90">Generate</Button>
+                      <Button className="bg-red-600 hover:bg-red-700">Generate</Button>
                     </div>
                   </div>
                   <div className="space-y-6">
@@ -137,11 +153,13 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            {featureBlocks.map((feature, index) => <div key={index} className="content-card p-6 bg-red-800">
+            {featureBlocks.map((feature, index) => (
+              <div key={index} className="content-card p-6 bg-red-800">
                 <div className="mb-4">{feature.icon}</div>
                 <h3 className="text-xl font-bold mb-2">{feature.title}</h3>
                 <p className="text-slate-50">{feature.description}</p>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -199,10 +217,13 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {pricingPlans.map((plan, index) => <div key={index} className={`content-card p-8 ${plan.highlighted ? 'border-aeo-blue/30 ring-1 ring-aeo-blue/20' : ''}`}>
-                {plan.highlighted && <div className="bg-aeo-blue text-white text-xs font-medium py-1 px-3 rounded-full inline-block mb-4">
+            {pricingPlans.map((plan, index) => (
+              <div key={index} className={`content-card p-8 ${plan.highlighted ? 'border-aeo-blue/30 ring-1 ring-aeo-blue/20' : ''}`}>
+                {plan.highlighted && (
+                  <div className="bg-aeo-blue text-white text-xs font-medium py-1 px-3 rounded-full inline-block mb-4">
                     Most Popular
-                  </div>}
+                  </div>
+                )}
                 <h3 className="text-2xl font-bold">{plan.name}</h3>
                 <div className="mt-4 mb-6">
                   <span className="text-4xl font-bold">{plan.price}</span>
@@ -210,15 +231,18 @@ const Index = () => {
                 </div>
                 <p className="mb-6 text-slate-50">{plan.description}</p>
                 <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, fIndex) => <li key={fIndex} className="flex items-start">
+                  {plan.features.map((feature, fIndex) => (
+                    <li key={fIndex} className="flex items-start">
                       <CheckCircle className="w-5 h-5 text-aeo-blue mr-2 flex-shrink-0 mt-0.5" />
                       <span className="text-slate-50">{feature}</span>
-                    </li>)}
+                    </li>
+                  ))}
                 </ul>
                 <Button onClick={plan.ctaAction} className={plan.highlighted ? "w-full bg-aeo-blue hover:bg-aeo-blue/90" : "w-full"} variant={plan.highlighted ? "default" : "outline"}>
                   {plan.cta}
                 </Button>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -234,7 +258,8 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {["Best Coffee Makers for Home", "How to Start a Podcast", "Top Tourist Attractions in Paris"].map((example, index) => <div key={index} className="content-card p-6 hover:scale-[1.02] transition-all cursor-pointer">
+            {["Best Coffee Makers for Home", "How to Start a Podcast", "Top Tourist Attractions in Paris"].map((example, index) => (
+              <div key={index} className="content-card p-6 hover:scale-[1.02] transition-all cursor-pointer">
                 <div className="h-40 rounded-lg mb-4 bg-[#000a0e]/0"></div>
                 <h3 className="text-xl font-bold mb-2">{example}</h3>
                 <p className="text-gray-600 mb-4">
@@ -243,7 +268,8 @@ const Index = () => {
                 <Button variant="ghost" className="text-aeo-blue hover:text-aeo-blue/90 p-0">
                   View Example <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
-              </div>)}
+              </div>
+            ))}
           </div>
         </div>
       </section>
@@ -260,15 +286,19 @@ const Index = () => {
           
           <div className="max-w-3xl mx-auto">
             <div className="divide-y border-t border-b">
-              {faqs.map((faq, index) => <div key={index} className="py-5">
+              {faqs.map((faq, index) => (
+                <div key={index} className="py-5">
                   <button onClick={() => setFaqOpen(faqOpen === index ? null : index)} className="flex justify-between items-center w-full text-left">
                     <h3 className="text-lg font-medium">{faq.question}</h3>
                     {faqOpen === index ? <ChevronUp className="h-5 w-5 text-gray-500" /> : <ChevronDown className="h-5 w-5 text-gray-500" />}
                   </button>
-                  {faqOpen === index && <div className="mt-3 text-gray-600">
+                  {faqOpen === index && (
+                    <div className="mt-3 text-gray-600">
                       <p className="text-slate-50">{faq.answer}</p>
-                    </div>}
-                </div>)}
+                    </div>
+                  )}
+                </div>
+              ))}
             </div>
           </div>
         </div>
@@ -282,10 +312,10 @@ const Index = () => {
             Start generating AEO-optimized content today and increase your chances of appearing in AI answer boxes.
           </p>
           <Button size="lg" onClick={() => navigate('/auth', {
-          state: {
-            signUp: true
-          }
-        })} className="text-aeo-blue bg-blue-900 hover:bg-blue-800">
+            state: {
+              signUp: true
+            }
+          })} className="text-aeo-blue bg-blue-900 hover:bg-blue-800">
             Get Started Free
             <ArrowRight className="ml-2 h-5 w-5" />
           </Button>
@@ -293,6 +323,8 @@ const Index = () => {
       </section>
       
       <Footer />
-    </div>;
+    </div>
+  );
 };
+
 export default Index;
