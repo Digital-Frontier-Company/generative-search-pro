@@ -1,13 +1,14 @@
 
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import type { Json } from '@/integrations/supabase/types';
 
 export interface UserProfile {
   id: string;
   email?: string;
   full_name?: string;
   avatar_url?: string;
-  preferences?: Record<string, any>;
+  preferences?: Json;
   created_at: string;
   updated_at: string;
 }
