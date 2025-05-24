@@ -139,6 +139,50 @@ export type Database = {
           },
         ]
       }
+      user_documents: {
+        Row: {
+          extracted_content: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id: string
+          is_active: boolean | null
+          mime_type: string
+          upload_date: string | null
+          user_id: string
+        }
+        Insert: {
+          extracted_content?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          id?: string
+          is_active?: boolean | null
+          mime_type: string
+          upload_date?: string | null
+          user_id: string
+        }
+        Update: {
+          extracted_content?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          id?: string
+          is_active?: boolean | null
+          mime_type?: string
+          upload_date?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_documents_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       user_subscriptions: {
         Row: {
           created_at: string | null
