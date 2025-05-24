@@ -11,25 +11,15 @@ import {
   CardHeader, 
   CardTitle 
 } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { ArrowRight, FileText, History, Settings, Loader2 } from "lucide-react";
-import { checkUserSubscription, getUserContentHistory } from "@/services/contentService";
+import { getUserContentHistory } from "@/services/contentService";
 import { useQuery } from "@tanstack/react-query";
 import Header from "@/components/Header";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-
-  // Fetch user subscription data
-  const { 
-    data: subscriptionData,
-    isLoading: subscriptionLoading 
-  } = useQuery({
-    queryKey: ['userSubscription'],
-    queryFn: checkUserSubscription
-  });
   
   // Fetch user content history
   const {
@@ -68,72 +58,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/* Subscription Status */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Subscription</CardTitle>
-              <CardDescription>
-                Your current subscription details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {subscriptionLoading ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : subscriptionData?.subscription ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Plan</span>
-                    <Badge className={`capitalize ${
-                      subscriptionData.subscription.subscription_type === 'premium' 
-                        ? 'bg-gradient-to-r from-amber-400 to-amber-600 text-white border-0' 
-                        : ''
-                    }`}>
-                      {subscriptionData.subscription.subscription_type}
-                    </Badge>
-                  </div>
-                  
-                  {subscriptionData.subscription.subscription_type === 'free' && (
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Credits Remaining</span>
-                      <span>
-                        {subscriptionData.subscription.monthly_credits - subscriptionData.subscription.credits_used} / {subscriptionData.subscription.monthly_credits}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {subscriptionData.subscription.subscription_end_date && (
-                    <div className="flex justify-between items-center">
-                      <span className="font-medium">Renews on</span>
-                      <span>
-                        {new Date(subscriptionData.subscription.subscription_end_date).toLocaleDateString()}
-                      </span>
-                    </div>
-                  )}
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground">
-                  Subscription data not available
-                </p>
-              )}
-            </CardContent>
-            <CardFooter className="pt-3">
-              {subscriptionData?.subscription?.subscription_type === 'free' && (
-                <Button className="w-full" onClick={() => navigate('/upgrade')}>
-                  Upgrade to Premium
-                </Button>
-              )}
-              
-              {subscriptionData?.subscription?.subscription_type === 'premium' && (
-                <Button variant="outline" className="w-full" onClick={() => navigate('/subscription')}>
-                  Manage Subscription
-                </Button>
-              )}
-            </CardFooter>
-          </Card>
-
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           {/* Quick Actions */}
           <Card>
             <CardHeader className="pb-3">

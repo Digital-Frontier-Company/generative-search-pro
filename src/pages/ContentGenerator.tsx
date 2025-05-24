@@ -1,6 +1,4 @@
-
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,19 +22,15 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Loader2, ArrowRight, Download, Copy, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { 
   ContentGenerationRequest, 
   ContentBlock,
-  checkUserSubscription, 
   generateContent 
 } from "@/services/contentService";
-import { useQuery } from "@tanstack/react-query";
 
 const ContentGenerator = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [topic, setTopic] = useState("");
   const [keywords, setKeywords] = useState("");
   const [contentType, setContentType] = useState<'blog' | 'article' | 'faq'>('blog');
@@ -49,23 +43,11 @@ const ContentGenerator = () => {
   // New state for displaying schema warnings
   const [schemaIssues, setSchemaIssues] = useState<string[] | null>(null);
 
-  // Check user subscription status
-  const { data: subscriptionData, isLoading: subscriptionLoading } = useQuery({
-    queryKey: ['userSubscription'],
-    queryFn: checkUserSubscription
-  });
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!topic.trim()) {
       toast.error("Please enter a topic");
-      return;
-    }
-
-    // Check if user can generate content
-    if (!subscriptionData?.canGenerate) {
-      toast.error("You've used all your free generations. Please upgrade to continue.");
       return;
     }
     
@@ -156,29 +138,6 @@ const ContentGenerator = () => {
           <h1 className="text-3xl font-bold">AEO Content Generator</h1>
           <p className="text-muted-foreground">Generate SEO-optimized content with answer-first approach</p>
         </div>
-        {!subscriptionLoading && subscriptionData && (
-          <div className="flex items-center gap-2">
-            {subscriptionData.subscription?.subscription_type === "premium" ? (
-              <Badge variant="outline" className="bg-gradient-to-r from-amber-400 to-amber-600 text-white border-0">
-                Premium
-              </Badge>
-            ) : (
-              <>
-                <span className="text-sm text-muted-foreground">
-                  Credits: {subscriptionData.subscription?.monthly_credits - subscriptionData.subscription?.credits_used} / {subscriptionData.subscription?.monthly_credits}
-                </span>
-                <Button 
-                  variant="outline"
-                  size="sm"
-                  onClick={() => navigate('/upgrade')}
-                  className="ml-2"
-                >
-                  Upgrade
-                </Button>
-              </>
-            )}
-          </div>
-        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -253,7 +212,7 @@ const ContentGenerator = () => {
               <Button 
                 type="submit" 
                 className="w-full" 
-                disabled={loading || !subscriptionData?.canGenerate}
+                disabled={loading}
               >
                 {loading ? (
                   <>
@@ -267,20 +226,6 @@ const ContentGenerator = () => {
                   </>
                 )}
               </Button>
-              
-              {!subscriptionData?.canGenerate && !subscriptionLoading && (
-                <p className="text-sm text-red-500 text-center">
-                  You've used all your free credits this month.
-                  <br />
-                  <Button 
-                    variant="link" 
-                    className="p-0 h-auto text-sm" 
-                    onClick={() => navigate('/upgrade')}
-                  >
-                    Upgrade to Premium
-                  </Button>
-                </p>
-              )}
             </form>
           </CardContent>
         </Card>

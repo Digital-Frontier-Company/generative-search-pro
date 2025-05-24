@@ -1,4 +1,3 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Database } from '@/integrations/supabase/types';
@@ -42,16 +41,6 @@ export interface ContentSearchRequest {
   limit?: number;
 }
 
-export interface SubscriptionData {
-  canGenerate: boolean;
-  subscription?: {
-    subscription_type: string;
-    monthly_credits: number;
-    credits_used: number;
-    subscription_end_date?: string;
-  };
-}
-
 // Define the expected response shape from the generate-content function
 interface ContentGenerationResponse {
   id: number;
@@ -66,7 +55,6 @@ interface ContentGenerationResponse {
 type ContentBlockRow = Database['public']['Tables']['content_blocks']['Row'];
 
 // Extended database row type to include the hero_answer field
-// This is a temporary solution until the database types are updated
 interface ExtendedContentBlockRow extends ContentBlockRow {
   hero_answer?: string;
 }
@@ -100,45 +88,6 @@ export const getUserContentHistory = async () => {
   }
 };
 
-export const checkUserSubscription = async (): Promise<SubscriptionData> => {
-  try {
-    const { data: user } = await supabase.auth.getUser();
-    
-    if (!user.user) {
-      return { canGenerate: false };
-    }
-    
-    // Fetch user subscription data
-    const { data, error } = await supabase
-      .from('user_subscriptions')
-      .select('*')
-      .eq('user_id', user.user.id)
-      .single();
-    
-    if (error) {
-      console.error('Error fetching subscription:', error);
-      return { canGenerate: false };
-    }
-    
-    // Check if user can generate content based on subscription
-    const isPremium = data.subscription_type === 'premium';
-    const hasCreditsLeft = data.credits_used < data.monthly_credits;
-    
-    return {
-      canGenerate: isPremium || hasCreditsLeft,
-      subscription: {
-        subscription_type: data.subscription_type,
-        monthly_credits: data.monthly_credits,
-        credits_used: data.credits_used,
-        subscription_end_date: data.subscription_end_date
-      }
-    };
-  } catch (error) {
-    console.error('Error checking subscription:', error);
-    return { canGenerate: false };
-  }
-};
-
 export const generateContent = async (request: ContentGenerationRequest): Promise<ContentBlock> => {
   try {
     // Call the Supabase Edge Function to generate content
@@ -152,7 +101,7 @@ export const generateContent = async (request: ContentGenerationRequest): Promis
     const contentBlock: ContentBlock = {
       id: data.id || Date.now(),
       title: data.title,
-      heroAnswer: data.heroAnswer || undefined, // Now TypeScript knows this property can exist
+      heroAnswer: data.heroAnswer || undefined,
       content: data.content,
       metadata: data.metadata || {},
       created_at: new Date().toISOString(),
@@ -184,7 +133,7 @@ export const searchContent = async (request: ContentSearchRequest): Promise<Cont
     const searchResults: ContentBlock[] = data.map((item: any) => ({
       id: item.id,
       title: item.title,
-      heroAnswer: item.hero_answer || undefined, // Handle hero_answer field from database results
+      heroAnswer: item.hero_answer || undefined,
       content: item.content,
       metadata: item.metadata || {},
       created_at: item.created_at,

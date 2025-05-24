@@ -1,17 +1,17 @@
 
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { getUserCreditsInfo, addUserCredits, UserCreditInfo } from "@/services/adminService";
+import { getAllUsers, sendNotificationToUser, UserInfo } from "@/services/adminService";
 import { 
   Table, TableHeader, TableRow, TableHead, 
   TableBody, TableCell 
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Loader2, Plus, RefreshCw } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
+import { Loader2, Send, RefreshCw } from "lucide-react";
 import Header from "@/components/Header";
 import { toast } from "sonner";
-import { useNavigate } from "react-router-dom";
 import {
   Select,
   SelectContent,
@@ -23,10 +23,9 @@ import { useAuth } from "@/contexts/AuthContext";
 
 const Admin = () => {
   const [selectedUserEmail, setSelectedUserEmail] = useState("");
-  const [creditAmount, setCreditAmount] = useState(5);
-  const [isAdding, setIsAdding] = useState(false);
+  const [notificationMessage, setNotificationMessage] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const { user } = useAuth();
-  const navigate = useNavigate();
   
   // Add debugging to check if the component mounts
   useEffect(() => {
@@ -35,66 +34,70 @@ const Admin = () => {
   }, [user]);
   
   const { 
-    data: userCredits, 
+    data: users, 
     isLoading, 
     refetch,
-    error: userCreditsError,
+    error: usersError,
     isError
   } = useQuery({
-    queryKey: ['userCredits'],
-    queryFn: getUserCreditsInfo,
+    queryKey: ['allUsers'],
+    queryFn: getAllUsers,
     retry: 2,
     retryDelay: 1000,
   });
 
   // Log the current state for debugging
   useEffect(() => {
-    console.log("Query state - userCredits:", userCredits);
+    console.log("Query state - users:", users);
     console.log("Query state - isLoading:", isLoading);
     console.log("Query state - isError:", isError);
-    console.log("Query state - error:", userCreditsError);
-  }, [userCredits, isLoading, isError, userCreditsError]);
+    console.log("Query state - error:", usersError);
+  }, [users, isLoading, isError, usersError]);
 
   // Handle query success/error with useEffect
   useEffect(() => {
-    if (userCredits) {
-      console.log("User credits loaded successfully:", userCredits);
-      if (userCredits.length === 0) {
-        toast.warning("No user credits data found. Make sure the database is properly set up.");
+    if (users) {
+      console.log("Users loaded successfully:", users);
+      if (users.length === 0) {
+        toast.warning("No users found in the system.");
       } else {
-        toast.success(`Loaded ${userCredits.length} user records`);
+        toast.success(`Loaded ${users.length} user records`);
       }
     }
-  }, [userCredits]);
+  }, [users]);
 
   useEffect(() => {
-    if (isError && userCreditsError) {
-      console.error("Error loading user credits:", userCreditsError);
+    if (isError && usersError) {
+      console.error("Error loading users:", usersError);
       toast.error("Failed to load user data. Please check console for details.");
     }
-  }, [isError, userCreditsError]);
+  }, [isError, usersError]);
 
-  const handleAddCredits = async () => {
+  const handleSendNotification = async () => {
     if (!selectedUserEmail) {
       toast.error("Please select a user first");
       return;
     }
 
-    console.log(`Starting to add ${creditAmount} credits to ${selectedUserEmail}`);
-    setIsAdding(true);
+    if (!notificationMessage.trim()) {
+      toast.error("Please enter a notification message");
+      return;
+    }
+
+    console.log(`Starting to send notification to ${selectedUserEmail}`);
+    setIsSending(true);
     try {
-      const success = await addUserCredits(selectedUserEmail, creditAmount);
+      const success = await sendNotificationToUser(selectedUserEmail, notificationMessage);
       if (success) {
-        console.log("Credits added successfully, refreshing data...");
-        await refetch(); // Refresh the data after adding credits
+        console.log("Notification sent successfully");
         setSelectedUserEmail(""); // Reset selection
-        setCreditAmount(5); // Reset credit amount
+        setNotificationMessage(""); // Reset message
       }
     } catch (error) {
-      console.error("Error adding credits:", error);
-      toast.error("Failed to add credits. Please try again.");
+      console.error("Error sending notification:", error);
+      toast.error("Failed to send notification. Please try again.");
     } finally {
-      setIsAdding(false);
+      setIsSending(false);
     }
   };
 
@@ -151,32 +154,32 @@ const Admin = () => {
           <h3 className="font-semibold mb-2">Debug Information:</h3>
           <p>• Data loading state: {isLoading ? 'Loading...' : 'Complete'}</p>
           <p>• Error state: {isError ? 'Yes' : 'No'}</p>
-          <p>• User records found: {userCredits ? userCredits.length : 0}</p>
+          <p>• User records found: {users ? users.length : 0}</p>
           <p>• Current user: {user?.email || 'Not logged in'}</p>
         </div>
 
-        {isError && userCreditsError && (
+        {isError && usersError && (
           <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded mb-6">
             <h3 className="font-semibold mb-2">Error Details:</h3>
-            <p>{userCreditsError.message || 'An unknown error occurred'}</p>
+            <p>{usersError.message || 'An unknown error occurred'}</p>
             <p className="mt-2 text-sm">Check the console for more detailed error information.</p>
           </div>
         )}
 
         <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <h2 className="text-lg font-medium mb-4">Add Credits to User</h2>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <div className="md:col-span-2">
+          <h2 className="text-lg font-medium mb-4">Send Notification to User</h2>
+          <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+            <div>
               <label className="block text-sm font-medium mb-1">User Email</label>
               <Select value={selectedUserEmail} onValueChange={setSelectedUserEmail}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a user" />
                 </SelectTrigger>
                 <SelectContent>
-                  {userCredits && userCredits.length > 0 ? (
-                    userCredits.map((user) => (
+                  {users && users.length > 0 ? (
+                    users.map((user) => (
                       <SelectItem key={user.user_id} value={user.email}>
-                        {user.email} ({user.subscription_type})
+                        {user.email}
                       </SelectItem>
                     ))
                   ) : (
@@ -184,65 +187,57 @@ const Admin = () => {
                   )}
                 </SelectContent>
               </Select>
-              {(!userCredits || userCredits.length === 0) && !isLoading && (
+              {(!users || users.length === 0) && !isLoading && (
                 <p className="text-sm text-red-500 mt-1">
                   No users found. Make sure you have user data in the database.
                 </p>
               )}
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Credits to Add</label>
-              <Input 
-                type="number" 
-                min={1}
-                value={creditAmount}
-                onChange={(e) => setCreditAmount(parseInt(e.target.value) || 1)}
+              <label className="block text-sm font-medium mb-1">Notification Message</label>
+              <Textarea 
+                placeholder="Enter your notification message here..."
+                value={notificationMessage}
+                onChange={(e) => setNotificationMessage(e.target.value)}
+                rows={3}
               />
             </div>
             <div className="flex items-end">
               <Button 
-                onClick={handleAddCredits}
-                disabled={isAdding || !selectedUserEmail}
+                onClick={handleSendNotification}
+                disabled={isSending || !selectedUserEmail || !notificationMessage.trim()}
                 className="w-full"
               >
-                {isAdding ? (
+                {isSending ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                 ) : (
-                  <Plus className="h-4 w-4 mr-2" />
+                  <Send className="h-4 w-4 mr-2" />
                 )}
-                Add Credits
+                Send Notification
               </Button>
             </div>
           </div>
         </div>
 
         <div className="bg-white rounded-lg shadow overflow-hidden">
-          <h2 className="text-lg font-medium p-4 border-b">User Credits Information</h2>
+          <h2 className="text-lg font-medium p-4 border-b">User Information</h2>
           
-          {userCredits && userCredits.length > 0 ? (
+          {users && users.length > 0 ? (
             <div className="overflow-x-auto">
               <Table>
                 <TableHeader>
                   <TableRow>
                     <TableHead>User ID</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Subscription</TableHead>
-                    <TableHead>Monthly Credits</TableHead>
-                    <TableHead>Used</TableHead>
-                    <TableHead>Remaining</TableHead>
+                    <TableHead>Created At</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {userCredits.map((user) => (
+                  {users.map((user) => (
                     <TableRow key={user.user_id}>
                       <TableCell className="font-mono text-xs">{user.user_id.substring(0, 8)}...</TableCell>
                       <TableCell className="font-medium">{user.email}</TableCell>
-                      <TableCell className="capitalize">{user.subscription_type}</TableCell>
-                      <TableCell>{user.monthly_credits}</TableCell>
-                      <TableCell>{user.credits_used}</TableCell>
-                      <TableCell className={user.remaining_credits <= 0 ? 'text-red-600 font-semibold' : 'text-green-600'}>
-                        {user.remaining_credits}
-                      </TableCell>
+                      <TableCell>{new Date(user.created_at).toLocaleDateString()}</TableCell>
                     </TableRow>
                   ))}
                 </TableBody>
@@ -256,11 +251,11 @@ const Admin = () => {
               </p>
               <ul className="text-sm text-gray-400 list-disc list-inside space-y-1">
                 <li>No users have signed up yet</li>
-                <li>The admin_user_credits view doesn't exist in your database</li>
-                <li>Users exist but don't have subscription records</li>
+                <li>There's an issue with the authentication system</li>
+                <li>Admin permissions are not properly configured</li>
               </ul>
               <p className="text-sm text-blue-600 mt-4">
-                Try creating a test user account or check your Supabase database configuration.
+                Try creating a test user account or check your Supabase configuration.
               </p>
             </div>
           )}
