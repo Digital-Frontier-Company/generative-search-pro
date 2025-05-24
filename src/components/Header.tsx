@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
@@ -53,11 +52,11 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="w-12 h-12 flex items-center justify-center overflow-hidden">
               <img 
-                src="/lovable-uploads/3a1bfbb8-748f-4538-8f38-ad6eb16424ca.png" 
+                src="/lovable-uploads/b25396ed-f9a5-48e6-92f5-4539ca31fd72.png" 
                 alt="FrontierAEO Logo" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-contain"
               />
             </div>
             <span className="font-bold text-xl hidden sm:block text-foreground">FrontierAEO</span>
