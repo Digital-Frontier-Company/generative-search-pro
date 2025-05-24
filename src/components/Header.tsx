@@ -23,7 +23,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   const isUserAuthenticated = !!user || isAuthenticated;
   
   // Placeholder for theme toggle (to be implemented)
-  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
   
   const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
   
@@ -49,14 +49,14 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
   };
 
   return (
-    <header className="w-full px-4 py-3 border-b border-gray-100 bg-white">
+    <header className="w-full px-4 py-3 border-b border-border bg-background">
       <div className="container mx-auto flex items-center justify-between">
         <div className="flex items-center">
           <a href="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-aeo-blue to-aeo-purple flex items-center justify-center">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-aeo-navy to-aeo-red flex items-center justify-center">
               <span className="text-white font-bold">F</span>
             </div>
-            <span className="font-bold text-xl hidden sm:block">FrontierAEO</span>
+            <span className="font-bold text-xl hidden sm:block text-foreground">FrontierAEO</span>
           </a>
         </div>
         
@@ -71,9 +71,9 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
             </>
           ) : (
             <>
-              <a href="#features" className="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
-              <a href="#pricing" className="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
-              <a href="#examples" className="text-gray-600 hover:text-gray-900 transition-colors">Examples</a>
+              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
+              <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
+              <a href="#examples" className="text-muted-foreground hover:text-foreground transition-colors">Examples</a>
             </>
           )}
         </div>
@@ -100,12 +100,12 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-              <div className="h-6 w-px bg-gray-200 mx-1"></div>
+              <div className="h-6 w-px bg-border mx-1"></div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-aeo-blue/20 flex items-center justify-center">
-                      <span className="font-medium text-sm text-aeo-blue">{getUserInitials()}</span>
+                    <div className="w-8 h-8 rounded-full bg-aeo-navy/20 flex items-center justify-center">
+                      <span className="font-medium text-sm text-aeo-red">{getUserInitials()}</span>
                     </div>
                     <span className="hidden sm:inline-block">{user?.email?.split('@')[0] || 'User'}</span>
                   </Button>
@@ -145,7 +145,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
       
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-gray-100 shadow-md p-4 z-10 animate-fade-in">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-md p-4 z-10 animate-fade-in">
           <div className="flex flex-col space-y-3">
             {isUserAuthenticated ? (
               <>
@@ -161,7 +161,7 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
                 <Button variant="ghost" onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false); }}>
                   Settings
                 </Button>
-                <div className="h-px bg-gray-200 my-2"></div>
+                <div className="h-px bg-border my-2"></div>
                 <Button variant="ghost" className="justify-start" onClick={handleLogout}>
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>Logout</span>
@@ -169,10 +169,10 @@ const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
               </>
             ) : (
               <>
-                <a href="#features" className="py-2 px-3 rounded-md hover:bg-gray-50">Features</a>
-                <a href="#pricing" className="py-2 px-3 rounded-md hover:bg-gray-50">Pricing</a>
-                <a href="#examples" className="py-2 px-3 rounded-md hover:bg-gray-50">Examples</a>
-                <div className="h-px bg-gray-200 my-2"></div>
+                <a href="#features" className="py-2 px-3 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">Features</a>
+                <a href="#pricing" className="py-2 px-3 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">Pricing</a>
+                <a href="#examples" className="py-2 px-3 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">Examples</a>
+                <div className="h-px bg-border my-2"></div>
                 <Button variant="outline" onClick={() => { handleLogin(); setIsMobileMenuOpen(false); }}>
                   Login
                 </Button>
