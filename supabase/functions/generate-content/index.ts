@@ -8,13 +8,221 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Marketing Copy Amplifier class
+class MarketingAmplifier {
+  constructor() {
+    this.powerWords = {
+      'good': ['explosive', 'game-changing', 'revolutionary', 'breakthrough'],
+      'great': ['ultimate', 'elite', 'cutting-edge', 'dominant'],
+      'effective': ['proven', 'guaranteed', 'instant', 'unstoppable'],
+      'useful': ['transformative', 'life-changing', 'powerful', 'insider'],
+      'new': ['revolutionary', 'breakthrough', 'cutting-edge', 'next-generation'],
+      'important': ['crucial', 'critical', 'essential', 'must-have'],
+      'help': ['transform', 'skyrocket', 'explode', 'dominate'],
+      'improve': ['revolutionize', 'transform', 'supercharge', 'amplify'],
+      'increase': ['explode', 'skyrocket', 'multiply', 'double'],
+      'make': ['create', 'build', 'engineer', 'craft']
+    };
+    
+    this.viralHooks = [
+      "Stop scrolling. This {topic} secret will {benefit}...",
+      "Everything you've been told about {topic} is wrong. Here's why...",
+      "The #1 {topic} trick that experts don't want you to know...",
+      "How I {achieved_result} in {timeframe} using this weird {method}...",
+      "You won't believe what happened when I tried this {topic} hack...",
+      "Why smart businesses are ditching {old_method} for this {new_method}...",
+      "The shocking reason your {problem} isn't working (and the easy fix)...",
+      "Want to {desired_outcome}? This is how you do it...",
+      "I tested {number} {methods} so you don't have to. Here's the winner...",
+      "Nobody is talking about this {topic} strategy, but they should be..."
+    ];
+    
+    this.patternInterrupts = [
+      "Stop scrolling.",
+      "Listen up!",
+      "You won't believe this...",
+      "Here's something crazy:",
+      "Plot twist:",
+      "Breaking news:",
+      "Confession time:",
+      "Real talk:",
+      "Here's the thing nobody tells you:",
+      "This just happened..."
+    ];
+    
+    this.psychologicalTriggers = {
+      'urgency': ['Act now', 'Limited time', 'Don\'t wait', 'Grab this today'],
+      'scarcity': ['Only available now', 'Exclusive access', 'Before it\'s gone'],
+      'social_proof': ['Thousands are using', 'Industry leaders choose', 'Top experts recommend'],
+      'curiosity': ['The secret is', 'What you don\'t know', 'Hidden truth about'],
+      'authority': ['Proven by experts', 'Industry-tested', 'Professional-grade'],
+      'fear_of_missing_out': ['While others struggle', 'Don\'t get left behind', 'Join the winners']
+    };
+    
+    this.powerCtas = [
+      "Start dominating now",
+      "Grab your unfair advantage", 
+      "Get instant access",
+      "Claim your spot",
+      "Download the blueprint",
+      "Unlock the secrets",
+      "Get the inside scoop",
+      "Start crushing it today"
+    ];
+  }
+  
+  amplifyWithPowerWords(text) {
+    let amplified = text;
+    
+    for (const [weakWord, powerAlternatives] of Object.entries(this.powerWords)) {
+      const regex = new RegExp(`\\b${weakWord}\\b`, 'gi');
+      if (regex.test(amplified)) {
+        const replacement = powerAlternatives[Math.floor(Math.random() * powerAlternatives.length)];
+        amplified = amplified.replace(regex, replacement);
+      }
+    }
+    
+    return amplified;
+  }
+  
+  addViralHooks(text) {
+    const sentences = text.split('.');
+    if (!sentences.length) return text;
+    
+    const firstSentence = sentences[0].trim();
+    
+    if (firstSentence.length > 10) {
+      const words = firstSentence.toLowerCase().split();
+      const topicCandidates = words.filter(word => word.length > 4 && /^[a-zA-Z]+$/.test(word));
+      const topic = topicCandidates[0] || "strategy";
+      
+      const hookTemplate = this.viralHooks[Math.floor(Math.random() * this.viralHooks.length)];
+      
+      const viralHook = hookTemplate
+        .replace('{topic}', topic)
+        .replace('{benefit}', 'change everything')
+        .replace('{achieved_result}', 'doubled my results')
+        .replace('{timeframe}', '30 days')
+        .replace('{method}', 'technique')
+        .replace('{old_method}', 'outdated tactics')
+        .replace('{new_method}', 'proven system')
+        .replace('{problem}', 'strategy')
+        .replace('{desired_outcome}', 'dominate your market')
+        .replace('{number}', '10')
+        .replace('{methods}', 'approaches');
+      
+      sentences[0] = viralHook;
+    }
+    
+    return sentences.join('.');
+  }
+  
+  addPatternInterrupts(text) {
+    const paragraphs = text.split('\n\n');
+    const enhancedParagraphs = [];
+    
+    for (let i = 0; i < paragraphs.length; i++) {
+      const paragraph = paragraphs[i];
+      if (paragraph.trim().length > 0) {
+        if (i > 0 && i % 3 === 0) {
+          const interrupt = this.patternInterrupts[Math.floor(Math.random() * this.patternInterrupts.length)];
+          enhancedParagraphs.push(`${interrupt} ${paragraph}`);
+        } else {
+          enhancedParagraphs.push(paragraph);
+        }
+      }
+    }
+    
+    return enhancedParagraphs.join('\n\n');
+  }
+  
+  addPsychologicalTriggers(text) {
+    let triggeredText = text;
+    
+    const ctaPattern = /\b(click|try|start|get|download|sign up)\b/gi;
+    const urgencyTriggers = this.psychologicalTriggers.urgency;
+    
+    triggeredText = triggeredText.replace(ctaPattern, (match) => {
+      const trigger = urgencyTriggers[Math.floor(Math.random() * urgencyTriggers.length)];
+      return `${trigger} - ${match}`;
+    });
+    
+    if (/people|users/i.test(triggeredText)) {
+      const proof = this.psychologicalTriggers.social_proof[Math.floor(Math.random() * this.psychologicalTriggers.social_proof.length)];
+      triggeredText = triggeredText.replace(/people/i, `${proof} people`);
+    }
+    
+    return triggeredText;
+  }
+  
+  createCuriosityGaps(text) {
+    const sentences = text.split('.');
+    const gappedSentences = [];
+    
+    for (let i = 0; i < sentences.length; i++) {
+      const sentence = sentences[i];
+      if (sentence.trim().length > 20 && i < sentences.length - 1) {
+        if (i > 0 && i % 4 === 0) {
+          gappedSentences.push(sentence + "... (but here's what's really interesting)");
+        } else if (i % 5 === 0) {
+          gappedSentences.push(sentence + "... and what happened next will surprise you");
+        } else {
+          gappedSentences.push(sentence);
+        }
+      } else {
+        gappedSentences.push(sentence);
+      }
+    }
+    
+    return gappedSentences.join('.');
+  }
+  
+  addPowerCtas(text) {
+    const weakCtas = ['learn more', 'click here', 'read more', 'find out', 'see more', 'get started', 'try it', 'check it out'];
+    let ctaEnhanced = text;
+    
+    for (const weakCta of weakCtas) {
+      const regex = new RegExp(weakCta, 'gi');
+      if (regex.test(ctaEnhanced)) {
+        const powerCta = this.powerCtas[Math.floor(Math.random() * this.powerCtas.length)];
+        ctaEnhanced = ctaEnhanced.replace(regex, powerCta);
+        break; // Only replace one per pass
+      }
+    }
+    
+    return ctaEnhanced;
+  }
+  
+  amplifyToMarketingCopy(text) {
+    console.log("🔍 Analyzing text for weak language patterns...");
+    let step1 = this.amplifyWithPowerWords(text);
+    
+    console.log("⚡ Injecting power words and viral hooks...");
+    let step2 = this.addViralHooks(step1);
+    
+    console.log("🎯 Adding pattern interrupts and psychological triggers...");
+    let step3 = this.addPatternInterrupts(step2);
+    let step4 = this.addPsychologicalTriggers(step3);
+    
+    console.log("🧲 Creating curiosity gaps and power CTAs...");
+    let step5 = this.createCuriosityGaps(step4);
+    let finalText = this.addPowerCtas(step5);
+    
+    return {
+      original: text,
+      amplified: finalText,
+      conversionReady: true
+    };
+  }
+}
+
 // Enhanced schema validation function with AEO requirements
-function validateSchema(schema: any): { isValid: boolean; issues: string[] | null } {
+function validateSchema(schema) {
   if (!schema || typeof schema !== 'object') {
     return { isValid: false, issues: ["Schema must be an object"] };
   }
   
-  const issues: string[] = [];
+  const issues = [];
   
   // Basic schema validation
   if (!schema['@context']) issues.push("Missing @context property for machine readability");
@@ -25,7 +233,7 @@ function validateSchema(schema: any): { isValid: boolean; issues: string[] | nul
     if (!schema.mainEntity || !Array.isArray(schema.mainEntity)) {
       issues.push("FAQPage schema must include mainEntity array for Answer Engine Optimization");
     } else {
-      schema.mainEntity.forEach((qa: any, index: number) => {
+      schema.mainEntity.forEach((qa, index) => {
         if (!qa.name) issues.push(`FAQ ${index + 1} missing question name`);
         if (!qa.acceptedAnswer?.text) issues.push(`FAQ ${index + 1} missing answer text`);
       });
@@ -46,7 +254,7 @@ function validateSchema(schema: any): { isValid: boolean; issues: string[] | nul
 }
 
 // Enhanced system prompt for comprehensive content generation
-const getComprehensiveContentPrompt = (topic: string, contentType: string | undefined, toneStyle: string | undefined, targetAudience: string | undefined, keywords: string[] | undefined) => {
+const getComprehensiveContentPrompt = (topic, contentType, toneStyle, targetAudience, keywords) => {
   return `You are an expert content strategist and SEO specialist creating comprehensive, in-depth content for GenerativeSearch.pro.
 
 CRITICAL REQUIREMENTS:
@@ -86,39 +294,6 @@ ENGAGEMENT ELEMENTS:
 - Clear value proposition in each section
 
 Create comprehensive, authoritative content that establishes expertise and provides genuine value to readers seeking information about ${topic}.`;
-};
-
-// Humanization prompt for natural, engaging content
-const getHumanizationPrompt = () => {
-  return `You are a professional content editor specializing in humanizing AI-generated content for GenerativeSearch.pro. Your task is to transform the provided content into natural, engaging, human-like writing while maintaining all SEO elements and technical accuracy.
-
-HUMANIZATION REQUIREMENTS:
-1. Add conversational elements and natural transitions
-2. Include personal insights and relatable examples
-3. Vary sentence length and structure for better flow
-4. Add emotional context and storytelling elements
-5. Ensure the content sounds like it was written by an experienced professional
-6. Maintain all technical accuracy and SEO optimization
-7. Keep the word count at minimum 750 words
-8. Preserve all structured data and metadata
-
-WRITING STYLE:
-- Use active voice where appropriate
-- Include rhetorical questions to engage readers
-- Add transitional phrases for smooth flow
-- Incorporate industry insights and professional experience
-- Balance informative content with engaging narrative
-- Ensure expertise, authoritativeness, and trustworthiness (E-E-A-T)
-
-OUTPUT FORMAT:
-Return properly formatted HTML with:
-- H1, H2, H3 tags for hierarchy
-- Proper paragraph structure
-- Bold and italic emphasis where appropriate
-- Bullet points and numbered lists
-- FAQ section with structured Q&A format
-
-Transform the content to sound natural and human while maintaining its comprehensive, authoritative nature.`;
 };
 
 serve(async (req) => {
@@ -226,38 +401,20 @@ serve(async (req) => {
 
     const initialContent = JSON.parse(initialData.choices[0]?.message?.function_call?.arguments);
     
-    console.log('Running humanization process...');
+    console.log('🚀 Running Marketing Copy Amplifier...');
 
-    // STEP 2: Humanize the content
-    const humanizationPrompt = getHumanizationPrompt();
+    // STEP 2: Apply Marketing Copy Amplifier
+    const amplifier = new MarketingAmplifier();
+    const amplificationResult = amplifier.amplifyToMarketingCopy(initialContent.content);
     
-    const humanizedResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: humanizationPrompt },
-          { role: 'user', content: `Humanize this content while maintaining all SEO elements and ensuring it remains minimum 750 words:\n\nTITLE: ${initialContent.title}\n\nHERO ANSWER: ${initialContent.heroAnswer}\n\nCONTENT: ${initialContent.content}` }
-        ],
-        temperature: 0.8,
-        max_tokens: 4000,
-      }),
-    });
-
-    const humanizedData = await humanizedResponse.json();
-    console.log("Content humanization completed");
+    // Update content with amplified version
+    initialContent.content = amplificationResult.amplified;
+    console.log("✅ Content amplified with viral hooks and psychological triggers");
     
-    if (humanizedData.error) {
-      console.error("Humanization Error:", humanizedData.error);
-      // Fall back to original content if humanization fails
-      console.log("Falling back to original content");
-    } else {
-      // Update content with humanized version
-      initialContent.content = humanizedData.choices[0]?.message?.content || initialContent.content;
+    // Also amplify the hero answer
+    if (initialContent.heroAnswer) {
+      const heroAmplified = amplifier.amplifyWithPowerWords(initialContent.heroAnswer);
+      initialContent.heroAnswer = heroAmplified;
     }
 
     // Validate the schema
@@ -300,7 +457,7 @@ serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
     
     if (supabaseUrl && supabaseServiceKey) {
-      console.log('Storing humanized 750+ word content in database...');
+      console.log('Storing amplified marketing-focused content in database...');
       
       const supabase = createClient(supabaseUrl, supabaseServiceKey);
       
@@ -333,7 +490,7 @@ serve(async (req) => {
       if (insertError) {
         console.error('Error storing content:', insertError);
       } else {
-        console.log('Comprehensive humanized content stored successfully with ID:', insertData.id);
+        console.log('Amplified marketing content stored successfully with ID:', insertData.id);
         initialContent.id = insertData.id;
       }
     }
@@ -342,7 +499,7 @@ serve(async (req) => {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
     });
   } catch (error) {
-    console.error("Error in comprehensive content generation:", error);
+    console.error("Error in marketing-amplified content generation:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }
