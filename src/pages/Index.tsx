@@ -101,7 +101,7 @@ const Index = () => {
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
               <span className="text-white">Optimize Your Content</span>
               <br /> 
-              <span className="bg-gradient-to-br from-purple-300 via-pink-300 to-purple-400 bg-clip-text text-transparent">for AI Answer Engines and Generative Engines</span>
+              <span className="bg-gradient-to-r from-purple-600 via-red-500 to-purple-400 bg-clip-text text-transparent">for AI Answer Engines and Generative Engines</span>
             </h1>
             <p className="text-lg md:text-xl text-gray-200 mb-10">
               Generate optimized content that ranks in featured snippets and AI answer boxes. Improve visibility with structured data and AEO best practices.
