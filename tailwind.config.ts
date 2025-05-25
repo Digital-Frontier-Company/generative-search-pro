@@ -63,15 +63,16 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
-				// Updated custom colors for darker navy blue, red, and black theme
+				// Updated custom colors for purple-to-pink gradient theme
 				aeo: {
-					'navy': '#1e3a5f',
-					'dark-navy': '#0f1d2e',
-					'red': '#dc2626',
-					'dark-red': '#991b1b',
-					'black': '#000000',
-					'charcoal': '#1a1a1a',
-					'light-navy': '#3b5a7d'
+					'purple': '#8b5cf6',
+					'dark-purple': '#6d28d9',
+					'pink': '#ec4899',
+					'dark-pink': '#be185d',
+					'magenta': '#d946ef',
+					'violet': '#a855f7',
+					'indigo': '#6366f1',
+					'blue': '#3b82f6'
 				}
 			},
 			borderRadius: {
