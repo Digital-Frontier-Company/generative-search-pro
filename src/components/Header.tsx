@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,7 +21,7 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <img src="/lovable-uploads/f851422f-bef4-4039-8e65-510ce90e12ec.png" alt="FrontierAEO" className="h-8 w-auto" />
+            <img src="/lovable-uploads/16c0f181-6d0c-462b-84a6-60e949846c3b.png" alt="GenerativeSearch.pro" className="h-8 w-auto" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-8">
