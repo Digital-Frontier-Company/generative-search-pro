@@ -45,93 +45,80 @@ function validateSchema(schema: any): { isValid: boolean; issues: string[] | nul
   };
 }
 
-// Ultimate SEO-AEO system prompt with viral hooks and optimization framework
-const getAdvancedSystemPrompt = (topic: string, contentType: string | undefined, toneStyle: string | undefined, targetAudience: string | undefined, keywords: string[] | undefined) => {
-  const basePrompt = `You are the "Meta Mercenary" - an elite SEO-AEO content creation system built for digital marketing dominance. Your mission: Generate content that triggers clicks, builds authority, and converts with machine precision.
+// Enhanced system prompt for comprehensive content generation
+const getComprehensiveContentPrompt = (topic: string, contentType: string | undefined, toneStyle: string | undefined, targetAudience: string | undefined, keywords: string[] | undefined) => {
+  return `You are an expert content strategist and SEO specialist creating comprehensive, in-depth content for GenerativeSearch.pro.
 
-CORE IDENTITY:
-- Style: No-fluff. Bold. Dopamine-driven. Sharp. Strategic. Like a sales sniper writing.
-- Purpose: Create content that dominates search engines AND answer engines through strategic optimization.
-- Focus: "${topic}" with ${toneStyle || 'professional'} tone for ${targetAudience || 'business professionals'} audience.
-- Keywords: ${keywords?.join(', ') || topic}
+CRITICAL REQUIREMENTS:
+- MINIMUM 750 WORDS for all blog content
+- Comprehensive, detailed coverage of the topic
+- Include real-world examples and case studies
+- Add actionable insights and practical tips
+- Structure for maximum readability and engagement
 
-ULTIMATE SEO-AEO FRAMEWORK:
+CONTENT FOCUS: "${topic}"
+TONE: ${toneStyle || 'professional'}
+AUDIENCE: ${targetAudience || 'business professionals'}
+KEYWORDS: ${keywords?.join(', ') || topic}
+TYPE: ${contentType || 'blog'} post
 
-1. VIRAL HOOK INTEGRATION:
-Use these proven viral hook patterns:
-- Pattern Interrupt: Start with contrarian/shocking statements
-- Psychological Triggers: FOMO, urgency, curiosity gaps
-- Power Words: "Revealed," "Exclusive," "Instant," "Proven," "Guaranteed"
-- Question-based hooks: "Did you know..." "What you don't know about..."
-- Challenge beliefs: "Stop doing [common behavior]..."
-- Quick wins: "Steal my 3-step blueprint..."
+CONTENT STRUCTURE REQUIREMENTS:
+1. Compelling headline that includes primary keyword
+2. Hero answer (50 words max) - direct answer to main query
+3. Comprehensive introduction (150+ words)
+4. 4-6 detailed sections with H2 headings (100+ words each)
+5. Real examples, statistics, and actionable advice
+6. FAQ section with 5+ relevant questions
+7. Strong conclusion with clear next steps
 
-2. NEUROLINGUISTIC PROGRAMMING:
-- Use sensory language and emotional triggers
-- Create mental movies with vivid descriptions
-- Anchor positive feelings to your solutions
-- Use presuppositions and embedded commands
-- Mirror audience language patterns
+SEO & AEO OPTIMIZATION:
+- Primary keyword in title, first paragraph, and naturally throughout
+- Related keywords and entities integrated seamlessly
+- Structured for featured snippets and answer boxes
+- Include relevant statistics and data points
+- Add authoritative sources and references
 
-3. ANSWER ENGINE OPTIMIZATION (AEO):
-- Lead with HERO ANSWER (≤50 words) that directly answers the query
-- Use answer-first pattern: "What is X? X is... Why it matters: ..."
-- Include definitional sentences in hero sections
-- Add concise "What/Who/How/Cost" boxes
-- Structure for zero-click optimization
+ENGAGEMENT ELEMENTS:
+- Subheadings that create curiosity
+- Bullet points and numbered lists for scannability
+- Bold text for key concepts
+- Internal logic flow between sections
+- Clear value proposition in each section
 
-4. CONTENT ARCHITECTURE:
-- One focused objective per page (Clear, Measurable, High impact)
-- Question-oriented title tags
-- Logical heading hierarchy (H1 → H2 → H3)
-- FAQ sections with explicit Q→A pairs
-- Cited statistics and verifiable sources
+Create comprehensive, authoritative content that establishes expertise and provides genuine value to readers seeking information about ${topic}.`;
+};
 
-5. EVERGREEN + FRESH STRATEGY:
-- Focus on timeless value while addressing current trends
-- Include how-tos, guides, and comprehensive answers
-- Build pillar content that supports topic clusters
-- Create content that attracts natural backlinks
+// Humanization prompt for natural, engaging content
+const getHumanizationPrompt = () => {
+  return `You are a professional content editor specializing in humanizing AI-generated content for GenerativeSearch.pro. Your task is to transform the provided content into natural, engaging, human-like writing while maintaining all SEO elements and technical accuracy.
 
-CONTENT REQUIREMENTS:
+HUMANIZATION REQUIREMENTS:
+1. Add conversational elements and natural transitions
+2. Include personal insights and relatable examples
+3. Vary sentence length and structure for better flow
+4. Add emotional context and storytelling elements
+5. Ensure the content sounds like it was written by an experienced professional
+6. Maintain all technical accuracy and SEO optimization
+7. Keep the word count at minimum 750 words
+8. Preserve all structured data and metadata
 
-STRUCTURE:
-- Hero Answer (≤50 words) - Direct answer to main query
-- Viral Hook opening using proven templates
-- Value-packed body with NLP techniques
-- FAQ section with schema-ready Q&A pairs
-- Strong CTA variants (3 different approaches)
+WRITING STYLE:
+- Use active voice where appropriate
+- Include rhetorical questions to engage readers
+- Add transitional phrases for smooth flow
+- Incorporate industry insights and professional experience
+- Balance informative content with engaging narrative
+- Ensure expertise, authoritativeness, and trustworthiness (E-E-A-T)
 
-SEO OPTIMIZATION:
-- Primary keyword in first paragraph and title
-- Natural keyword distribution (no stuffing)
-- Long-tail keyword integration
-- Related entity mentions
-- Image alt tag recommendations
+OUTPUT FORMAT:
+Return properly formatted HTML with:
+- H1, H2, H3 tags for hierarchy
+- Proper paragraph structure
+- Bold and italic emphasis where appropriate
+- Bullet points and numbered lists
+- FAQ section with structured Q&A format
 
-METADATA GENERATION:
-- Click-triggering page titles (≤60 chars)
-- Compelling meta descriptions (≤160 chars)
-- Open Graph optimization
-- Twitter card optimization
-- JSON-LD schema (FAQPage, Article, or relevant type)
-
-TONE CALIBRATION: ${toneStyle || 'professional'}
-TARGET AUDIENCE: ${targetAudience || 'business professionals'}
-CONTENT TYPE: ${contentType || 'blog'} post`;
-
-  // Content type specific instructions
-  const typeInstructions = {
-    'blog': 'Format as an engaging, shareable blog post with viral hooks, clear value propositions, and conversion-focused CTAs.',
-    'article': 'Create authoritative, in-depth article with expert positioning, citations, and comprehensive coverage.',
-    'faq': 'Structure as comprehensive FAQ with perfect schema markup, anticipating all user questions and objections.',
-  };
-
-  if (contentType && typeInstructions[contentType as keyof typeof typeInstructions]) {
-    return basePrompt + `\n\nSPECIFIC FORMAT: ${typeInstructions[contentType as keyof typeof typeInstructions]}`;
-  }
-  
-  return basePrompt;
+Transform the content to sound natural and human while maintaining its comprehensive, authoritative nature.`;
 };
 
 serve(async (req) => {
@@ -142,7 +129,7 @@ serve(async (req) => {
 
   try {
     const { topic, keywords, toneStyle, targetAudience, contentType } = await req.json();
-    console.log("Advanced SEO-AEO request received:", { topic, keywords, contentType, toneStyle, targetAudience });
+    console.log("Comprehensive content request received:", { topic, keywords, contentType, toneStyle, targetAudience });
 
     if (!topic) {
       return new Response(JSON.stringify({ error: 'Topic is required for content generation' }), { 
@@ -165,26 +152,12 @@ serve(async (req) => {
       });
     }
 
-    console.log('OpenAI API key found, generating SEO-AEO optimized content');
+    console.log('Generating comprehensive 750+ word content...');
 
-    // Get advanced system prompt with SEO-AEO framework
-    const systemPrompt = getAdvancedSystemPrompt(topic, contentType, toneStyle, targetAudience, keywords);
-    const userPrompt = `Create ultimate SEO-AEO optimized content about "${topic}" using the viral hook framework and optimization strategies. Target keywords: ${keywords?.join(', ') || topic}. 
-
-DELIVERABLES REQUIRED:
-1. Hero Answer (≤50 words)
-2. Viral hook opening
-3. Complete optimized content with NLP techniques
-4. FAQ section with Q&A pairs
-5. Full metadata package
-6. JSON-LD schema
-7. Three CTA variants
-8. Optimization recommendations`;
-
-    console.log('Calling OpenAI API with advanced SEO-AEO framework...');
-
-    // Call OpenAI API to generate content
-    const openaiResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    // STEP 1: Generate comprehensive content
+    const comprehensivePrompt = getComprehensiveContentPrompt(topic, contentType, toneStyle, targetAudience, keywords);
+    
+    const initialResponse = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${openAIApiKey}`,
@@ -193,185 +166,183 @@ DELIVERABLES REQUIRED:
       body: JSON.stringify({
         model: 'gpt-4o',
         messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt }
+          { role: 'system', content: comprehensivePrompt },
+          { role: 'user', content: `Create comprehensive, in-depth content about "${topic}" that is minimum 750 words. Include detailed sections, examples, and actionable insights. Target keywords: ${keywords?.join(', ') || topic}` }
         ],
         temperature: 0.7,
         max_tokens: 4000,
         functions: [
           {
-            name: 'format_seo_aeo_content',
-            description: 'Format SEO-AEO optimized content with viral hooks and complete metadata',
+            name: 'format_comprehensive_content',
+            description: 'Format comprehensive SEO-optimized content with full metadata',
             parameters: {
               type: 'object',
               properties: {
-                title: { type: 'string', description: 'Click-triggering, keyword-optimized title' },
+                title: { type: 'string', description: 'SEO-optimized title with primary keyword' },
                 heroAnswer: { type: 'string', description: 'Direct answer to main query (≤50 words)' },
-                content: { type: 'string', description: 'Complete HTML content with viral hooks, NLP techniques, and optimization' },
+                content: { type: 'string', description: 'Comprehensive HTML content (minimum 750 words)' },
                 metadata: {
                   type: 'object',
                   properties: {
-                    seoTitle: { type: 'string', description: 'Click-triggering SEO title (≤60 chars)' },
-                    metaDescription: { type: 'string', description: 'Compelling meta description (≤160 chars)' },
-                    ogTitle: { type: 'string', description: 'Open Graph optimized title' },
+                    seoTitle: { type: 'string', description: 'SEO title (≤60 chars)' },
+                    metaDescription: { type: 'string', description: 'Meta description (≤160 chars)' },
+                    ogTitle: { type: 'string', description: 'Open Graph title' },
                     ogDescription: { type: 'string', description: 'Open Graph description' },
                     twitterTitle: { type: 'string', description: 'Twitter card title' },
                     twitterDescription: { type: 'string', description: 'Twitter card description' },
-                    jsonLdSchema: { type: 'object', description: 'Complete JSON-LD schema with AEO optimization' },
+                    jsonLdSchema: { type: 'object', description: 'JSON-LD schema markup' },
                     ctaVariants: { 
                       type: 'array', 
                       items: { type: 'string' },
-                      description: 'Three conversion-focused CTA variants'
+                      description: 'Three CTA variants'
                     },
                     focusKeywords: {
                       type: 'array',
                       items: { type: 'string' },
-                      description: 'Primary and secondary keywords used'
-                    },
-                    viralHookUsed: { type: 'string', description: 'Which viral hook template was applied' },
-                    aeoSignals: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'AEO optimization elements included'
+                      description: 'Primary and secondary keywords'
                     }
                   },
-                  required: ['seoTitle', 'metaDescription', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'jsonLdSchema', 'ctaVariants', 'focusKeywords', 'viralHookUsed', 'aeoSignals']
+                  required: ['seoTitle', 'metaDescription', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'jsonLdSchema', 'ctaVariants', 'focusKeywords']
                 }
               },
               required: ['title', 'heroAnswer', 'content', 'metadata']
             }
           }
         ],
-        function_call: { name: 'format_seo_aeo_content' }
+        function_call: { name: 'format_comprehensive_content' }
       }),
     });
 
-    const data = await openaiResponse.json();
-    console.log("OpenAI response received for SEO-AEO content");
+    const initialData = await initialResponse.json();
+    console.log("Initial comprehensive content generated");
     
-    // Check for errors in the OpenAI response
-    if (data.error) {
-      console.error("OpenAI API Error:", data.error);
-      return new Response(JSON.stringify({ error: `OpenAI API error: ${data.error.message}` }), {
+    if (initialData.error) {
+      console.error("OpenAI API Error:", initialData.error);
+      return new Response(JSON.stringify({ error: `OpenAI API error: ${initialData.error.message}` }), {
         status: 500,
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
 
-    // Parse the function call result
-    try {
-      const functionCall = data.choices[0]?.message?.function_call;
-      if (!functionCall) {
-        throw new Error("No function call in response");
-      }
+    const initialContent = JSON.parse(initialData.choices[0]?.message?.function_call?.arguments);
+    
+    console.log('Running humanization process...');
 
-      const functionArgs = JSON.parse(functionCall.arguments);
+    // STEP 2: Humanize the content
+    const humanizationPrompt = getHumanizationPrompt();
+    
+    const humanizedResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          { role: 'system', content: humanizationPrompt },
+          { role: 'user', content: `Humanize this content while maintaining all SEO elements and ensuring it remains minimum 750 words:\n\nTITLE: ${initialContent.title}\n\nHERO ANSWER: ${initialContent.heroAnswer}\n\nCONTENT: ${initialContent.content}` }
+        ],
+        temperature: 0.8,
+        max_tokens: 4000,
+      }),
+    });
+
+    const humanizedData = await humanizedResponse.json();
+    console.log("Content humanization completed");
+    
+    if (humanizedData.error) {
+      console.error("Humanization Error:", humanizedData.error);
+      // Fall back to original content if humanization fails
+      console.log("Falling back to original content");
+    } else {
+      // Update content with humanized version
+      initialContent.content = humanizedData.choices[0]?.message?.content || initialContent.content;
+    }
+
+    // Validate the schema
+    const schemaValidation = validateSchema(initialContent.metadata?.jsonLdSchema);
+    initialContent.schemaValidation = schemaValidation;
+    
+    if (!schemaValidation.isValid && initialContent.metadata?.jsonLdSchema) {
+      console.log("Schema validation issues:", schemaValidation.issues);
+      initialContent.metadata.schemaWarnings = schemaValidation.issues;
+    }
+    
+    // Generate embedding for semantic search
+    const contentForEmbedding = `${initialContent.title} ${initialContent.heroAnswer} ${initialContent.content.replace(/<[^>]*>/g, ' ')}`;
+    
+    console.log('Generating content embedding for vector search...');
+    
+    const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openAIApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'text-embedding-3-small',
+        input: contentForEmbedding
+      }),
+    });
+    
+    const embeddingData = await embeddingResponse.json();
+    
+    if (embeddingData.error) {
+      console.error("Error generating embedding:", embeddingData.error);
+    } else {
+      initialContent.embedding = embeddingData.data[0].embedding;
+      console.log("Content embedding generated successfully");
+    }
+
+    // Store in database
+    const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
+    
+    if (supabaseUrl && supabaseServiceKey) {
+      console.log('Storing humanized 750+ word content in database...');
       
-      // Validate the schema with AEO requirements
-      const schemaValidation = validateSchema(functionArgs.metadata?.jsonLdSchema);
+      const supabase = createClient(supabaseUrl, supabaseServiceKey);
       
-      // Add validation results
-      functionArgs.schemaValidation = schemaValidation;
+      const authHeader = req.headers.get('authorization');
+      let userId = null;
       
-      // Add AEO-specific recommendations
-      if (!schemaValidation.isValid && functionArgs.metadata?.jsonLdSchema) {
-        console.log("Schema validation issues:", schemaValidation.issues);
-        functionArgs.metadata.schemaWarnings = schemaValidation.issues;
-        functionArgs.metadata.aeoRecommendations = [
-          "Implement structured data for better machine readability",
-          "Add FAQ schema for answer engine optimization",
-          "Include author and publisher information for E-E-A-T signals"
-        ];
+      if (authHeader) {
+        try {
+          const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
+          userId = user?.id;
+        } catch (e) {
+          console.log('Could not get user from auth header');
+        }
       }
       
-      // Generate embedding for semantic search
-      const contentForEmbedding = `${functionArgs.title} ${functionArgs.heroAnswer} ${functionArgs.content.replace(/<[^>]*>/g, ' ')}`;
+      const { data: insertData, error: insertError } = await supabase
+        .from('content_blocks')
+        .insert({
+          title: initialContent.title,
+          content: initialContent.content,
+          hero_answer: initialContent.heroAnswer,
+          metadata: initialContent.metadata,
+          content_embedding: initialContent.embedding,
+          user_id: userId,
+          generated_at: new Date().toISOString()
+        })
+        .select()
+        .single();
       
-      console.log('Generating content embedding for vector search...');
-      
-      // Call OpenAI API to generate embedding
-      const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${openAIApiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          model: 'text-embedding-3-small',
-          input: contentForEmbedding
-        }),
-      });
-      
-      const embeddingData = await embeddingResponse.json();
-      
-      if (embeddingData.error) {
-        console.error("Error generating embedding:", embeddingData.error);
-        console.log("Proceeding without embedding");
+      if (insertError) {
+        console.error('Error storing content:', insertError);
       } else {
-        functionArgs.embedding = embeddingData.data[0].embedding;
-        console.log("Content embedding generated successfully");
+        console.log('Comprehensive humanized content stored successfully with ID:', insertData.id);
+        initialContent.id = insertData.id;
       }
-
-      // Store the content in the database
-      const supabaseUrl = Deno.env.get('SUPABASE_URL') || '';
-      const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
-      
-      if (supabaseUrl && supabaseServiceKey) {
-        console.log('Storing SEO-AEO optimized content in database...');
-        
-        const supabase = createClient(supabaseUrl, supabaseServiceKey);
-        
-        // Get user ID from the request headers
-        const authHeader = req.headers.get('authorization');
-        let userId = null;
-        
-        if (authHeader) {
-          try {
-            const { data: { user } } = await supabase.auth.getUser(authHeader.replace('Bearer ', ''));
-            userId = user?.id;
-          } catch (e) {
-            console.log('Could not get user from auth header');
-          }
-        }
-        
-        const { data: insertData, error: insertError } = await supabase
-          .from('content_blocks')
-          .insert({
-            title: functionArgs.title,
-            content: functionArgs.content,
-            hero_answer: functionArgs.heroAnswer,
-            metadata: functionArgs.metadata,
-            content_embedding: functionArgs.embedding,
-            user_id: userId,
-            generated_at: new Date().toISOString()
-          })
-          .select()
-          .single();
-        
-        if (insertError) {
-          console.error('Error storing content:', insertError);
-        } else {
-          console.log('SEO-AEO content stored successfully with ID:', insertData.id);
-          functionArgs.id = insertData.id;
-        }
-      }
-      
-      // Return the SEO-AEO optimized content
-      return new Response(JSON.stringify(functionArgs), {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
-    } catch (parseError) {
-      console.error("Error parsing OpenAI response:", parseError);
-      return new Response(JSON.stringify({ 
-        error: 'Failed to parse content generation result',
-        details: parseError.message
-      }), {
-        status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      });
     }
+    
+    return new Response(JSON.stringify(initialContent), {
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+    });
   } catch (error) {
-    console.error("Error in advanced SEO-AEO generation:", error);
+    console.error("Error in comprehensive content generation:", error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' }

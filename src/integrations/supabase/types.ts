@@ -48,59 +48,6 @@ export type Database = {
         }
         Relationships: []
       }
-      content_blocks: {
-        Row: {
-          content: string | null
-          content_embedding: string | null
-          created_at: string
-          generated_at: string | null
-          id: number
-          metadata: Json | null
-          title: string
-          user_id: string | null
-        }
-        Insert: {
-          content?: string | null
-          content_embedding?: string | null
-          created_at?: string
-          generated_at?: string | null
-          id?: number
-          metadata?: Json | null
-          title?: string
-          user_id?: string | null
-        }
-        Update: {
-          content?: string | null
-          content_embedding?: string | null
-          created_at?: string
-          generated_at?: string | null
-          id?: number
-          metadata?: Json | null
-          title?: string
-          user_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "content_blocks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "admin_user_credits"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      customers: {
-        Row: {
-          attrs: Json | null
-        }
-        Insert: {
-          attrs?: Json | null
-        }
-        Update: {
-          attrs?: Json | null
-        }
-        Relationships: []
-      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -294,7 +241,7 @@ export type Database = {
       }
       increment_credits: {
         Args: Record<PropertyKey, never> | { user_id: number; amount: number }
-        Returns: number
+        Returns: undefined
       }
       ivfflat_bit_support: {
         Args: { "": unknown }
@@ -332,6 +279,22 @@ export type Database = {
           user_id: string
           similarity: number
         }[]
+      }
+      postgres_fdw_disconnect: {
+        Args: { "": string }
+        Returns: boolean
+      }
+      postgres_fdw_disconnect_all: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      postgres_fdw_get_connections: {
+        Args: Record<PropertyKey, never>
+        Returns: Record<string, unknown>[]
+      }
+      postgres_fdw_handler: {
+        Args: Record<PropertyKey, never>
+        Returns: unknown
       }
       set_openai_key: {
         Args: { api_key: string }
