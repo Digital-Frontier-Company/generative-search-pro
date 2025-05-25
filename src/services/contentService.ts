@@ -1,7 +1,5 @@
-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Database } from '@/integrations/supabase/types';
 
 // Types
 export interface ContentBlockMetadata {
@@ -78,12 +76,12 @@ export const getUserContentHistory = async () => {
     if (error) throw error;
     
     // Convert data to ContentBlock type
-    const contentHistory: ContentBlock[] = data.map((item: any) => ({
+    const contentHistory: ContentBlock[] = (data || []).map((item: any) => ({
       id: item.id,
       title: item.title,
       heroAnswer: item.hero_answer || undefined,
       content: item.content || '',
-      metadata: item.metadata as ContentBlockMetadata,
+      metadata: item.metadata as ContentBlockMetadata || {},
       created_at: item.created_at,
       generated_at: item.generated_at || '',
       user_id: item.user_id || ''
@@ -168,7 +166,7 @@ export const searchContent = async (request: ContentSearchRequest): Promise<Cont
     if (error) throw error;
     
     // Format the response into ContentBlock array
-    const searchResults: ContentBlock[] = data.map((item: any) => ({
+    const searchResults: ContentBlock[] = (data || []).map((item: any) => ({
       id: item.id,
       title: item.title,
       heroAnswer: item.hero_answer || undefined,

@@ -48,6 +48,50 @@ export type Database = {
         }
         Relationships: []
       }
+      content_blocks: {
+        Row: {
+          content: string | null
+          content_embedding: string | null
+          created_at: string | null
+          generated_at: string | null
+          hero_answer: string | null
+          id: number
+          metadata: Json | null
+          title: string
+          user_id: string | null
+        }
+        Insert: {
+          content?: string | null
+          content_embedding?: string | null
+          created_at?: string | null
+          generated_at?: string | null
+          hero_answer?: string | null
+          id?: number
+          metadata?: Json | null
+          title: string
+          user_id?: string | null
+        }
+        Update: {
+          content?: string | null
+          content_embedding?: string | null
+          created_at?: string | null
+          generated_at?: string | null
+          hero_answer?: string | null
+          id?: number
+          metadata?: Json | null
+          title?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_blocks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
