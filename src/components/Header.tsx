@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -36,7 +37,7 @@ const Header = () => {
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
             <img 
-              src="/lovable-uploads/b25396ed-f9a5-48e6-92f5-4539ca31fd72.png" 
+              src="/lovable-uploads/717aff3d-6077-4d2f-bac2-4b52d09ea2dc.png" 
               alt="FrontierAEO" 
               className="h-8 w-auto"
             />
@@ -76,7 +77,7 @@ const Header = () => {
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
                     <Avatar className="h-8 w-8">
-                      <AvatarImage src={user.avatar_url || ""} alt={user.name || "Avatar"} />
+                      <AvatarImage src="" alt="Avatar" />
                       <AvatarFallback>{user.email?.[0]?.toUpperCase() || "U"}</AvatarFallback>
                     </Avatar>
                   </Button>

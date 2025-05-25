@@ -21,7 +21,7 @@ const Settings = () => {
 
   return (
     <>
-      <Header isAuthenticated={true} />
+      <Header />
       <div className="container max-w-4xl mx-auto py-8">
         <div className="flex items-center gap-2 mb-6">
           <SettingsIcon className="h-6 w-6" />

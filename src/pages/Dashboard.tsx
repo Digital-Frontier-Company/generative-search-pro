@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -32,7 +31,7 @@ const Dashboard = () => {
 
   return (
     <>
-      <Header isAuthenticated={true} />
+      <Header />
       <div className="container max-w-7xl mx-auto py-8">
         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
           <div>

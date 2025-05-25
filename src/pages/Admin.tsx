@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { getAllUsers, sendNotificationToUser, UserInfo } from "@/services/adminService";
@@ -114,7 +113,7 @@ const Admin = () => {
     console.log("Admin page: Showing loading state");
     return (
       <>
-        <Header isAuthenticated={true} />
+        <Header />
         <div className="container mx-auto py-8">
           <div className="flex justify-center items-center min-h-96">
             <div className="text-center">
@@ -131,7 +130,7 @@ const Admin = () => {
 
   return (
     <>
-      <Header isAuthenticated={true} />
+      <Header />
       <div className="container mx-auto py-8">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold">Admin Dashboard</h1>

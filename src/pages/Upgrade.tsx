@@ -12,7 +12,7 @@ const Upgrade = () => {
 
   return (
     <>
-      <Header isAuthenticated={true} />
+      <Header />
       <div className="container mx-auto py-8">
         <div className="max-w-4xl mx-auto">
           <h1 className="text-3xl font-bold mb-8">Welcome to AEO Content Generator</h1>
