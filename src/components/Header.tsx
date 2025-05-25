@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
@@ -7,26 +6,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Menu } from "lucide-react";
-
 const Header = () => {
-  const { user, signOut } = useAuth();
+  const {
+    user,
+    signOut
+  } = useAuth();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
-
-  return (
-    <header className="text-white shadow-lg bg-black/[0.81]">
+  return <header className="text-white shadow-lg bg-black/[0.81]">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/559b3fdd-e727-4d4a-9e59-0562bba2ab61.png" 
-              alt="GenerativeSearch.pro" 
-              className="h-8 w-auto" 
-            />
+            <img alt="GenerativeSearch.pro" src="/lovable-uploads/f719da8a-6072-4d0f-ad36-e4eacda55ee7.png" className="h-36 w-36 object-cover" />
           </Link>
           
           <nav className="hidden md:flex items-center space-x-8">
@@ -39,8 +33,7 @@ const Header = () => {
             <Link to="/#examples" className="hover:text-purple-400 transition-colors">
               Examples
             </Link>
-            {user && (
-              <>
+            {user && <>
                 <Link to="/dashboard" className="hover:text-gray-300 transition-colors">
                   Dashboard
                 </Link>
@@ -53,13 +46,11 @@ const Header = () => {
                 <Link to="/domain-analysis" className="hover:text-gray-300 transition-colors">
                   Domain Analysis
                 </Link>
-              </>
-            )}
+              </>}
           </nav>
 
           <div className="flex items-center space-x-4">
-            {user ? (
-              <DropdownMenu>
+            {user ? <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
                     <Avatar className="h-8 w-8">
@@ -77,16 +68,13 @@ const Header = () => {
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
                 </DropdownMenuContent>
-              </DropdownMenu>
-            ) : (
-              <Button 
-                onClick={() => navigate('/auth', { state: { signUp: false } })} 
-                variant="outline" 
-                className="text-slate-50 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-none"
-              >
+              </DropdownMenu> : <Button onClick={() => navigate('/auth', {
+            state: {
+              signUp: false
+            }
+          })} variant="outline" className="text-slate-50 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-none">
                 Sign In
-              </Button>
-            )}
+              </Button>}
             
             <Sheet>
               <SheetTrigger className="md:hidden">
@@ -109,8 +97,7 @@ const Header = () => {
                   <Link to="/#examples" className="hover:text-gray-700 transition-colors block py-2">
                     Examples
                   </Link>
-                  {user && (
-                    <>
+                  {user && <>
                       <Link to="/dashboard" className="hover:text-gray-700 transition-colors block py-2">
                         Dashboard
                       </Link>
@@ -129,24 +116,20 @@ const Header = () => {
                       <Link to="/upgrade" className="hover:text-gray-700 transition-colors block py-2">
                         Upgrade
                       </Link>
-                    </>
-                  )}
-                  {!user && (
-                    <Button 
-                      onClick={() => navigate('/auth', { state: { signUp: false } })} 
-                      variant="outline"
-                    >
+                    </>}
+                  {!user && <Button onClick={() => navigate('/auth', {
+                  state: {
+                    signUp: false
+                  }
+                })} variant="outline">
                       Sign In
-                    </Button>
-                  )}
+                    </Button>}
                 </div>
               </SheetContent>
             </Sheet>
           </div>
         </div>
       </div>
-    </header>
-  );
+    </header>;
 };
-
 export default Header;
