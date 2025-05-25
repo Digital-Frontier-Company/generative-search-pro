@@ -1,191 +1,164 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { 
-  Search, BellRing, Moon, Sun, Menu, X, LogOut, Shield 
-} from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
-import { toast } from "sonner";
+} from "@/components/ui/dropdown-menu"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
+import { Menu } from "lucide-react";
 
-const Header = ({ isAuthenticated = false }: { isAuthenticated?: boolean }) => {
-  const navigate = useNavigate();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const Header = () => {
   const { user, signOut } = useAuth();
-  
-  // Automatically determine authentication status from auth context
-  const isUserAuthenticated = !!user || isAuthenticated;
-  
-  // Placeholder for theme toggle (to be implemented)
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-  
-  const toggleTheme = () => setTheme(theme === 'light' ? 'dark' : 'light');
-  
-  const handleLogin = () => navigate('/auth');
-  const handleSignUp = () => navigate('/auth', { state: { signUp: true } });
-  const handleDashboard = () => navigate('/dashboard');
-  const handleAdmin = () => navigate('/admin');
-  
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      toast.success("You've been signed out successfully");
-      navigate('/');
-    } catch (error) {
-      toast.error("Failed to sign out. Please try again.");
-    }
-  };
+  const navigate = useNavigate();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Get user initials for avatar
-  const getUserInitials = () => {
-    if (!user?.email) return 'U';
-    return user.email.substring(0, 2).toUpperCase();
+  const toggleMobileMenu = () => {
+    setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
-    <header className="w-full px-4 py-3 border-b border-border bg-background">
-      <div className="container mx-auto flex items-center justify-between">
-        <div className="flex items-center">
-          <a href="/" className="flex items-center gap-2">
-            <div className="h-10 flex items-center justify-center overflow-hidden">
-              <img 
-                src="/lovable-uploads/d22b9f27-d5b8-42cb-a878-90af67eb3d91.png" 
-                alt="FrontierAEO Logo" 
-                className="h-full object-contain"
-              />
-            </div>
-          </a>
-        </div>
-        
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center gap-6">
-          {isUserAuthenticated ? (
-            <>
-              <Button variant="ghost" onClick={() => navigate('/dashboard')}>Dashboard</Button>
-              <Button variant="ghost" onClick={() => navigate('/history')}>History</Button>
-              <Button variant="ghost" onClick={() => navigate('/admin')}>Admin</Button>
-              <Button variant="ghost" onClick={() => navigate('/settings')}>Settings</Button>
-            </>
-          ) : (
-            <>
-              <a href="#features" className="text-muted-foreground hover:text-foreground transition-colors">Features</a>
-              <a href="#pricing" className="text-muted-foreground hover:text-foreground transition-colors">Pricing</a>
-              <a href="#examples" className="text-muted-foreground hover:text-foreground transition-colors">Examples</a>
-            </>
-          )}
-        </div>
-        
-        {/* Desktop Actions */}
-        <div className="hidden md:flex items-center gap-3">
-          {isUserAuthenticated ? (
-            <>
-              <Button variant="ghost" size="icon">
-                <Search className="h-5 w-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <BellRing className="h-5 w-5" />
-              </Button>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="icon">
-                    {theme === 'light' ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={toggleTheme}>
-                    {theme === 'light' ? 'Dark Mode' : 'Light Mode'}
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-              <div className="h-6 w-px bg-border mx-1"></div>
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-aeo-navy/20 flex items-center justify-center">
-                      <span className="font-medium text-sm text-aeo-red">{getUserInitials()}</span>
-                    </div>
-                    <span className="hidden sm:inline-block">{user?.email?.split('@')[0] || 'User'}</span>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={handleDashboard}>Dashboard</DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleAdmin}>
-                    <Shield className="mr-2 h-4 w-4" />
-                    <span>Admin</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>
-                    <LogOut className="mr-2 h-4 w-4" />
-                    <span>Logout</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </>
-          ) : (
-            <>
-              <Button variant="ghost" onClick={handleLogin}>Login</Button>
-              <Button onClick={handleSignUp}>Sign Up Free</Button>
-            </>
-          )}
-        </div>
-        
-        {/* Mobile Menu Button */}
-        <div className="md:hidden">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </Button>
-        </div>
-      </div>
-      
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-background border-b border-border shadow-md p-4 z-10 animate-fade-in">
-          <div className="flex flex-col space-y-3">
-            {isUserAuthenticated ? (
+    <header className="bg-blue-950 text-white shadow-lg">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          <Link to="/" className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/b25396ed-f9a5-48e6-92f5-4539ca31fd72.png" 
+              alt="FrontierAEO" 
+              className="h-8 w-auto"
+            />
+          </Link>
+          
+          <nav className="hidden md:flex items-center space-x-8">
+            <Link to="/#features" className="hover:text-gray-300 transition-colors">
+              Features
+            </Link>
+            <Link to="/#pricing" className="hover:text-gray-300 transition-colors">
+              Pricing
+            </Link>
+            <Link to="/#examples" className="hover:text-gray-300 transition-colors">
+              Examples
+            </Link>
+            {user && (
               <>
-                <Button variant="ghost" onClick={() => { navigate('/dashboard'); setIsMobileMenuOpen(false); }}>
+                <Link to="/dashboard" className="hover:text-gray-300 transition-colors">
                   Dashboard
-                </Button>
-                <Button variant="ghost" onClick={() => { navigate('/history'); setIsMobileMenuOpen(false); }}>
-                  History
-                </Button>
-                <Button variant="ghost" onClick={() => { navigate('/admin'); setIsMobileMenuOpen(false); }}>
-                  Admin
-                </Button>
-                <Button variant="ghost" onClick={() => { navigate('/settings'); setIsMobileMenuOpen(false); }}>
-                  Settings
-                </Button>
-                <div className="h-px bg-border my-2"></div>
-                <Button variant="ghost" className="justify-start" onClick={handleLogout}>
-                  <LogOut className="mr-2 h-4 w-4" />
-                  <span>Logout</span>
-                </Button>
-              </>
-            ) : (
-              <>
-                <a href="#features" className="py-2 px-3 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">Features</a>
-                <a href="#pricing" className="py-2 px-3 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">Pricing</a>
-                <a href="#examples" className="py-2 px-3 rounded-md hover:bg-muted text-muted-foreground hover:text-foreground">Examples</a>
-                <div className="h-px bg-border my-2"></div>
-                <Button variant="outline" onClick={() => { handleLogin(); setIsMobileMenuOpen(false); }}>
-                  Login
-                </Button>
-                <Button onClick={() => { handleSignUp(); setIsMobileMenuOpen(false); }}>
-                  Sign Up Free
-                </Button>
+                </Link>
+                <Link to="/content-generator" className="hover:text-gray-300 transition-colors">
+                  Generate Content
+                </Link>
+                <Link to="/content-history" className="hover:text-gray-300 transition-colors">
+                  Content History
+                </Link>
+                <Link to="/domain-analysis" className="hover:text-gray-300 transition-colors">
+                  Domain Analysis
+                </Link>
               </>
             )}
+          </nav>
+
+          <div className="flex items-center space-x-4">
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarImage src={user.avatar_url || ""} alt={user.name || "Avatar"} />
+                      <AvatarFallback>{user.email?.[0]?.toUpperCase() || "U"}</AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>Dashboard</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate('/upgrade')}>Upgrade</DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <Button onClick={() => navigate('/auth', {
+                state: {
+                  signUp: false
+                }
+              })} variant="outline">
+                Sign In
+              </Button>
+            )}
+            
+            <Sheet>
+              <SheetTrigger className="md:hidden">
+                <Menu className="h-6 w-6" />
+              </SheetTrigger>
+              <SheetContent side="right" className="sm:w-2/3 md:w-1/2 lg:w-1/3">
+                <SheetHeader>
+                  <SheetTitle>Menu</SheetTitle>
+                  <SheetDescription>
+                    Explore FrontierAEO
+                  </SheetDescription>
+                </SheetHeader>
+                <div className="grid gap-4 py-4">
+                  <Link to="/#features" className="hover:text-gray-700 transition-colors block py-2">
+                    Features
+                  </Link>
+                  <Link to="/#pricing" className="hover:text-gray-700 transition-colors block py-2">
+                    Pricing
+                  </Link>
+                  <Link to="/#examples" className="hover:text-gray-700 transition-colors block py-2">
+                    Examples
+                  </Link>
+                  {user && (
+                    <>
+                      <Link to="/dashboard" className="hover:text-gray-700 transition-colors block py-2">
+                        Dashboard
+                      </Link>
+                      <Link to="/content-generator" className="hover:text-gray-700 transition-colors block py-2">
+                        Generate Content
+                      </Link>
+                      <Link to="/content-history" className="hover:text-gray-700 transition-colors block py-2">
+                        Content History
+                      </Link>
+                      <Link to="/domain-analysis" className="hover:text-gray-700 transition-colors block py-2">
+                        Domain Analysis
+                      </Link>
+                      <Link to="/settings" className="hover:text-gray-700 transition-colors block py-2">
+                        Settings
+                      </Link>
+                      <Link to="/upgrade" className="hover:text-gray-700 transition-colors block py-2">
+                        Upgrade
+                      </Link>
+                    </>
+                  )}
+                  {!user && (
+                    <Button onClick={() => navigate('/auth', {
+                      state: {
+                        signUp: false
+                      }
+                    })} variant="outline">
+                      Sign In
+                    </Button>
+                  )}
+                </div>
+              </SheetContent>
+            </Sheet>
           </div>
         </div>
-      )}
+      </div>
     </header>
   );
 };
