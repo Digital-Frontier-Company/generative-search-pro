@@ -16,7 +16,7 @@ const Header = () => {
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
-  return <header className="text-white shadow-lg bg-black/[0.81]">
+  return <header className="text-white shadow-lg my-[16px] bg-violet-700 rounded mx-[10px] px-[20px] py-[6px]">
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center space-x-2">
