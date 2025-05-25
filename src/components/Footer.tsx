@@ -1,17 +1,14 @@
-
 import { Github, Twitter, Mail } from "lucide-react";
-
 const Footer = () => {
-  return (
-    <footer className="bg-card border-t border-border">
+  return <footer className="bg-card border-t border-border">
       <div className="container mx-auto py-12 px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-aeo-navy to-aeo-red flex items-center justify-center">
-                <span className="text-white font-bold">F</span>
+                <span className="text-white font-bold">A.I.</span>
               </div>
-              <span className="font-bold text-xl text-foreground">FrontierAEO</span>
+              <span className="font-bold text-xl text-foreground">GenerativeSearch.pro</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-xs">
               Generate optimized content for search engines and AI answer boxes with just a few clicks.
@@ -71,8 +68,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
-
 export default Footer;
