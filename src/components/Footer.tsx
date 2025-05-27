@@ -1,13 +1,19 @@
+
 import { Github, Twitter, Mail } from "lucide-react";
+
 const Footer = () => {
-  return <footer className="bg-card border-t border-border">
+  return (
+    <footer className="bg-card border-t border-border">
       <div className="container mx-auto py-12 px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-tr from-aeo-navy to-aeo-red flex items-center justify-center">
-                <span className="text-white font-bold">A.I.</span>
-              </div>
+              <img 
+                src="/lovable-uploads/06f84961-215a-4c1a-855e-bd2ba1c43691.png" 
+                alt="GenerativeSearch.pro" 
+                className="w-10 h-10"
+                style={{ background: 'transparent' }}
+              />
               <span className="font-bold text-xl text-foreground">GenerativeSearch.pro</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-xs">
@@ -68,6 +74,8 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
+
 export default Footer;

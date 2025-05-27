@@ -17,7 +17,6 @@ import {
   Settings, 
   Crown, 
   ChevronDown,
-  Brain,
   Search,
   Globe,
   Code
@@ -82,8 +81,13 @@ const Header = () => {
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-2">
-              <Brain className="h-8 w-8 text-blue-600" />
-              <span className="text-xl font-bold text-gray-900">AEO Platform</span>
+              <img 
+                src="/lovable-uploads/06f84961-215a-4c1a-855e-bd2ba1c43691.png" 
+                alt="GenerativeSearch.pro" 
+                className="h-8 w-8"
+                style={{ background: 'transparent' }}
+              />
+              <span className="text-xl font-bold text-gray-900">GenerativeSearch.pro</span>
             </Link>
             
             {user && (
