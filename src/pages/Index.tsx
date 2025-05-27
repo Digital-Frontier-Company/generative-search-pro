@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -102,10 +101,10 @@ const Index = () => {
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-matrix-green drop-shadow-[0_0_20px_rgba(0,255,65,0.8)]">
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.4)]">
               <span className="text-matrix-green">Optimize Your Content</span>
               <br /> 
-              <span className="gradient-text animate-text-glow">for AI Answer Engines and Generative Engines</span>
+              <span className="gradient-text">for AI Answer Engines and Generative Engines</span>
             </h1>
             <p className="text-lg md:text-xl text-matrix-green/80 mb-10">
               Generate optimized content that ranks in featured snippets and AI answer boxes. Improve visibility with structured data and AEO best practices.
