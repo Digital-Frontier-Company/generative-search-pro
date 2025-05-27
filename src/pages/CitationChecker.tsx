@@ -5,9 +5,9 @@ import Footer from "@/components/Footer";
 
 const CitationCheckerPage = () => {
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black">
       <Header />
-      <main className="flex-1 bg-gray-50">
+      <main className="flex-1 bg-black">
         <CitationChecker />
       </main>
       <Footer />
