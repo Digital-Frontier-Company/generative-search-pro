@@ -1,135 +1,199 @@
-import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+
+import { useState, useEffect } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
+import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { 
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { 
+  User, 
+  LogOut, 
+  Settings, 
+  Crown, 
+  ChevronDown,
+  Brain,
+  Search,
+  Globe,
+  Code
+} from 'lucide-react';
+
 const Header = () => {
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+  const location = useLocation();
+  const [userCredits, setUserCredits] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (user) {
+      fetchUserCredits();
+    }
+  }, [user]);
+
+  const fetchUserCredits = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('admin_user_credits')
+        .select('remaining_credits')
+        .eq('user_id', user?.id)
+        .single();
+
+      if (error) {
+        console.error('Error fetching credits:', error);
+        return;
+      }
+
+      setUserCredits(data?.remaining_credits || 0);
+    } catch (error) {
+      console.error('Error:', error);
+    }
   };
-  return <header className="text-white shadow-lg mx-[10px] px-[20px] py-[6px] rounded-sm bg-slate-950 my-[6px]">
-      <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-16">
-          <Link to="/" className="flex items-center space-x-2">
-            <img alt="GenerativeSearch.pro" src="/lovable-uploads/f719da8a-6072-4d0f-ad36-e4eacda55ee7.png" className="h-36 w-36 object-cover" />
-          </Link>
-          
-          <nav className="hidden md:flex items-center space-x-8">
-            <Link to="/#features" className="hover:text-purple-400 transition-colors">
-              Features
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  const isActivePath = (path: string) => {
+    return location.pathname === path;
+  };
+
+  const navigationItems = [
+    { path: '/dashboard', label: 'Dashboard' },
+    { path: '/content-generator', label: 'Content Generator' },
+    { path: '/content-history', label: 'Content History' },
+    { path: '/domain-analysis', label: 'Domain Analysis' },
+  ];
+
+  const aiToolsItems = [
+    { path: '/schema-analysis', label: 'Schema Analyzer', icon: Code },
+    { path: '/citation-checker', label: 'Citation Checker', icon: Search },
+    { path: '/ai-sitemap', label: 'AI Sitemap', icon: Globe },
+  ];
+
+  return (
+    <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="flex justify-between items-center h-16">
+          <div className="flex items-center space-x-8">
+            <Link to="/" className="flex items-center space-x-2">
+              <Brain className="h-8 w-8 text-blue-600" />
+              <span className="text-xl font-bold text-gray-900">AEO Platform</span>
             </Link>
-            <Link to="/#pricing" className="hover:text-purple-400 transition-colors">
-              Pricing
-            </Link>
-            <Link to="/#examples" className="hover:text-purple-400 transition-colors">
-              Examples
-            </Link>
-            {user && <>
-                <Link to="/dashboard" className="hover:text-gray-300 transition-colors">
-                  Dashboard
-                </Link>
-                <Link to="/content-generator" className="hover:text-gray-300 transition-colors">
-                  Generate Content
-                </Link>
-                <Link to="/content-history" className="hover:text-gray-300 transition-colors">
-                  Content History
-                </Link>
-                <Link to="/domain-analysis" className="hover:text-gray-300 transition-colors">
-                  Domain Analysis
-                </Link>
-              </>}
-          </nav>
+            
+            {user && (
+              <nav className="hidden md:flex space-x-8">
+                {navigationItems.map((item) => (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`text-sm font-medium transition-colors hover:text-blue-600 ${
+                      isActivePath(item.path) 
+                        ? 'text-blue-600 border-b-2 border-blue-600 pb-4' 
+                        : 'text-gray-500'
+                    }`}
+                  >
+                    {item.label}
+                  </Link>
+                ))}
+                
+                {/* AI Tools Dropdown */}
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button 
+                      variant="ghost" 
+                      className={`text-sm font-medium transition-colors hover:text-blue-600 ${
+                        aiToolsItems.some(item => isActivePath(item.path))
+                          ? 'text-blue-600' 
+                          : 'text-gray-500'
+                      }`}
+                    >
+                      AI Tools
+                      <ChevronDown className="ml-1 h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-56">
+                    {aiToolsItems.map((item) => {
+                      const Icon = item.icon;
+                      return (
+                        <DropdownMenuItem key={item.path} asChild>
+                          <Link 
+                            to={item.path}
+                            className={`flex items-center w-full ${
+                              isActivePath(item.path) ? 'bg-blue-50 text-blue-600' : ''
+                            }`}
+                          >
+                            <Icon className="mr-2 h-4 w-4" />
+                            {item.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      );
+                    })}
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </nav>
+            )}
+          </div>
 
           <div className="flex items-center space-x-4">
-            {user ? <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="h-8 w-8 p-0 rounded-full">
-                    <Avatar className="h-8 w-8">
-                      <AvatarImage src="" alt="Avatar" />
-                      <AvatarFallback>{user.email?.[0]?.toUpperCase() || "U"}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate('/dashboard')}>Dashboard</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/settings')}>Settings</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate('/upgrade')}>Upgrade</DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={signOut}>Logout</DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu> : <Button onClick={() => navigate('/auth', {
-            state: {
-              signUp: false
-            }
-          })} variant="outline" className="text-slate-50 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-none">
-                Sign In
-              </Button>}
-            
-            <Sheet>
-              <SheetTrigger className="md:hidden">
-                <Menu className="h-6 w-6" />
-              </SheetTrigger>
-              <SheetContent side="right" className="sm:w-2/3 md:w-1/2 lg:w-1/3">
-                <SheetHeader>
-                  <SheetTitle>Menu</SheetTitle>
-                  <SheetDescription>
-                    Explore FrontierAEO
-                  </SheetDescription>
-                </SheetHeader>
-                <div className="grid gap-4 py-4">
-                  <Link to="/#features" className="hover:text-gray-700 transition-colors block py-2">
-                    Features
-                  </Link>
-                  <Link to="/#pricing" className="hover:text-gray-700 transition-colors block py-2">
-                    Pricing
-                  </Link>
-                  <Link to="/#examples" className="hover:text-gray-700 transition-colors block py-2">
-                    Examples
-                  </Link>
-                  {user && <>
-                      <Link to="/dashboard" className="hover:text-gray-700 transition-colors block py-2">
-                        Dashboard
-                      </Link>
-                      <Link to="/content-generator" className="hover:text-gray-700 transition-colors block py-2">
-                        Generate Content
-                      </Link>
-                      <Link to="/content-history" className="hover:text-gray-700 transition-colors block py-2">
-                        Content History
-                      </Link>
-                      <Link to="/domain-analysis" className="hover:text-gray-700 transition-colors block py-2">
-                        Domain Analysis
-                      </Link>
-                      <Link to="/settings" className="hover:text-gray-700 transition-colors block py-2">
+            {user ? (
+              <>
+                {userCredits !== null && (
+                  <div className="hidden sm:flex items-center space-x-2 text-sm text-gray-600">
+                    <span>Credits:</span>
+                    <span className="font-semibold text-blue-600">{userCredits}</span>
+                  </div>
+                )}
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="flex items-center space-x-2">
+                      <User className="h-4 w-4" />
+                      <span className="hidden sm:inline">{user.email}</span>
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem asChild>
+                      <Link to="/settings" className="flex items-center">
+                        <Settings className="mr-2 h-4 w-4" />
                         Settings
                       </Link>
-                      <Link to="/upgrade" className="hover:text-gray-700 transition-colors block py-2">
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/upgrade" className="flex items-center">
+                        <Crown className="mr-2 h-4 w-4" />
                         Upgrade
                       </Link>
-                    </>}
-                  {!user && <Button onClick={() => navigate('/auth', {
-                  state: {
-                    signUp: false
-                  }
-                })} variant="outline">
-                      Sign In
-                    </Button>}
-                </div>
-              </SheetContent>
-            </Sheet>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut} className="flex items-center">
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <div className="flex items-center space-x-4">
+                <Link to="/auth">
+                  <Button variant="ghost">Sign In</Button>
+                </Link>
+                <Link to="/auth">
+                  <Button>Get Started</Button>
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>
-    </header>;
+    </header>
+  );
 };
+
 export default Header;

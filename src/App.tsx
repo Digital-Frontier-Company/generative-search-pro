@@ -9,6 +9,9 @@ import Dashboard from '@/pages/Dashboard';
 import ContentGenerator from '@/pages/ContentGenerator';
 import ContentHistory from '@/pages/ContentHistory';
 import DomainAnalysis from '@/pages/DomainAnalysis';
+import SchemaAnalysis from '@/pages/SchemaAnalysis';
+import CitationCheckerPage from '@/pages/CitationChecker';
+import AISitemap from '@/pages/AISitemap';
 import Settings from '@/pages/Settings';
 import Upgrade from '@/pages/Upgrade';
 import Admin from '@/pages/Admin';
@@ -31,6 +34,9 @@ function App() {
               <Route path="/content-generator" element={<ProtectedRoute><ContentGenerator /></ProtectedRoute>} />
               <Route path="/content-history" element={<ProtectedRoute><ContentHistory /></ProtectedRoute>} />
               <Route path="/domain-analysis" element={<ProtectedRoute><DomainAnalysis /></ProtectedRoute>} />
+              <Route path="/schema-analysis" element={<ProtectedRoute><SchemaAnalysis /></ProtectedRoute>} />
+              <Route path="/citation-checker" element={<ProtectedRoute><CitationCheckerPage /></ProtectedRoute>} />
+              <Route path="/ai-sitemap" element={<ProtectedRoute><AISitemap /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/upgrade" element={<ProtectedRoute><Upgrade /></ProtectedRoute>} />
               <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />

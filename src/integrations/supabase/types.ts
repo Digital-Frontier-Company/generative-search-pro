@@ -9,6 +9,85 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      ai_sitemaps: {
+        Row: {
+          domain: string
+          generated_at: string | null
+          id: number
+          page_count: number | null
+          sitemap_data: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          domain: string
+          generated_at?: string | null
+          id?: number
+          page_count?: number | null
+          sitemap_data?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          domain?: string
+          generated_at?: string | null
+          id?: number
+          page_count?: number | null
+          sitemap_data?: Json | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_sitemaps_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      citation_checks: {
+        Row: {
+          ai_answer: string | null
+          checked_at: string | null
+          cited_sources: Json | null
+          domain: string
+          id: number
+          is_cited: boolean | null
+          query: string
+          recommendations: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_answer?: string | null
+          checked_at?: string | null
+          cited_sources?: Json | null
+          domain: string
+          id?: number
+          is_cited?: boolean | null
+          query: string
+          recommendations?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ai_answer?: string | null
+          checked_at?: string | null
+          cited_sources?: Json | null
+          domain?: string
+          id?: number
+          is_cited?: boolean | null
+          query?: string
+          recommendations?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citation_checks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       company: {
         Row: {
           attrs: Json | null
@@ -29,6 +108,50 @@ export type Database = {
           updated_at?: string | null
         }
         Relationships: []
+      }
+      compliance_checks: {
+        Row: {
+          ai_policy_status: string | null
+          checked_at: string | null
+          compliance_score: number | null
+          domain: string
+          id: number
+          meta_tags_status: string | null
+          recommendations: Json | null
+          robots_txt_status: string | null
+          user_id: string | null
+        }
+        Insert: {
+          ai_policy_status?: string | null
+          checked_at?: string | null
+          compliance_score?: number | null
+          domain: string
+          id?: number
+          meta_tags_status?: string | null
+          recommendations?: Json | null
+          robots_txt_status?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          ai_policy_status?: string | null
+          checked_at?: string | null
+          compliance_score?: number | null
+          domain?: string
+          id?: number
+          meta_tags_status?: string | null
+          recommendations?: Json | null
+          robots_txt_status?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_checks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       contacts: {
         Row: {
@@ -125,6 +248,50 @@ export type Database = {
             foreignKeyName: "profiles_id_fkey"
             columns: ["id"]
             isOneToOne: true
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      schema_analyses: {
+        Row: {
+          ai_visibility_score: number | null
+          created_at: string | null
+          existing_schema: Json | null
+          id: number
+          status: string | null
+          suggested_patches: Json | null
+          updated_at: string | null
+          url: string
+          user_id: string | null
+        }
+        Insert: {
+          ai_visibility_score?: number | null
+          created_at?: string | null
+          existing_schema?: Json | null
+          id?: number
+          status?: string | null
+          suggested_patches?: Json | null
+          updated_at?: string | null
+          url: string
+          user_id?: string | null
+        }
+        Update: {
+          ai_visibility_score?: number | null
+          created_at?: string | null
+          existing_schema?: Json | null
+          id?: number
+          status?: string | null
+          suggested_patches?: Json | null
+          updated_at?: string | null
+          url?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "schema_analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "admin_user_credits"
             referencedColumns: ["user_id"]
           },
