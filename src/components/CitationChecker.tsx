@@ -48,7 +48,7 @@ const CitationChecker = () => {
         domain: item.domain,
         isCited: item.is_cited || false,
         aiAnswer: item.ai_answer || '',
-        citedSources: item.cited_sources || [],
+        citedSources: Array.isArray(item.cited_sources) ? item.cited_sources : [],
         recommendations: item.recommendations || '',
         checkedAt: item.checked_at
       })) || [];
