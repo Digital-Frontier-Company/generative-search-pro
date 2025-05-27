@@ -37,22 +37,22 @@ const Index = () => {
 
   const featureBlocks = [
     {
-      icon: <Zap className="w-10 h-10 text-aeo-purple" />,
+      icon: <Zap className="w-10 h-10 text-matrix-green" />,
       title: "AI-Optimized Content Generation",
       description: "Create content specifically structured for AI answer engines and featured snippets with the click of a button."
     },
     {
-      icon: <Database className="w-10 h-10 text-aeo-magenta" />,
+      icon: <Database className="w-10 h-10 text-matrix-lime" />,
       title: "Schema Markup & Metadata",
       description: "Automatically generate JSON-LD schema markup and metadata to help search engines understand your content."
     },
     {
-      icon: <Globe className="w-10 h-10 text-aeo-violet" />,
+      icon: <Globe className="w-10 h-10 text-matrix-emerald" />,
       title: "FAQ & Structured Data",
       description: "Generate relevant FAQs and structured data that increases your chances of appearing in featured snippets."
     },
     {
-      icon: <Sparkles className="w-10 h-10 text-aeo-pink" />,
+      icon: <Sparkles className="w-10 h-10 text-matrix-neon" />,
       title: "One-Click Export",
       description: "Export your optimized content as HTML or JSON for easy integration with your website or CMS."
     }
@@ -93,63 +93,67 @@ const Index = () => {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col bg-black">
       <JsonLdSchema schema={[...getHomepageSchema(), getHomepageFAQSchema()]} />
       <Header />
       
-      {/* Hero Section with Purple Gradient Background */}
-      <section className="py-16 md:py-24 relative overflow-hidden bg-gradient-to-br from-purple-900 via-purple-800 to-pink-800">
+      {/* Hero Section with Matrix Green Gradient Background */}
+      <section className="py-16 md:py-24 relative overflow-hidden hero-gradient">
         <div className="absolute inset-0 bg-black/30"></div>
         <div className="container mx-auto px-4 relative z-10">
           <div className="max-w-3xl mx-auto text-center">
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-white">
-              <span className="text-white">Optimize Your Content</span>
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-matrix-green drop-shadow-[0_0_20px_rgba(0,255,65,0.8)]">
+              <span className="text-matrix-green">Optimize Your Content</span>
               <br /> 
-              <span className="bg-gradient-to-r from-purple-600 via-red-500 to-purple-400 bg-clip-text text-transparent">for AI Answer Engines and Generative Engines</span>
+              <span className="gradient-text animate-text-glow">for AI Answer Engines and Generative Engines</span>
             </h1>
-            <p className="text-lg md:text-xl text-gray-200 mb-10">
+            <p className="text-lg md:text-xl text-matrix-green/80 mb-10">
               Generate optimized content that ranks in featured snippets and AI answer boxes. Improve visibility with structured data and AEO best practices.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button 
                 size="lg" 
                 onClick={() => navigate('/auth', { state: { signUp: true } })} 
-                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white"
+                className="glow-button text-black font-semibold"
               >
                 Get Started Free
                 <ArrowRight className="ml-2 h-5 w-5" />
               </Button>
-              <Button size="lg" variant="outline" className="text-white border-white hover:bg-white hover:text-purple-600">
+              <Button 
+                size="lg" 
+                variant="outline" 
+                className="border-matrix-green text-matrix-green hover:bg-matrix-green/10 hover:border-matrix-lime"
+              >
                 View Examples
               </Button>
             </div>
             
             {/* Preview Section */}
             <div className="mt-16">
-              <div className="bg-white/95 backdrop-blur-sm rounded-xl shadow-xl border border-gray-100 overflow-hidden">
-                <div className="bg-gray-50 border-b border-gray-100 p-4">
+              <div className="content-card overflow-hidden">
+                <div className="bg-matrix-dark-gray border-b border-matrix-green/30 p-4">
                   <div className="flex items-center space-x-2">
                     <div className="w-3 h-3 bg-red-400 rounded-full"></div>
                     <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-                    <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-                    <div className="ml-4 text-sm text-gray-500">GenerativeSearch.pro GEO & AEO Generator</div>
+                    <div className="w-3 h-3 bg-matrix-green rounded-full"></div>
+                    <div className="ml-4 text-sm text-matrix-green/70">GenerativeSearch.pro GEO & AEO Generator</div>
                   </div>
                 </div>
                 <div className="p-6">
                   <div className="mb-6">
-                    <div className="text-sm text-gray-500 mb-2">Enter your target keyword:</div>
+                    <div className="text-sm text-matrix-green/70 mb-2">Enter your target keyword:</div>
                     <div className="flex gap-4">
-                      <div className="flex-1 p-3 border rounded-lg bg-gray-50 text-gray-400">best coffee grinder for home</div>
-                      <Button className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700">Generate</Button>
+                      <div className="flex-1 p-3 border border-matrix-green/30 rounded-lg bg-matrix-dark-gray text-matrix-green/70">best coffee grinder for home</div>
+                      <Button className="glow-button text-black font-semibold">Generate</Button>
                     </div>
                   </div>
                   <div className="space-y-6">
-                    <div className="p-4 border rounded-lg bg-gray-50 animate-pulse h-20"></div>
+                    <div className="p-4 border border-matrix-green/30 rounded-lg bg-matrix-dark-gray animate-pulse h-20"></div>
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="p-4 border rounded-lg bg-gray-50 animate-pulse h-16"></div>
-                      <div className="p-4 border rounded-lg bg-gray-50 animate-pulse h-16"></div>
+                      <div className="p-4 border border-matrix-green/30 rounded-lg bg-matrix-dark-gray animate-pulse h-16"></div>
+                      <div className="p-4 border border-matrix-green/30 rounded-lg bg-matrix-dark-gray animate-pulse h-16"></div>
                     </div>
-                    <div className="p-4 border rounded-lg bg-gray-50 animate-pulse h-32"></div>
+                    <div className="p-4 border border-matrix-green/30 rounded-lg bg-matrix-dark-gray animate-pulse h-32"></div>
                   </div>
                 </div>
               </div>
@@ -159,21 +163,21 @@ const Index = () => {
       </section>
       
       {/* Features Section */}
-      <section id="features" className="py-16 bg-gradient-to-br from-purple-900 to-indigo-900">
+      <section id="features" className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-white">AEO-Optimized Content in Seconds</h2>
-            <p className="max-w-2xl mx-auto text-gray-50">
+            <h2 className="text-3xl font-bold mb-4 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]">AEO-Optimized Content in Seconds</h2>
+            <p className="max-w-2xl mx-auto text-matrix-green/70">
               FrontierAEO helps you create content that's perfectly structured for AI answer engines and featured snippets.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {featureBlocks.map((feature, index) => (
-              <div key={index} className="content-card p-6 bg-gradient-to-br from-purple-800/50 to-pink-800/50 backdrop-blur-sm">
+              <div key={index} className="content-card p-6">
                 <div className="mb-4">{feature.icon}</div>
-                <h3 className="text-xl font-bold mb-2 text-white">{feature.title}</h3>
-                <p className="text-slate-200">{feature.description}</p>
+                <h3 className="text-xl font-bold mb-2 text-matrix-green">{feature.title}</h3>
+                <p className="text-matrix-green/70">{feature.description}</p>
               </div>
             ))}
           </div>
@@ -181,40 +185,40 @@ const Index = () => {
       </section>
       
       {/* How It Works */}
-      <section className="py-16 bg-gradient-to-br from-indigo-900 to-purple-900">
+      <section className="py-16 bg-matrix-dark-gray">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-white">How It Works</h2>
-            <p className="max-w-2xl mx-auto text-slate-50">
+            <h2 className="text-3xl font-bold mb-4 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]">How It Works</h2>
+            <p className="max-w-2xl mx-auto text-matrix-green/70">
               Generating AEO-optimized content is simple with our three-step process.
             </p>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-4xl mx-auto">
-            <div className="content-card p-6 text-center bg-gradient-to-br from-purple-800/30 to-pink-800/30 backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center mx-auto mb-4">
+            <div className="content-card p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-matrix-green to-matrix-lime text-black flex items-center justify-center mx-auto mb-4 shadow-green-glow">
                 <span className="font-bold">1</span>
               </div>
-              <h3 className="text-xl mb-2 font-extrabold text-purple-300">Enter Your Keyword</h3>
-              <p className="text-base text-slate-50 font-semibold">
+              <h3 className="text-xl mb-2 font-extrabold text-matrix-green">Enter Your Keyword</h3>
+              <p className="text-base text-matrix-green/80 font-semibold">
                 Simply enter the keyword or topic you want to optimize content for.
               </p>
             </div>
-            <div className="content-card p-6 text-center bg-gradient-to-br from-purple-800/30 to-pink-800/30 backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center mx-auto mb-4">
+            <div className="content-card p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-matrix-green to-matrix-lime text-black flex items-center justify-center mx-auto mb-4 shadow-green-glow">
                 <span className="font-bold">2</span>
               </div>
-              <h3 className="text-xl mb-2 font-extrabold text-purple-300">Generate Content</h3>
-              <p className="text-slate-50 font-semibold">
+              <h3 className="text-xl mb-2 font-extrabold text-matrix-green">Generate Content</h3>
+              <p className="text-matrix-green/80 font-semibold">
                 Our AI creates optimized content with all the necessary structured data.
               </p>
             </div>
-            <div className="content-card p-6 text-center bg-gradient-to-br from-purple-800/30 to-pink-800/30 backdrop-blur-sm">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white flex items-center justify-center mx-auto mb-4">
+            <div className="content-card p-6 text-center">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-r from-matrix-green to-matrix-lime text-black flex items-center justify-center mx-auto mb-4 shadow-green-glow">
                 <span className="font-bold">3</span>
               </div>
-              <h3 className="text-xl mb-2 font-extrabold text-purple-300">Export & Implement</h3>
-              <p className="text-slate-50 text-base font-semibold">
+              <h3 className="text-xl mb-2 font-extrabold text-matrix-green">Export & Implement</h3>
+              <p className="text-matrix-green/80 text-base font-semibold">
                 Export your content as HTML or JSON and add it to your website.
               </p>
             </div>
@@ -223,56 +227,58 @@ const Index = () => {
       </section>
       
       {/* Pricing Section */}
-      <section id="pricing" className="py-16 bg-gray-950">
-        <div className="container mx-auto px-4 bg-gradient-to-br from-purple-900/50 to-pink-900/50 rounded-lg backdrop-blur-sm">
-          <div className="text-center mb-16 pt-16">
-            <h2 className="text-3xl font-bold mb-4 text-white">Simple, Transparent Pricing</h2>
-            <p className="max-w-2xl mx-auto text-slate-50">
-              Start with our free plan and upgrade when you're ready. No hidden fees or complicated tiers.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto pb-16">
-            {pricingPlans.map((plan, index) => (
-              <div key={index} className={`content-card p-8 ${plan.highlighted ? 'border-purple-400/30 ring-1 ring-purple-400/20' : ''}`}>
-                {plan.highlighted && (
-                  <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white text-xs font-medium py-1 px-3 rounded-full inline-block mb-4">
-                    Most Popular
+      <section id="pricing" className="py-16 bg-black">
+        <div className="container mx-auto px-4">
+          <div className="content-card rounded-lg backdrop-blur-sm">
+            <div className="text-center mb-16 pt-16">
+              <h2 className="text-3xl font-bold mb-4 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]">Simple, Transparent Pricing</h2>
+              <p className="max-w-2xl mx-auto text-matrix-green/70">
+                Start with our free plan and upgrade when you're ready. No hidden fees or complicated tiers.
+              </p>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto pb-16">
+              {pricingPlans.map((plan, index) => (
+                <div key={index} className={`content-card p-8 ${plan.highlighted ? 'neon-border ring-1 ring-matrix-green/50' : ''}`}>
+                  {plan.highlighted && (
+                    <div className="bg-gradient-to-r from-matrix-green to-matrix-lime text-black text-xs font-medium py-1 px-3 rounded-full inline-block mb-4">
+                      Most Popular
+                    </div>
+                  )}
+                  <h3 className="text-2xl font-bold text-matrix-green">{plan.name}</h3>
+                  <div className="mt-4 mb-6">
+                    <span className="text-4xl font-bold text-matrix-green">{plan.price}</span>
+                    {plan.period && <span className="text-matrix-green/70 ml-1">{plan.period}</span>}
                   </div>
-                )}
-                <h3 className="text-2xl font-bold text-white">{plan.name}</h3>
-                <div className="mt-4 mb-6">
-                  <span className="text-4xl font-bold text-white">{plan.price}</span>
-                  {plan.period && <span className="text-gray-400 ml-1">{plan.period}</span>}
+                  <p className="mb-6 text-matrix-green/80">{plan.description}</p>
+                  <ul className="space-y-3 mb-8">
+                    {plan.features.map((feature, fIndex) => (
+                      <li key={fIndex} className="flex items-start">
+                        <CheckCircle className="w-5 h-5 text-matrix-green mr-2 flex-shrink-0 mt-0.5" />
+                        <span className="text-matrix-green/80">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                  <Button 
+                    onClick={plan.ctaAction} 
+                    className={plan.highlighted ? "w-full glow-button text-black font-semibold" : "w-full border-matrix-green text-matrix-green hover:bg-matrix-green/10"} 
+                    variant={plan.highlighted ? "default" : "outline"}
+                  >
+                    {plan.cta}
+                  </Button>
                 </div>
-                <p className="mb-6 text-slate-200">{plan.description}</p>
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, fIndex) => (
-                    <li key={fIndex} className="flex items-start">
-                      <CheckCircle className="w-5 h-5 text-purple-400 mr-2 flex-shrink-0 mt-0.5" />
-                      <span className="text-slate-200">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-                <Button 
-                  onClick={plan.ctaAction} 
-                  className={plan.highlighted ? "w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700" : "w-full"} 
-                  variant={plan.highlighted ? "default" : "outline"}
-                >
-                  {plan.cta}
-                </Button>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
         </div>
       </section>
       
       {/* Examples Section */}
-      <section id="examples" className="py-16 bg-gray-950">
+      <section id="examples" className="py-16 bg-matrix-dark-gray">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4">See GenerativeSearch.pro in Action</h2>
-            <p className="max-w-2xl mx-auto text-slate-50">
+            <h2 className="text-3xl font-bold mb-4 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]">See GenerativeSearch.pro in Action</h2>
+            <p className="max-w-2xl mx-auto text-matrix-green/70">
               Browse examples of AEO-optimized content generated by our platform.
             </p>
           </div>
@@ -280,12 +286,12 @@ const Index = () => {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {["Best Coffee Makers for Home", "How to Start a Podcast", "Top Tourist Attractions in Paris"].map((example, index) => (
               <div key={index} className="content-card p-6 hover:scale-[1.02] transition-all cursor-pointer">
-                <div className="h-40 rounded-lg mb-4 bg-[#000a0e]/0"></div>
-                <h3 className="text-xl font-bold mb-2">{example}</h3>
-                <p className="text-gray-600 mb-4">
+                <div className="h-40 rounded-lg mb-4 bg-matrix-dark-gray border border-matrix-green/30"></div>
+                <h3 className="text-xl font-bold mb-2 text-matrix-green">{example}</h3>
+                <p className="text-matrix-green/70 mb-4">
                   See how we optimized this content for AI answer engines and featured snippets.
                 </p>
-                <Button variant="ghost" className="text-purple-400 hover:text-purple-300 p-0">
+                <Button variant="ghost" className="text-matrix-green hover:text-matrix-lime p-0">
                   View Example <ArrowRight className="ml-2 h-4 w-4" />
                 </Button>
               </div>
@@ -295,30 +301,30 @@ const Index = () => {
       </section>
       
       {/* FAQ Section */}
-      <section className="py-16 bg-gradient-to-br from-purple-900 to-indigo-900">
+      <section className="py-16 bg-black">
         <div className="container mx-auto px-4">
           <div className="text-center mb-16">
-            <h2 className="text-3xl font-bold mb-4 text-white">Frequently Asked Questions</h2>
-            <p className="max-w-2xl mx-auto text-slate-50">Get answers to common questions about GenerativeSearch.pro and Answer Engine Optimization.</p>
+            <h2 className="text-3xl font-bold mb-4 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]">Frequently Asked Questions</h2>
+            <p className="max-w-2xl mx-auto text-matrix-green/70">Get answers to common questions about GenerativeSearch.pro and Answer Engine Optimization.</p>
           </div>
           
           <div className="max-w-3xl mx-auto">
-            <div className="divide-y border-t border-b border-purple-400/20">
+            <div className="divide-y border-t border-b border-matrix-green/30">
               {faqs.map((faq, index) => (
                 <div key={index} className="py-5">
                   <button 
                     onClick={() => setFaqOpen(faqOpen === index ? null : index)} 
                     className="flex justify-between items-center w-full text-left"
                   >
-                    <h3 className="text-lg font-medium text-white">{faq.question}</h3>
+                    <h3 className="text-lg font-medium text-matrix-green">{faq.question}</h3>
                     {faqOpen === index ? 
-                      <ChevronUp className="h-5 w-5 text-purple-400" /> : 
-                      <ChevronDown className="h-5 w-5 text-purple-400" />
+                      <ChevronUp className="h-5 w-5 text-matrix-green" /> : 
+                      <ChevronDown className="h-5 w-5 text-matrix-green" />
                     }
                   </button>
                   {faqOpen === index && (
-                    <div className="mt-3 text-gray-600">
-                      <p className="text-slate-200">{faq.answer}</p>
+                    <div className="mt-3">
+                      <p className="text-matrix-green/80">{faq.answer}</p>
                     </div>
                   )}
                 </div>
@@ -329,7 +335,7 @@ const Index = () => {
       </section>
       
       {/* CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+      <section className="py-16 bg-gradient-to-r from-matrix-green to-matrix-lime text-black">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Optimize Your Content?</h2>
           <p className="text-xl mb-10 max-w-2xl mx-auto">
@@ -338,7 +344,7 @@ const Index = () => {
           <Button 
             size="lg" 
             onClick={() => navigate('/auth', { state: { signUp: true } })} 
-            className="text-purple-600 bg-white hover:bg-gray-100"
+            className="text-matrix-green bg-black hover:bg-matrix-dark-gray border border-matrix-green"
           >
             Get Started Free
             <ArrowRight className="ml-2 h-5 w-5" />
