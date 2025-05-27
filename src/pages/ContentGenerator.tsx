@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
@@ -267,11 +268,11 @@ const ContentGenerator = () => {
               <TabsContent value="preview" className="p-0">
                 <CardContent className="pt-6">
                   {/* Hero Answer Section */}
-                  {generatedContent.heroAnswer && (
+                  {generatedContent.hero_answer && (
                     <div className="mb-6">
                       <h3 className="font-medium text-lg mb-2">Hero Answer</h3>
                       <div className="bg-primary/10 p-4 rounded-lg border border-primary/20">
-                        <p className="italic">{generatedContent.heroAnswer}</p>
+                        <p className="italic">{generatedContent.hero_answer}</p>
                       </div>
                     </div>
                   )}
@@ -312,7 +313,7 @@ const ContentGenerator = () => {
                           <Label className="md:col-span-1">Title</Label>
                           <div className="md:col-span-3">
                             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                              {generatedContent.metadata?.seoTitle}
+                              {generatedContent.metadata?.seoTitle || generatedContent.title}
                             </code>
                           </div>
                         </div>
@@ -320,7 +321,7 @@ const ContentGenerator = () => {
                           <Label className="md:col-span-1">Description</Label>
                           <div className="md:col-span-3">
                             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                              {generatedContent.metadata?.metaDescription}
+                              {generatedContent.metadata?.metaDescription || generatedContent.metadata?.description}
                             </code>
                           </div>
                         </div>
@@ -336,7 +337,7 @@ const ContentGenerator = () => {
                           <Label className="md:col-span-1">OG Title</Label>
                           <div className="md:col-span-3">
                             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                              {generatedContent.metadata?.ogTitle}
+                              {generatedContent.metadata?.ogTitle || generatedContent.title}
                             </code>
                           </div>
                         </div>
@@ -344,7 +345,7 @@ const ContentGenerator = () => {
                           <Label className="md:col-span-1">OG Description</Label>
                           <div className="md:col-span-3">
                             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                              {generatedContent.metadata?.ogDescription}
+                              {generatedContent.metadata?.ogDescription || generatedContent.metadata?.description}
                             </code>
                           </div>
                         </div>
@@ -360,7 +361,7 @@ const ContentGenerator = () => {
                           <Label className="md:col-span-1">Twitter Title</Label>
                           <div className="md:col-span-3">
                             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                              {generatedContent.metadata?.twitterTitle}
+                              {generatedContent.metadata?.twitterTitle || generatedContent.title}
                             </code>
                           </div>
                         </div>
@@ -368,7 +369,7 @@ const ContentGenerator = () => {
                           <Label className="md:col-span-1">Twitter Description</Label>
                           <div className="md:col-span-3">
                             <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
-                              {generatedContent.metadata?.twitterDescription}
+                              {generatedContent.metadata?.twitterDescription || generatedContent.metadata?.description}
                             </code>
                           </div>
                         </div>
@@ -380,7 +381,7 @@ const ContentGenerator = () => {
                     <div className="space-y-3">
                       <h3 className="text-lg font-medium">JSON-LD Schema</h3>
                       <pre className="bg-muted p-4 rounded-md overflow-x-auto text-xs">
-                        {JSON.stringify(generatedContent.metadata?.jsonLdSchema, null, 2)}
+                        {JSON.stringify(generatedContent.metadata?.jsonLdSchema || {}, null, 2)}
                       </pre>
                     </div>
                     
@@ -393,7 +394,7 @@ const ContentGenerator = () => {
                           <div key={index} className="p-3 bg-muted rounded-md">
                             {cta}
                           </div>
-                        ))}
+                        )) || <p className="text-muted-foreground">No CTA variants available</p>}
                       </div>
                     </div>
                   </div>
@@ -408,7 +409,7 @@ const ContentGenerator = () => {
                       <Button 
                         variant="outline" 
                         size="sm"
-                        onClick={() => copyToClipboard(JSON.stringify(generatedContent.metadata?.jsonLdSchema, null, 2), "JSON-LD Schema")}
+                        onClick={() => copyToClipboard(JSON.stringify(generatedContent.metadata?.jsonLdSchema || {}, null, 2), "JSON-LD Schema")}
                       >
                         {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
                         <span className="ml-2">{copied ? "Copied!" : "Copy"}</span>
@@ -428,7 +429,7 @@ const ContentGenerator = () => {
                     )}
                     
                     <pre className="bg-muted p-4 rounded-md overflow-x-auto text-xs max-h-[400px]">
-                      {JSON.stringify(generatedContent.metadata?.jsonLdSchema, null, 2)}
+                      {JSON.stringify(generatedContent.metadata?.jsonLdSchema || {}, null, 2)}
                     </pre>
                   </div>
                 </CardContent>
@@ -483,7 +484,7 @@ const ContentGenerator = () => {
                         <Button 
                           variant="outline" 
                           className="w-full justify-start gap-3"
-                          onClick={() => copyToClipboard(JSON.stringify(generatedContent.metadata?.jsonLdSchema, null, 2), "JSON-LD Schema")}
+                          onClick={() => copyToClipboard(JSON.stringify(generatedContent.metadata?.jsonLdSchema || {}, null, 2), "JSON-LD Schema")}
                         >
                           <Copy className="h-5 w-5" />
                           <div className="text-left">

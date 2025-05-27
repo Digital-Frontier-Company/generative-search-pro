@@ -32,7 +32,7 @@ const ContentHistory = () => {
   const [searchResults, setSearchResults] = useState<ContentBlock[] | null>(null);
   
   const { 
-    data: contentBlocks, 
+    data: contentBlocks = [], 
     isLoading, 
     refetch,
     isRefetching
