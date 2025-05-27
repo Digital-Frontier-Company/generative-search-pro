@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -82,12 +81,11 @@ const Header = () => {
           <div className="flex items-center space-x-8">
             <Link to="/" className="flex items-center space-x-2">
               <img 
-                src="/lovable-uploads/06f84961-215a-4c1a-855e-bd2ba1c43691.png" 
+                src="/lovable-uploads/efa6d4a6-cf30-4000-8443-bfd121535926.png" 
                 alt="GenerativeSearch.pro" 
-                className="h-8 w-8"
+                className="h-8"
                 style={{ background: 'transparent' }}
               />
-              <span className="text-xl font-bold text-gray-900">GenerativeSearch.pro</span>
             </Link>
             
             {user && (

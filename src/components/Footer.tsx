@@ -1,4 +1,3 @@
-
 import { Github, Twitter, Mail } from "lucide-react";
 
 const Footer = () => {
@@ -9,12 +8,11 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/06f84961-215a-4c1a-855e-bd2ba1c43691.png" 
+                src="/lovable-uploads/efa6d4a6-cf30-4000-8443-bfd121535926.png" 
                 alt="GenerativeSearch.pro" 
-                className="w-10 h-10"
+                className="h-10"
                 style={{ background: 'transparent' }}
               />
-              <span className="font-bold text-xl text-foreground">GenerativeSearch.pro</span>
             </div>
             <p className="text-muted-foreground text-sm max-w-xs">
               Generate optimized content for search engines and AI answer boxes with just a few clicks.
