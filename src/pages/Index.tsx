@@ -1,9 +1,12 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Zap, Database, Globe, Sparkles, ChevronDown, ChevronUp } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import JsonLdSchema from "@/components/JsonLdSchema";
+import { getHomepageSchema, getHomepageFAQSchema } from "@/utils/jsonLdSchemas";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -91,6 +94,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <JsonLdSchema schema={[...getHomepageSchema(), getHomepageFAQSchema()]} />
       <Header />
       
       {/* Hero Section with Purple Gradient Background */}

@@ -28,6 +28,8 @@ import {
   ContentBlock,
   generateContent 
 } from "@/services/contentService";
+import JsonLdSchema from "@/components/JsonLdSchema";
+import { generateArticleSchema } from "@/utils/jsonLdSchemas";
 
 const ContentGenerator = () => {
   const { user } = useAuth();
@@ -133,6 +135,13 @@ const ContentGenerator = () => {
 
   return (
     <div className="container max-w-7xl mx-auto py-8">
+      <JsonLdSchema schema={generateArticleSchema(
+        "AEO Content Generator - Generate SEO-Optimized Content",
+        "Generate SEO-optimized content with answer-first approach using our AI-powered content generator",
+        "https://generativesearch.pro/content-generator",
+        new Date().toISOString()
+      )} />
+      
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold">AEO Content Generator</h1>
