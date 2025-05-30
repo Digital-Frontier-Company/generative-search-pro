@@ -20,124 +20,24 @@ serve(async (req) => {
 
     console.log('Starting SEO analysis for domain:', domain)
     
-    // Normalize domain
-    const normalizedDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '')
-    const fullUrl = `https://${normalizedDomain}`
-    
-    // Fetch the page content
-    const pageResponse = await fetch(fullUrl, {
-      headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; SEOAnalyzer/1.0)'
-      }
-    })
-    
-    if (!pageResponse.ok) {
-      throw new Error(`Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`)
-    }
-    
-    const pageContent = await pageResponse.text()
-    console.log('Page content fetched, length:', pageContent.length)
-    
-    // Perform enhanced SEO analysis
-    const seoAnalysis = performEnhancedSEOAnalysis(pageContent, fullUrl)
-    console.log('SEO analysis completed:', seoAnalysis)
-    
-    // Check page speed using PageSpeed Insights
-    const performanceData = await checkPageSpeed(fullUrl)
-    console.log('Performance analysis completed:', performanceData)
-    
-    // Check backlinks
-    const backlinkData = await checkBacklinks(normalizedDomain)
-    console.log('Backlink analysis completed:', backlinkData)
-    
-    // Calculate weighted SEO scores
-    const seoScores = calculateSEOScore(seoAnalysis.technicalFindings, backlinkData, performanceData)
-    console.log('SEO scores calculated:', seoScores)
-    
-    // Store the analysis in Supabase
+    // Initialize Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
     
     if (!supabaseUrl || !supabaseKey) {
       throw new Error('Supabase configuration missing')
     }
+
+    // Use the improved analyzeDomain function
+    const result = await analyzeDomain(domain, user_id, { supabaseUrl, supabaseKey })
     
-    console.log('Storing SEO analysis in database...')
-    
-    // Insert main analysis with calculated scores
-    const analysisResponse = await fetch(`${supabaseUrl}/rest/v1/seo_analyses`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-        'apikey': supabaseKey,
-        'Prefer': 'return=representation',
-      },
-      body: JSON.stringify({
-        user_id,
-        domain: normalizedDomain,
-        technical_score: seoScores.technical,
-        backlink_score: seoScores.backlinks,
-        performance_score: seoScores.speed,
-        total_score: seoScores.total,
-        analysis_data: {
-          ...seoAnalysis.analysisData,
-          performance: performanceData,
-          backlinks: backlinkData
-        },
-        status: 'completed'
-      }),
-    })
-    
-    if (!analysisResponse.ok) {
-      const errorText = await analysisResponse.text()
-      console.error('Supabase analysis storage error:', errorText)
-      throw new Error(`Failed to store analysis: ${analysisResponse.status} ${errorText}`)
+    if (!result.success) {
+      throw new Error(result.error)
     }
-    
-    const storedAnalysis = await analysisResponse.json()
-    const analysisId = storedAnalysis[0].id
-    console.log('Analysis stored successfully with ID:', analysisId)
-    
-    // Combine technical, performance, and backlink findings
-    const allFindings = [
-      ...seoAnalysis.technicalFindings,
-      ...performanceData.findings,
-      ...backlinkData.findings
-    ]
-    
-    // Insert technical findings
-    if (allFindings.length > 0) {
-      const findingsResponse = await fetch(`${supabaseUrl}/rest/v1/technical_findings`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${supabaseKey}`,
-          'Content-Type': 'application/json',
-          'apikey': supabaseKey,
-          'Prefer': 'return=representation',
-        },
-        body: JSON.stringify(
-          allFindings.map(finding => ({
-            analysis_id: analysisId,
-            finding_type: finding.type,
-            status: finding.status,
-            message: finding.message,
-            url: finding.url
-          }))
-        ),
-      })
-      
-      if (!findingsResponse.ok) {
-        const errorText = await findingsResponse.text()
-        console.error('Supabase findings storage error:', errorText)
-      } else {
-        console.log('Technical findings stored successfully')
-      }
-    }
-    
+
     // Fetch the complete analysis with findings for response
     const completeAnalysisResponse = await fetch(
-      `${supabaseUrl}/rest/v1/seo_analyses?id=eq.${analysisId}&select=*,technical_findings(*)`,
+      `${supabaseUrl}/rest/v1/seo_analyses?id=eq.${result.analysisId}&select=*,technical_findings(*)`,
       {
         headers: {
           'Authorization': `Bearer ${supabaseKey}`,
@@ -172,6 +72,144 @@ serve(async (req) => {
     )
   }
 })
+
+async function analyzeDomain(domain, user_id, supabaseConfig) {
+  try {
+    // Clean the domain (remove http/https if present)
+    const cleanDomain = domain.replace(/^https?:\/\//, '').replace(/^www\./, '')
+    const fullUrl = `https://${cleanDomain}`
+    
+    console.log('Running parallel analyses for:', fullUrl)
+    
+    // Run all analyses in parallel for better performance
+    const [metaResults, speedResults, backlinkResults] = await Promise.all([
+      checkMetaTags(fullUrl),
+      checkPageSpeed(fullUrl),
+      checkBacklinks(cleanDomain)
+    ])
+    
+    console.log('All analyses completed')
+    
+    // Calculate weighted scores
+    const scores = calculateSEOScore(metaResults.findings, backlinkResults, speedResults)
+    console.log('SEO scores calculated:', scores)
+    
+    // Store analysis in Supabase
+    const analysisResponse = await fetch(`${supabaseConfig.supabaseUrl}/rest/v1/seo_analyses`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${supabaseConfig.supabaseKey}`,
+        'Content-Type': 'application/json',
+        'apikey': supabaseConfig.supabaseKey,
+        'Prefer': 'return=representation',
+      },
+      body: JSON.stringify({
+        user_id,
+        domain: cleanDomain,
+        technical_score: scores.technical,
+        backlink_score: scores.backlinks,
+        performance_score: scores.speed,
+        total_score: scores.total,
+        analysis_data: {
+          ...metaResults.analysisData,
+          performance: speedResults,
+          backlinks: backlinkResults
+        },
+        status: 'completed'
+      }),
+    })
+    
+    if (!analysisResponse.ok) {
+      const errorText = await analysisResponse.text()
+      console.error('Supabase analysis storage error:', errorText)
+      throw new Error(`Failed to store analysis: ${analysisResponse.status} ${errorText}`)
+    }
+    
+    const storedAnalysis = await analysisResponse.json()
+    const analysisId = storedAnalysis[0].id
+    console.log('Analysis stored successfully with ID:', analysisId)
+    
+    // Combine all findings
+    const allFindings = [
+      ...metaResults.findings,
+      ...speedResults.findings,
+      ...backlinkResults.findings
+    ]
+    
+    // Store technical findings
+    if (allFindings.length > 0) {
+      const findingsResponse = await fetch(`${supabaseConfig.supabaseUrl}/rest/v1/technical_findings`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${supabaseConfig.supabaseKey}`,
+          'Content-Type': 'application/json',
+          'apikey': supabaseConfig.supabaseKey,
+          'Prefer': 'return=representation',
+        },
+        body: JSON.stringify(
+          allFindings.map(finding => ({
+            analysis_id: analysisId,
+            finding_type: finding.type,
+            status: finding.status,
+            message: finding.message,
+            url: finding.url
+          }))
+        ),
+      })
+      
+      if (!findingsResponse.ok) {
+        const errorText = await findingsResponse.text()
+        console.error('Supabase findings storage error:', errorText)
+      } else {
+        console.log('Technical findings stored successfully')
+      }
+    }
+    
+    return {
+      success: true,
+      scores: scores,
+      findings: allFindings,
+      analysisId: analysisId
+    }
+    
+  } catch (error) {
+    console.error('Analysis failed:', error)
+    return { success: false, error: error.message }
+  }
+}
+
+async function checkMetaTags(url) {
+  try {
+    console.log('Checking meta tags for:', url)
+    
+    const pageResponse = await fetch(url, {
+      headers: {
+        'User-Agent': 'Mozilla/5.0 (compatible; SEOAnalyzer/1.0)'
+      }
+    })
+    
+    if (!pageResponse.ok) {
+      throw new Error(`Failed to fetch page: ${pageResponse.status} ${pageResponse.statusText}`)
+    }
+    
+    const pageContent = await pageResponse.text()
+    console.log('Page content fetched, length:', pageContent.length)
+    
+    return performEnhancedSEOAnalysis(pageContent, url)
+    
+  } catch (error) {
+    console.error('Meta tags check error:', error)
+    return {
+      findings: [{
+        type: 'meta_tags',
+        status: 'error',
+        message: `Could not check meta tags: ${error.message}`,
+        url
+      }],
+      analysisData: {}
+    }
+  }
+}
 
 async function checkBacklinks(domain: string) {
   try {
@@ -652,7 +690,8 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
       hasCanonical: !!canonicalMatch,
       hasViewportMeta: !!metaViewportMatch,
       hasCharsetMeta: !!metaCharsetMatch
-    }
+    },
+    findings: technicalFindings
   }
 }
 
