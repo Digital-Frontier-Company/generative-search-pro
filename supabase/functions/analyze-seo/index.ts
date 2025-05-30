@@ -39,8 +39,8 @@ serve(async (req) => {
     const pageContent = await pageResponse.text()
     console.log('Page content fetched, length:', pageContent.length)
     
-    // Perform SEO analysis
-    const seoAnalysis = performSEOAnalysis(pageContent, fullUrl)
+    // Perform enhanced SEO analysis
+    const seoAnalysis = performEnhancedSEOAnalysis(pageContent, fullUrl)
     console.log('SEO analysis completed:', seoAnalysis)
     
     // Store the analysis in Supabase
@@ -150,12 +150,12 @@ serve(async (req) => {
   }
 })
 
-function performSEOAnalysis(html: string, url: string) {
+function performEnhancedSEOAnalysis(html: string, url: string) {
   const technicalFindings = []
   let technicalScore = 100
   let backlinkScore = 50 // Default since we can't check backlinks easily
   
-  // Check title tag
+  // Enhanced title tag analysis
   const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
   if (!titleMatch) {
     technicalFindings.push({
@@ -167,11 +167,19 @@ function performSEOAnalysis(html: string, url: string) {
     technicalScore -= 15
   } else {
     const title = titleMatch[1].trim()
-    if (title.length < 30) {
+    if (title.length === 0) {
+      technicalFindings.push({
+        type: 'title_tag',
+        status: 'error',
+        message: 'Empty title tag',
+        url
+      })
+      technicalScore -= 15
+    } else if (title.length < 30) {
       technicalFindings.push({
         type: 'title_tag',
         status: 'warning',
-        message: 'Title tag is too short (less than 30 characters)',
+        message: `Title tag is too short (${title.length} characters, recommended: 30-60)`,
         url
       })
       technicalScore -= 5
@@ -179,7 +187,7 @@ function performSEOAnalysis(html: string, url: string) {
       technicalFindings.push({
         type: 'title_tag',
         status: 'warning',
-        message: 'Title tag is too long (more than 60 characters)',
+        message: `Title tag is too long (${title.length} characters, recommended: 30-60)`,
         url
       })
       technicalScore -= 5
@@ -187,13 +195,13 @@ function performSEOAnalysis(html: string, url: string) {
       technicalFindings.push({
         type: 'title_tag',
         status: 'good',
-        message: 'Title tag length is optimal',
+        message: `Title tag length is optimal (${title.length} characters)`,
         url
       })
     }
   }
   
-  // Check meta description
+  // Enhanced meta description analysis
   const metaDescMatch = html.match(/<meta[^>]*name=["']description["'][^>]*content=["']([^"']+)["']/i)
   if (!metaDescMatch) {
     technicalFindings.push({
@@ -205,11 +213,19 @@ function performSEOAnalysis(html: string, url: string) {
     technicalScore -= 10
   } else {
     const description = metaDescMatch[1].trim()
-    if (description.length < 120) {
+    if (description.length === 0) {
+      technicalFindings.push({
+        type: 'meta_description',
+        status: 'error',
+        message: 'Empty meta description',
+        url
+      })
+      technicalScore -= 10
+    } else if (description.length < 120) {
       technicalFindings.push({
         type: 'meta_description',
         status: 'warning',
-        message: 'Meta description is too short (less than 120 characters)',
+        message: `Meta description is too short (${description.length} characters, recommended: 120-160)`,
         url
       })
       technicalScore -= 5
@@ -217,7 +233,7 @@ function performSEOAnalysis(html: string, url: string) {
       technicalFindings.push({
         type: 'meta_description',
         status: 'warning',
-        message: 'Meta description is too long (more than 160 characters)',
+        message: `Meta description is too long (${description.length} characters, recommended: 120-160)`,
         url
       })
       technicalScore -= 5
@@ -225,13 +241,51 @@ function performSEOAnalysis(html: string, url: string) {
       technicalFindings.push({
         type: 'meta_description',
         status: 'good',
-        message: 'Meta description length is optimal',
+        message: `Meta description length is optimal (${description.length} characters)`,
         url
       })
     }
   }
   
-  // Check H1 tags
+  // Check for other important meta tags
+  const metaViewportMatch = html.match(/<meta[^>]*name=["']viewport["']/i)
+  if (!metaViewportMatch) {
+    technicalFindings.push({
+      type: 'meta_tags',
+      status: 'warning',
+      message: 'Missing viewport meta tag (important for mobile)',
+      url
+    })
+    technicalScore -= 3
+  } else {
+    technicalFindings.push({
+      type: 'meta_tags',
+      status: 'good',
+      message: 'Viewport meta tag found',
+      url
+    })
+  }
+  
+  // Check for charset meta tag
+  const metaCharsetMatch = html.match(/<meta[^>]*charset=["']?([^"'\s>]+)/i)
+  if (!metaCharsetMatch) {
+    technicalFindings.push({
+      type: 'meta_tags',
+      status: 'warning',
+      message: 'Missing charset meta tag',
+      url
+    })
+    technicalScore -= 2
+  } else {
+    technicalFindings.push({
+      type: 'meta_tags',
+      status: 'good',
+      message: `Charset meta tag found: ${metaCharsetMatch[1]}`,
+      url
+    })
+  }
+  
+  // Enhanced H1 analysis
   const h1Matches = html.match(/<h1[^>]*>([^<]+)<\/h1>/gi)
   if (!h1Matches) {
     technicalFindings.push({
@@ -245,54 +299,149 @@ function performSEOAnalysis(html: string, url: string) {
     technicalFindings.push({
       type: 'headings',
       status: 'warning',
-      message: `Multiple H1 tags found (${h1Matches.length})`,
+      message: `Multiple H1 tags found (${h1Matches.length}). Consider using only one H1 per page.`,
       url
     })
     technicalScore -= 5
   } else {
+    const h1Content = h1Matches[0].replace(/<[^>]*>/g, '').trim()
     technicalFindings.push({
       type: 'headings',
       status: 'good',
-      message: 'Single H1 tag found',
+      message: `Single H1 tag found with content: "${h1Content.substring(0, 50)}${h1Content.length > 50 ? '...' : ''}"`,
       url
     })
   }
   
-  // Check images alt attributes
+  // Check heading hierarchy
+  const h2Matches = html.match(/<h2[^>]*>/gi) || []
+  const h3Matches = html.match(/<h3[^>]*>/gi) || []
+  const h4Matches = html.match(/<h4[^>]*>/gi) || []
+  
+  if (h2Matches.length > 0 || h3Matches.length > 0 || h4Matches.length > 0) {
+    technicalFindings.push({
+      type: 'headings',
+      status: 'good',
+      message: `Good heading structure: H1(${h1Matches ? h1Matches.length : 0}), H2(${h2Matches.length}), H3(${h3Matches.length}), H4(${h4Matches.length})`,
+      url
+    })
+  }
+  
+  // Enhanced image analysis
   const imgMatches = html.match(/<img[^>]*>/gi) || []
   const imgsWithoutAlt = imgMatches.filter(img => !img.includes('alt=')).length
-  if (imgsWithoutAlt > 0) {
+  const imgsWithEmptyAlt = imgMatches.filter(img => img.match(/alt=["']?\s*["']?/)).length
+  
+  if (imgMatches.length === 0) {
+    technicalFindings.push({
+      type: 'images',
+      status: 'info',
+      message: 'No images found on the page',
+      url
+    })
+  } else if (imgsWithoutAlt > 0) {
     technicalFindings.push({
       type: 'images',
       status: 'warning',
-      message: `${imgsWithoutAlt} images missing alt attributes`,
+      message: `${imgsWithoutAlt} out of ${imgMatches.length} images missing alt attributes`,
       url
     })
     technicalScore -= Math.min(imgsWithoutAlt * 2, 15)
-  } else if (imgMatches.length > 0) {
+  } else if (imgsWithEmptyAlt > 0) {
+    technicalFindings.push({
+      type: 'images',
+      status: 'warning',
+      message: `${imgsWithEmptyAlt} out of ${imgMatches.length} images have empty alt attributes`,
+      url
+    })
+    technicalScore -= Math.min(imgsWithEmptyAlt * 1, 10)
+  } else {
     technicalFindings.push({
       type: 'images',
       status: 'good',
-      message: 'All images have alt attributes',
+      message: `All ${imgMatches.length} images have alt attributes`,
       url
     })
   }
   
-  // Check for structured data
-  const structuredDataMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>/gi)
-  if (!structuredDataMatches) {
+  // Enhanced structured data analysis
+  const jsonLdMatches = html.match(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([^<]*)<\/script>/gi)
+  const microdataMatches = html.match(/itemscope|itemtype|itemprop/gi) || []
+  
+  if (!jsonLdMatches && microdataMatches.length === 0) {
     technicalFindings.push({
       type: 'structured_data',
       status: 'warning',
-      message: 'No structured data (JSON-LD) found',
+      message: 'No structured data (JSON-LD or Microdata) found',
       url
     })
     technicalScore -= 5
   } else {
+    let structuredDataTypes = []
+    if (jsonLdMatches) {
+      structuredDataTypes.push(`JSON-LD (${jsonLdMatches.length} blocks)`)
+    }
+    if (microdataMatches.length > 0) {
+      structuredDataTypes.push(`Microdata (${microdataMatches.length} elements)`)
+    }
     technicalFindings.push({
       type: 'structured_data',
       status: 'good',
-      message: 'Structured data found',
+      message: `Structured data found: ${structuredDataTypes.join(', ')}`,
+      url
+    })
+  }
+  
+  // Check for Open Graph tags
+  const ogTitleMatch = html.match(/<meta[^>]*property=["']og:title["'][^>]*content=["']([^"']+)["']/i)
+  const ogDescMatch = html.match(/<meta[^>]*property=["']og:description["'][^>]*content=["']([^"']+)["']/i)
+  const ogImageMatch = html.match(/<meta[^>]*property=["']og:image["'][^>]*content=["']([^"']+)["']/i)
+  
+  let ogTagsCount = 0
+  if (ogTitleMatch) ogTagsCount++
+  if (ogDescMatch) ogTagsCount++
+  if (ogImageMatch) ogTagsCount++
+  
+  if (ogTagsCount === 0) {
+    technicalFindings.push({
+      type: 'social_tags',
+      status: 'warning',
+      message: 'No Open Graph tags found (important for social media sharing)',
+      url
+    })
+    technicalScore -= 3
+  } else if (ogTagsCount < 3) {
+    technicalFindings.push({
+      type: 'social_tags',
+      status: 'warning',
+      message: `Partial Open Graph implementation (${ogTagsCount}/3 basic tags found)`,
+      url
+    })
+    technicalScore -= 2
+  } else {
+    technicalFindings.push({
+      type: 'social_tags',
+      status: 'good',
+      message: 'Complete Open Graph tags found (title, description, image)',
+      url
+    })
+  }
+  
+  // Check for canonical URL
+  const canonicalMatch = html.match(/<link[^>]*rel=["']canonical["'][^>]*href=["']([^"']+)["']/i)
+  if (!canonicalMatch) {
+    technicalFindings.push({
+      type: 'canonical',
+      status: 'warning',
+      message: 'No canonical URL found',
+      url
+    })
+    technicalScore -= 2
+  } else {
+    technicalFindings.push({
+      type: 'canonical',
+      status: 'good',
+      message: `Canonical URL found: ${canonicalMatch[1]}`,
       url
     })
   }
@@ -311,10 +460,25 @@ function performSEOAnalysis(html: string, url: string) {
       pageSize: html.length,
       imageCount: imgMatches.length,
       imagesWithoutAlt: imgsWithoutAlt,
-      hasStructuredData: !!structuredDataMatches,
+      imagesWithEmptyAlt: imgsWithEmptyAlt,
+      hasStructuredData: !!(jsonLdMatches || microdataMatches.length > 0),
+      structuredDataTypes: {
+        jsonLd: jsonLdMatches ? jsonLdMatches.length : 0,
+        microdata: microdataMatches.length
+      },
       titleLength: titleMatch ? titleMatch[1].trim().length : 0,
       metaDescriptionLength: metaDescMatch ? metaDescMatch[1].trim().length : 0,
-      h1Count: h1Matches ? h1Matches.length : 0
+      h1Count: h1Matches ? h1Matches.length : 0,
+      headingCounts: {
+        h1: h1Matches ? h1Matches.length : 0,
+        h2: h2Matches.length,
+        h3: h3Matches.length,
+        h4: h4Matches.length
+      },
+      openGraphTags: ogTagsCount,
+      hasCanonical: !!canonicalMatch,
+      hasViewportMeta: !!metaViewportMatch,
+      hasCharsetMeta: !!metaCharsetMatch
     }
   }
 }
