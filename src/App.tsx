@@ -10,6 +10,7 @@ import ContentGenerator from '@/pages/ContentGenerator';
 import ContentHistory from '@/pages/ContentHistory';
 import DomainAnalysis from '@/pages/DomainAnalysis';
 import SchemaAnalysis from '@/pages/SchemaAnalysis';
+import SEOAnalysis from '@/pages/SEOAnalysis';
 import CitationCheckerPage from '@/pages/CitationChecker';
 import AISitemap from '@/pages/AISitemap';
 import Settings from '@/pages/Settings';
@@ -35,6 +36,7 @@ function App() {
               <Route path="/content-history" element={<ProtectedRoute><ContentHistory /></ProtectedRoute>} />
               <Route path="/domain-analysis" element={<ProtectedRoute><DomainAnalysis /></ProtectedRoute>} />
               <Route path="/schema-analysis" element={<ProtectedRoute><SchemaAnalysis /></ProtectedRoute>} />
+              <Route path="/seo-analysis" element={<ProtectedRoute><SEOAnalysis /></ProtectedRoute>} />
               <Route path="/citation-checker" element={<ProtectedRoute><CitationCheckerPage /></ProtectedRoute>} />
               <Route path="/ai-sitemap" element={<ProtectedRoute><AISitemap /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />

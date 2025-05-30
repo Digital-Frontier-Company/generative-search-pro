@@ -297,6 +297,91 @@ export type Database = {
           },
         ]
       }
+      seo_analyses: {
+        Row: {
+          analysis_data: Json | null
+          backlink_score: number | null
+          created_at: string | null
+          domain: string
+          id: string
+          status: string | null
+          technical_score: number | null
+          total_score: number | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          analysis_data?: Json | null
+          backlink_score?: number | null
+          created_at?: string | null
+          domain: string
+          id?: string
+          status?: string | null
+          technical_score?: number | null
+          total_score?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          analysis_data?: Json | null
+          backlink_score?: number | null
+          created_at?: string | null
+          domain?: string
+          id?: string
+          status?: string | null
+          technical_score?: number | null
+          total_score?: number | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "seo_analyses_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      technical_findings: {
+        Row: {
+          analysis_id: string | null
+          created_at: string | null
+          finding_type: string | null
+          id: string
+          message: string | null
+          status: string | null
+          url: string | null
+        }
+        Insert: {
+          analysis_id?: string | null
+          created_at?: string | null
+          finding_type?: string | null
+          id?: string
+          message?: string | null
+          status?: string | null
+          url?: string | null
+        }
+        Update: {
+          analysis_id?: string | null
+          created_at?: string | null
+          finding_type?: string | null
+          id?: string
+          message?: string | null
+          status?: string | null
+          url?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "technical_findings_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "seo_analyses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_documents: {
         Row: {
           extracted_content: string | null
