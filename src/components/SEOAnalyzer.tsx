@@ -1,11 +1,10 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Loader2, Search, Globe, CheckCircle, AlertTriangle, XCircle } from "lucide-react";
+import { Loader2, Search, Globe, CheckCircle, AlertTriangle, XCircle, Link } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -120,7 +119,7 @@ const SEOAnalyzer = () => {
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold mb-4 text-white">SEO Analysis Tool</h1>
           <p className="text-gray-400 mb-8">
-            Comprehensive SEO analysis including technical aspects, meta tags, performance, and more.
+            Comprehensive SEO analysis including technical aspects, meta tags, performance, and backlinks.
           </p>
         </div>
 
@@ -188,7 +187,10 @@ const SEOAnalyzer = () => {
                     <div className={`text-3xl font-bold ${getScoreColor(result.backlink_score)}`}>
                       {result.backlink_score}
                     </div>
-                    <div className="text-gray-400">Backlink Score</div>
+                    <div className="text-gray-400 flex items-center justify-center gap-1">
+                      <Link className="h-4 w-4" />
+                      Backlink Score
+                    </div>
                   </div>
                   <div className="text-center p-4 bg-gray-800 rounded-lg">
                     <div className={`text-3xl font-bold ${getScoreColor(result.performance_score || 0)}`}>
@@ -210,9 +212,9 @@ const SEOAnalyzer = () => {
             {result.technical_findings && result.technical_findings.length > 0 && (
               <Card className="bg-gray-900 border-gray-700">
                 <CardHeader>
-                  <CardTitle className="text-white">Technical Findings</CardTitle>
+                  <CardTitle className="text-white">Analysis Findings</CardTitle>
                   <CardDescription className="text-gray-400">
-                    Detailed technical analysis results including performance metrics
+                    Detailed analysis results including technical, performance, and backlink metrics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -264,7 +266,7 @@ const SEOAnalyzer = () => {
                 <CardHeader>
                   <CardTitle className="text-white">Detailed Analysis Data</CardTitle>
                   <CardDescription className="text-gray-400">
-                    Raw analysis information including performance metrics
+                    Raw analysis information including performance and backlink metrics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
