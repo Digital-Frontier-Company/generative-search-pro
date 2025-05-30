@@ -1,4 +1,3 @@
-
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
 
@@ -43,6 +42,10 @@ serve(async (req) => {
     const seoAnalysis = performEnhancedSEOAnalysis(pageContent, fullUrl)
     console.log('SEO analysis completed:', seoAnalysis)
     
+    // Check page speed using PageSpeed Insights
+    const performanceData = await checkPageSpeed(fullUrl)
+    console.log('Performance analysis completed:', performanceData)
+    
     // Store the analysis in Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -67,8 +70,12 @@ serve(async (req) => {
         domain: normalizedDomain,
         technical_score: seoAnalysis.technicalScore,
         backlink_score: seoAnalysis.backlinkScore,
-        total_score: seoAnalysis.totalScore,
-        analysis_data: seoAnalysis.analysisData,
+        performance_score: performanceData.score,
+        total_score: Math.round((seoAnalysis.technicalScore + seoAnalysis.backlinkScore + performanceData.score) / 3),
+        analysis_data: {
+          ...seoAnalysis.analysisData,
+          performance: performanceData
+        },
         status: 'completed'
       }),
     })
@@ -83,8 +90,14 @@ serve(async (req) => {
     const analysisId = storedAnalysis[0].id
     console.log('Analysis stored successfully with ID:', analysisId)
     
+    // Combine technical and performance findings
+    const allFindings = [
+      ...seoAnalysis.technicalFindings,
+      ...performanceData.findings
+    ]
+    
     // Insert technical findings
-    if (seoAnalysis.technicalFindings.length > 0) {
+    if (allFindings.length > 0) {
       const findingsResponse = await fetch(`${supabaseUrl}/rest/v1/technical_findings`, {
         method: 'POST',
         headers: {
@@ -94,7 +107,7 @@ serve(async (req) => {
           'Prefer': 'return=representation',
         },
         body: JSON.stringify(
-          seoAnalysis.technicalFindings.map(finding => ({
+          allFindings.map(finding => ({
             analysis_id: analysisId,
             finding_type: finding.type,
             status: finding.status,
@@ -149,6 +162,87 @@ serve(async (req) => {
     )
   }
 })
+
+async function checkPageSpeed(url: string) {
+  try {
+    const googleApiKey = Deno.env.get('GOOGLE_API_KEY')
+    
+    if (!googleApiKey) {
+      console.warn('Google API key not found, skipping PageSpeed analysis')
+      return {
+        score: 50, // Default neutral score
+        findings: [{
+          type: 'performance',
+          status: 'warning',
+          message: 'PageSpeed analysis unavailable - Google API key not configured',
+          url
+        }]
+      }
+    }
+    
+    console.log('Checking page speed for:', url)
+    
+    const response = await fetch(
+      `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&key=${googleApiKey}&category=PERFORMANCE`
+    )
+    
+    if (!response.ok) {
+      throw new Error(`PageSpeed API error: ${response.status}`)
+    }
+    
+    const data = await response.json()
+    
+    if (!data.lighthouseResult?.categories?.performance) {
+      throw new Error('Invalid PageSpeed API response')
+    }
+    
+    const score = Math.round(data.lighthouseResult.categories.performance.score * 100)
+    
+    // Get additional performance metrics
+    const audits = data.lighthouseResult.audits
+    const findings = [{
+      type: 'performance',
+      status: score > 90 ? 'good' : score > 50 ? 'warning' : 'error',
+      message: `PageSpeed score: ${score}/100`,
+      url
+    }]
+    
+    // Add specific performance findings
+    if (audits['first-contentful-paint']) {
+      const fcp = audits['first-contentful-paint'].displayValue
+      findings.push({
+        type: 'performance',
+        status: audits['first-contentful-paint'].score > 0.9 ? 'good' : audits['first-contentful-paint'].score > 0.5 ? 'warning' : 'error',
+        message: `First Contentful Paint: ${fcp}`,
+        url
+      })
+    }
+    
+    if (audits['largest-contentful-paint']) {
+      const lcp = audits['largest-contentful-paint'].displayValue
+      findings.push({
+        type: 'performance',
+        status: audits['largest-contentful-paint'].score > 0.9 ? 'good' : audits['largest-contentful-paint'].score > 0.5 ? 'warning' : 'error',
+        message: `Largest Contentful Paint: ${lcp}`,
+        url
+      })
+    }
+    
+    return { score, findings }
+    
+  } catch (error) {
+    console.error('PageSpeed check error:', error)
+    return { 
+      score: 0, 
+      findings: [{
+        type: 'performance',
+        status: 'error',
+        message: `Could not check page speed: ${error.message}`,
+        url
+      }]
+    }
+  }
+}
 
 function performEnhancedSEOAnalysis(html: string, url: string) {
   const technicalFindings = []
@@ -449,12 +543,9 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
   // Ensure scores don't go below 0
   technicalScore = Math.max(0, technicalScore)
   
-  const totalScore = Math.round((technicalScore + backlinkScore) / 2)
-  
   return {
     technicalScore,
     backlinkScore,
-    totalScore,
     technicalFindings,
     analysisData: {
       pageSize: html.length,

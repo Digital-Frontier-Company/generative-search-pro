@@ -22,6 +22,7 @@ interface SEOAnalysisResult {
   domain: string;
   technical_score: number;
   backlink_score: number;
+  performance_score: number;
   total_score: number;
   analysis_data: any;
   status: string;
@@ -176,7 +177,7 @@ const SEOAnalyzer = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
                   <div className="text-center p-4 bg-gray-800 rounded-lg">
                     <div className={`text-3xl font-bold ${getScoreColor(result.technical_score)}`}>
                       {result.technical_score}
@@ -188,6 +189,12 @@ const SEOAnalyzer = () => {
                       {result.backlink_score}
                     </div>
                     <div className="text-gray-400">Backlink Score</div>
+                  </div>
+                  <div className="text-center p-4 bg-gray-800 rounded-lg">
+                    <div className={`text-3xl font-bold ${getScoreColor(result.performance_score || 0)}`}>
+                      {result.performance_score || 0}
+                    </div>
+                    <div className="text-gray-400">Performance Score</div>
                   </div>
                   <div className="text-center p-4 bg-gray-800 rounded-lg">
                     <div className={`text-3xl font-bold ${getScoreColor(result.total_score)}`}>
@@ -205,7 +212,7 @@ const SEOAnalyzer = () => {
                 <CardHeader>
                   <CardTitle className="text-white">Technical Findings</CardTitle>
                   <CardDescription className="text-gray-400">
-                    Detailed technical analysis results
+                    Detailed technical analysis results including performance metrics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -257,7 +264,7 @@ const SEOAnalyzer = () => {
                 <CardHeader>
                   <CardTitle className="text-white">Detailed Analysis Data</CardTitle>
                   <CardDescription className="text-gray-400">
-                    Raw analysis information
+                    Raw analysis information including performance metrics
                   </CardDescription>
                 </CardHeader>
                 <CardContent>

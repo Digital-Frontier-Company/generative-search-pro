@@ -304,6 +304,7 @@ export type Database = {
           created_at: string | null
           domain: string
           id: string
+          performance_score: number | null
           status: string | null
           technical_score: number | null
           total_score: number | null
@@ -316,6 +317,7 @@ export type Database = {
           created_at?: string | null
           domain: string
           id?: string
+          performance_score?: number | null
           status?: string | null
           technical_score?: number | null
           total_score?: number | null
@@ -328,6 +330,7 @@ export type Database = {
           created_at?: string | null
           domain?: string
           id?: string
+          performance_score?: number | null
           status?: string | null
           technical_score?: number | null
           total_score?: number | null
