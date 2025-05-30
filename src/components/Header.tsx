@@ -66,6 +66,7 @@ const Header = () => {
     { path: '/content-generator', label: 'Content Generator' },
     { path: '/content-history', label: 'Content History' },
     { path: '/domain-analysis', label: 'Domain Analysis' },
+    { path: '/seo-analysis', label: 'SEO Analysis' },
   ];
 
   const aiToolsItems = [
