@@ -50,6 +50,10 @@ serve(async (req) => {
     const backlinkData = await checkBacklinks(normalizedDomain)
     console.log('Backlink analysis completed:', backlinkData)
     
+    // Calculate weighted SEO scores
+    const seoScores = calculateSEOScore(seoAnalysis.technicalFindings, backlinkData, performanceData)
+    console.log('SEO scores calculated:', seoScores)
+    
     // Store the analysis in Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL')
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
@@ -60,13 +64,7 @@ serve(async (req) => {
     
     console.log('Storing SEO analysis in database...')
     
-    // Calculate final scores
-    const technicalScore = seoAnalysis.technicalScore
-    const backlinkScore = backlinkData.domain_authority || 0
-    const performanceScore = performanceData.score
-    const totalScore = Math.round((technicalScore + backlinkScore + performanceScore) / 3)
-    
-    // Insert main analysis
+    // Insert main analysis with calculated scores
     const analysisResponse = await fetch(`${supabaseUrl}/rest/v1/seo_analyses`, {
       method: 'POST',
       headers: {
@@ -78,10 +76,10 @@ serve(async (req) => {
       body: JSON.stringify({
         user_id,
         domain: normalizedDomain,
-        technical_score: technicalScore,
-        backlink_score: backlinkScore,
-        performance_score: performanceScore,
-        total_score: totalScore,
+        technical_score: seoScores.technical,
+        backlink_score: seoScores.backlinks,
+        performance_score: seoScores.speed,
+        total_score: seoScores.total,
         analysis_data: {
           ...seoAnalysis.analysisData,
           performance: performanceData,
@@ -656,4 +654,32 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
       hasCharsetMeta: !!metaCharsetMatch
     }
   }
+}
+
+function calculateSEOScore(technicalFindings, backlinkData, pageSpeedData) {
+  let totalScore = 0;
+  let maxScore = 100;
+  
+  // Technical SEO scoring (40% of total)
+  let technicalScore = 40;
+  technicalFindings.forEach(finding => {
+    if (finding.status === 'error') technicalScore -= 10;
+    if (finding.status === 'warning') technicalScore -= 5;
+  });
+  technicalScore = Math.max(0, technicalScore);
+  
+  // Page Speed scoring (30% of total)
+  const speedScore = (pageSpeedData.score / 100) * 30;
+  
+  // Backlink scoring (30% of total)
+  const backlinkScore = (backlinkData.domain_authority / 100) * 30;
+  
+  totalScore = technicalScore + speedScore + backlinkScore;
+  
+  return {
+    total: Math.round(totalScore),
+    technical: Math.round(technicalScore),
+    speed: Math.round(speedScore),
+    backlinks: Math.round(backlinkScore)
+  };
 }
