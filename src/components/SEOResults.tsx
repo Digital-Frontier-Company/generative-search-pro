@@ -14,12 +14,17 @@ interface SEOResultsProps {
       type: string;
       status: string;
       message: string;
+      url?: string;
     }>;
   } | null;
 }
 
 const SEOResults = ({ results }: SEOResultsProps) => {
-  if (!results) return null;
+  console.log('SEOResults received:', results);
+  
+  if (!results) {
+    return null;
+  }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -46,6 +51,12 @@ const SEOResults = ({ results }: SEOResultsProps) => {
         return 'bg-gray-900/20 border-gray-500/20';
     }
   };
+
+  const getScoreColor = (score: number) => {
+    if (score > 80) return 'text-green-500';
+    if (score > 60) return 'text-yellow-500';
+    return 'text-red-500';
+  };
   
   return (
     <div className="space-y-6">
@@ -58,10 +69,7 @@ const SEOResults = ({ results }: SEOResultsProps) => {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
             <div className="bg-gray-800 p-6 rounded-lg border border-gray-600">
               <h3 className="font-semibold text-gray-300 mb-2">Total Score</h3>
-              <div className={`text-3xl font-bold ${
-                results.scores.total > 80 ? 'text-green-500' : 
-                results.scores.total > 60 ? 'text-yellow-500' : 'text-red-500'
-              }`}>
+              <div className={`text-3xl font-bold ${getScoreColor(results.scores.total)}`}>
                 {results.scores.total}/100
               </div>
             </div>
@@ -85,24 +93,30 @@ const SEOResults = ({ results }: SEOResultsProps) => {
           {/* Detailed Findings */}
           <div className="bg-gray-800 p-6 rounded-lg border border-gray-600">
             <h3 className="text-xl font-semibold mb-4 text-white">Detailed Findings</h3>
-            <div className="space-y-3">
-              {results.findings.map((finding, index) => (
-                <div 
-                  key={index} 
-                  className={`p-4 rounded-lg border ${getStatusColor(finding.status)}`}
-                >
-                  <div className="flex items-start gap-3">
-                    {getStatusIcon(finding.status)}
-                    <div className="flex-1">
-                      <span className="font-medium text-white capitalize">
-                        {finding.type.replace(/_/g, ' ')}:
-                      </span>
-                      <span className="ml-2 text-gray-300">{finding.message}</span>
+            {results.findings && results.findings.length > 0 ? (
+              <div className="space-y-3">
+                {results.findings.map((finding, index) => (
+                  <div 
+                    key={index} 
+                    className={`p-4 rounded-lg border ${getStatusColor(finding.status)}`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {getStatusIcon(finding.status)}
+                      <div className="flex-1">
+                        <span className="font-medium text-white capitalize">
+                          {finding.type.replace(/_/g, ' ')}:
+                        </span>
+                        <span className="ml-2 text-gray-300">{finding.message}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-gray-400 py-8">
+                <p>No detailed findings available</p>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>

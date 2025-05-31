@@ -18,6 +18,7 @@ interface SEOAnalysisResult {
     type: string;
     status: string;
     message: string;
+    url?: string;
   }>;
 }
 
@@ -58,13 +59,34 @@ const SEOAnalyzer = () => {
         throw error;
       }
       
-      if (!data || !data.success) {
-        throw new Error(data?.error || 'No SEO analysis data returned');
+      console.log('Raw response data:', data);
+      
+      // Handle both response formats from the edge function
+      let analysisData;
+      if (data.analysis) {
+        // New format with analysis object
+        analysisData = data.analysis;
+      } else if (data.success && data.scores) {
+        // Direct format
+        analysisData = data;
+      } else {
+        throw new Error('Invalid response format from SEO analysis');
       }
       
-      console.log('SEO analysis completed:', data);
-      setResults(data);
-      toast.success(`SEO analysis completed! Total score: ${data.scores.total}/100`);
+      // Transform the data to match our expected format
+      const transformedResults: SEOAnalysisResult = {
+        scores: {
+          total: analysisData.total_score || analysisData.scores?.total || 0,
+          technical: analysisData.technical_score || analysisData.scores?.technical || 0,
+          speed: analysisData.performance_score || analysisData.scores?.speed || 0,
+          backlinks: analysisData.backlink_score || analysisData.scores?.backlinks || 0,
+        },
+        findings: analysisData.findings || analysisData.technical_findings || []
+      };
+      
+      console.log('Transformed results:', transformedResults);
+      setResults(transformedResults);
+      toast.success(`SEO analysis completed! Total score: ${transformedResults.scores.total}/100`);
       
     } catch (error) {
       console.error('Error analyzing SEO:', error);
