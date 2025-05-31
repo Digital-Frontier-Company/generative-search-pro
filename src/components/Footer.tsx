@@ -18,23 +18,6 @@ const Footer = () => {
               Generate optimized content for search engines and AI answer boxes with just a few clicks.
             </p>
             
-            {/* Digital Frontier Company Logo */}
-            <div className="mt-6 pt-4 border-t border-matrix-green/20">
-              <a 
-                href="https://digitalfrontier.app" 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-block hover:opacity-80 transition-opacity"
-              >
-                <img 
-                  src="/lovable-uploads/f719da8a-6072-4d0f-ad36-e4eacda55ee7.png" 
-                  alt="Digital Frontier Company" 
-                  className="h-8 filter drop-shadow-[0_0_8px_rgba(0,255,65,0.6)]"
-                  style={{ background: 'transparent' }}
-                />
-              </a>
-            </div>
-            
             <div className="flex space-x-4">
               <a href="https://github.com" className="text-matrix-green/70 hover:text-matrix-green hover:drop-shadow-[0_0_8px_rgba(0,255,65,0.8)] transition-all">
                 <Github size={20} />
@@ -80,9 +63,27 @@ const Footer = () => {
         </div>
         
         <div className="border-t border-matrix-green/30 mt-12 pt-6 flex flex-col md:flex-row justify-between items-center">
-          <p className="text-matrix-green/70 text-xs">
-            © {new Date().getFullYear()} Digital Frontier Company. All rights reserved.
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="text-matrix-green/70 text-xs">
+              Website created by
+            </p>
+            <a 
+              href="https://digitalfrontier.app" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block hover:opacity-80 transition-opacity"
+            >
+              <img 
+                src="/lovable-uploads/0fe6567b-9ca7-43bd-92f5-76dc6e40c9aa.png" 
+                alt="Digital Frontier" 
+                className="h-4 filter drop-shadow-[0_0_8px_rgba(0,255,65,0.6)]"
+                style={{ background: 'transparent' }}
+              />
+            </a>
+            <p className="text-matrix-green/70 text-xs">
+              © {new Date().getFullYear()} All rights reserved.
+            </p>
+          </div>
           <div className="flex space-x-6 mt-4 md:mt-0">
             <a href="/terms" className="text-matrix-green/70 text-xs hover:text-matrix-green hover:drop-shadow-[0_0_8px_rgba(0,255,65,0.8)] transition-all">Terms of Service</a>
             <a href="/privacy" className="text-matrix-green/70 text-xs hover:text-matrix-green hover:drop-shadow-[0_0_8px_rgba(0,255,65,0.8)] transition-all">Privacy Policy</a>
