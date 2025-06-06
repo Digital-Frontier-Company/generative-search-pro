@@ -1,199 +1,201 @@
-import { useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
-import { 
+
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Menu, X, User, LogOut, Settings, CreditCard } from "lucide-react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "@/contexts/AuthContext";
+import { useSubscription } from "@/contexts/SubscriptionContext";
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { 
-  User, 
-  LogOut, 
-  Settings, 
-  Crown, 
-  ChevronDown,
-  Search,
-  Globe,
-  Code
-} from 'lucide-react';
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user, signOut } = useAuth();
+  const { subscribed, subscriptionTier } = useSubscription();
   const navigate = useNavigate();
   const location = useLocation();
-  const [userCredits, setUserCredits] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (user) {
-      fetchUserCredits();
-    }
-  }, [user]);
-
-  const fetchUserCredits = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('admin_user_credits')
-        .select('remaining_credits')
-        .eq('user_id', user?.id)
-        .single();
-
-      if (error) {
-        console.error('Error fetching credits:', error);
-        return;
-      }
-
-      setUserCredits(data?.remaining_credits || 0);
-    } catch (error) {
-      console.error('Error:', error);
-    }
-  };
 
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
   };
 
-  const isActivePath = (path: string) => {
-    return location.pathname === path;
+  const handleProfileClick = () => {
+    navigate('/settings');
   };
 
-  const navigationItems = [
-    { path: '/dashboard', label: 'Dashboard' },
-    { path: '/content-generator', label: 'Content Generator' },
-    { path: '/content-history', label: 'Content History' },
-    { path: '/domain-analysis', label: 'Domain Analysis' },
-    { path: '/seo-analysis', label: 'SEO Analysis' },
-  ];
+  const handleUpgradeClick = () => {
+    navigate('/upgrade');
+  };
 
-  const aiToolsItems = [
-    { path: '/schema-analysis', label: 'Schema Analyzer', icon: Code },
-    { path: '/citation-checker', label: 'Citation Checker', icon: Search },
-    { path: '/ai-sitemap', label: 'AI Sitemap', icon: Globe },
+  const navLinks = [
+    { to: "/", label: "Home" },
+    { to: "/about", label: "About" },
+    { to: "/#features", label: "Features" },
+    { to: "/#pricing", label: "Pricing" },
+    { to: "/#examples", label: "Examples" }
   ];
 
   return (
-    <header className="bg-black border-b border-matrix-green/30 sticky top-0 z-50 backdrop-blur-sm">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
-          <div className="flex items-center space-x-8">
-            <Link to="/" className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/efa6d4a6-cf30-4000-8443-bfd121535926.png" 
-                alt="GenerativeSearch.pro" 
-                className="h-8 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
-                style={{ background: 'transparent' }}
-              />
-            </Link>
-            
-            {user && (
-              <nav className="hidden md:flex space-x-8">
-                {navigationItems.map((item) => (
-                  <Link
-                    key={item.path}
-                    to={item.path}
-                    className={`text-sm font-medium transition-colors hover:text-matrix-green hover:drop-shadow-[0_0_8px_rgba(0,255,65,0.8)] ${
-                      isActivePath(item.path) 
-                        ? 'text-matrix-green drop-shadow-[0_0_8px_rgba(0,255,65,0.8)] border-b-2 border-matrix-green pb-4' 
-                        : 'text-matrix-green/70'
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                ))}
-                
-                {/* AI Tools Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      className={`text-sm font-medium transition-colors hover:text-matrix-green hover:drop-shadow-[0_0_8px_rgba(0,255,65,0.8)] ${
-                        aiToolsItems.some(item => isActivePath(item.path))
-                          ? 'text-matrix-green drop-shadow-[0_0_8px_rgba(0,255,65,0.8)]' 
-                          : 'text-matrix-green/70'
-                      }`}
-                    >
-                      AI Tools
-                      <ChevronDown className="ml-1 h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56 bg-black border-matrix-green/50 shadow-green-glow">
-                    {aiToolsItems.map((item) => {
-                      const Icon = item.icon;
-                      return (
-                        <DropdownMenuItem key={item.path} asChild>
-                          <Link 
-                            to={item.path}
-                            className={`flex items-center w-full hover:bg-matrix-green/10 ${
-                              isActivePath(item.path) ? 'bg-matrix-green/20 text-matrix-green' : 'text-matrix-green/80'
-                            }`}
-                          >
-                            <Icon className="mr-2 h-4 w-4" />
-                            {item.label}
-                          </Link>
-                        </DropdownMenuItem>
-                      );
-                    })}
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </nav>
-            )}
-          </div>
+    <header className="bg-black/90 backdrop-blur-sm border-b border-matrix-green/30 sticky top-0 z-50">
+      <div className="container mx-auto px-4">
+        <div className="flex items-center justify-between h-16">
+          {/* Logo */}
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-matrix-green to-matrix-lime rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-sm">GS</span>
+            </div>
+            <span className="text-matrix-green font-bold text-xl">GenerativeSearch.pro</span>
+          </Link>
 
-          <div className="flex items-center space-x-4">
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-8">
+            {navLinks.map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                className={`text-matrix-green/80 hover:text-matrix-green transition-colors ${
+                  location.pathname === link.to ? 'text-matrix-green font-medium' : ''
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Desktop Auth Buttons */}
+          <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <>
-                {userCredits !== null && (
-                  <div className="hidden sm:flex items-center space-x-2 text-sm text-matrix-green/80">
-                    <span>Credits:</span>
-                    <span className="font-semibold text-matrix-green drop-shadow-[0_0_8px_rgba(0,255,65,0.8)]">{userCredits}</span>
-                  </div>
+              <div className="flex items-center space-x-4">
+                {!subscribed && (
+                  <Button 
+                    onClick={handleUpgradeClick}
+                    className="glow-button text-black font-semibold"
+                  >
+                    Upgrade
+                  </Button>
                 )}
-                
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="flex items-center space-x-2 text-matrix-green hover:text-matrix-lime hover:bg-matrix-green/10">
-                      <User className="h-4 w-4" />
-                      <span className="hidden sm:inline">{user.email}</span>
-                      <ChevronDown className="h-4 w-4" />
+                    <Button variant="outline" className="border-matrix-green text-matrix-green hover:bg-matrix-green/10">
+                      <User className="w-4 h-4 mr-2" />
+                      {user.email?.split('@')[0]}
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 bg-black border-matrix-green/50 shadow-green-glow">
-                    <DropdownMenuItem asChild>
-                      <Link to="/settings" className="flex items-center text-matrix-green/80 hover:text-matrix-green hover:bg-matrix-green/10">
-                        <Settings className="mr-2 h-4 w-4" />
-                        Settings
-                      </Link>
+                  <DropdownMenuContent className="bg-matrix-dark-gray border-matrix-green/30">
+                    <DropdownMenuItem onClick={handleProfileClick} className="text-matrix-green hover:bg-matrix-green/10 cursor-pointer">
+                      <Settings className="w-4 h-4 mr-2" />
+                      Settings
                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                      <Link to="/upgrade" className="flex items-center text-matrix-green/80 hover:text-matrix-green hover:bg-matrix-green/10">
-                        <Crown className="mr-2 h-4 w-4" />
-                        Upgrade
-                      </Link>
-                    </DropdownMenuItem>
+                    {subscribed && (
+                      <DropdownMenuItem onClick={handleUpgradeClick} className="text-matrix-green hover:bg-matrix-green/10 cursor-pointer">
+                        <CreditCard className="w-4 h-4 mr-2" />
+                        Manage Subscription
+                      </DropdownMenuItem>
+                    )}
                     <DropdownMenuSeparator className="bg-matrix-green/30" />
-                    <DropdownMenuItem onClick={handleSignOut} className="flex items-center text-matrix-green/80 hover:text-matrix-green hover:bg-matrix-green/10">
-                      <LogOut className="mr-2 h-4 w-4" />
+                    <DropdownMenuItem onClick={handleSignOut} className="text-matrix-green hover:bg-matrix-green/10 cursor-pointer">
+                      <LogOut className="w-4 h-4 mr-2" />
                       Sign Out
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
-              </>
-            ) : (
-              <div className="flex items-center space-x-4">
-                <Link to="/auth">
-                  <Button variant="ghost" className="text-matrix-green hover:text-matrix-lime hover:bg-matrix-green/10">Sign In</Button>
-                </Link>
-                <Link to="/auth">
-                  <Button className="glow-button text-black font-semibold">Get Started</Button>
-                </Link>
               </div>
+            ) : (
+              <>
+                <Button 
+                  onClick={() => navigate('/auth')} 
+                  variant="outline" 
+                  className="border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  onClick={() => navigate('/auth', { state: { signUp: true } })} 
+                  className="glow-button text-black font-semibold"
+                >
+                  Start Free Trial
+                </Button>
+              </>
             )}
           </div>
+
+          {/* Mobile menu button */}
+          <button
+            className="md:hidden text-matrix-green"
+            onClick={() => setIsMenuOpen(!isMenuOpen)}
+          >
+            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
         </div>
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-matrix-green/30 py-4">
+            <div className="flex flex-col space-y-4">
+              {navLinks.map((link) => (
+                <Link
+                  key={link.to}
+                  to={link.to}
+                  className="text-matrix-green/80 hover:text-matrix-green transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  {link.label}
+                </Link>
+              ))}
+              
+              {user ? (
+                <div className="flex flex-col space-y-2 pt-4 border-t border-matrix-green/30">
+                  <Button 
+                    onClick={() => { handleProfileClick(); setIsMenuOpen(false); }}
+                    variant="outline" 
+                    className="border-matrix-green text-matrix-green hover:bg-matrix-green/10 justify-start"
+                  >
+                    <Settings className="w-4 h-4 mr-2" />
+                    Settings
+                  </Button>
+                  {!subscribed && (
+                    <Button 
+                      onClick={() => { handleUpgradeClick(); setIsMenuOpen(false); }}
+                      className="glow-button text-black font-semibold justify-start"
+                    >
+                      Upgrade
+                    </Button>
+                  )}
+                  <Button 
+                    onClick={() => { handleSignOut(); setIsMenuOpen(false); }}
+                    variant="outline" 
+                    className="border-matrix-green text-matrix-green hover:bg-matrix-green/10 justify-start"
+                  >
+                    <LogOut className="w-4 h-4 mr-2" />
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <div className="flex flex-col space-y-2 pt-4 border-t border-matrix-green/30">
+                  <Button 
+                    onClick={() => { navigate('/auth'); setIsMenuOpen(false); }}
+                    variant="outline" 
+                    className="border-matrix-green text-matrix-green hover:bg-matrix-green/10 justify-start"
+                  >
+                    Sign In
+                  </Button>
+                  <Button 
+                    onClick={() => { navigate('/auth', { state: { signUp: true } }); setIsMenuOpen(false); }}
+                    className="glow-button text-black font-semibold justify-start"
+                  >
+                    Start Free Trial
+                  </Button>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
       </div>
     </header>
   );

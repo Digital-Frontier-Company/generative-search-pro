@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -8,6 +7,7 @@ import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 import ContentGenerator from "./pages/ContentGenerator";
 import ContentHistory from "./pages/ContentHistory";
@@ -34,6 +34,7 @@ function App() {
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
+                <Route path="/about" element={<About />} />
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route
                   path="/dashboard"
