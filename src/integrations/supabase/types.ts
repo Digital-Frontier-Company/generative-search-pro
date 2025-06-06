@@ -347,6 +347,56 @@ export type Database = {
           },
         ]
       }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          is_trial: boolean | null
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          trial_end: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          is_trial?: boolean | null
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          trial_end?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          is_trial?: boolean | null
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          trial_end?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscribers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       technical_findings: {
         Row: {
           analysis_id: string | null
@@ -434,12 +484,15 @@ export type Database = {
           created_at: string | null
           credits_used: number
           id: string
+          is_trial: boolean | null
           monthly_credits: number
           stripe_customer_id: string | null
           stripe_subscription_id: string | null
           subscription_end_date: string | null
           subscription_start_date: string | null
+          subscription_tier: string | null
           subscription_type: string
+          trial_end: string | null
           updated_at: string | null
           user_id: string
         }
@@ -447,12 +500,15 @@ export type Database = {
           created_at?: string | null
           credits_used?: number
           id?: string
+          is_trial?: boolean | null
           monthly_credits?: number
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_end_date?: string | null
           subscription_start_date?: string | null
+          subscription_tier?: string | null
           subscription_type?: string
+          trial_end?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -460,12 +516,15 @@ export type Database = {
           created_at?: string | null
           credits_used?: number
           id?: string
+          is_trial?: boolean | null
           monthly_credits?: number
           stripe_customer_id?: string | null
           stripe_subscription_id?: string | null
           subscription_end_date?: string | null
           subscription_start_date?: string | null
+          subscription_tier?: string | null
           subscription_type?: string
+          trial_end?: string | null
           updated_at?: string | null
           user_id?: string
         }

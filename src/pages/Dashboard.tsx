@@ -1,209 +1,177 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
-import { 
-  Card, 
-  CardContent, 
-  CardDescription, 
-  CardFooter, 
-  CardHeader, 
-  CardTitle 
-} from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import { ArrowRight, FileText, History, Settings, Loader2 } from "lucide-react";
-import { getUserContentHistory } from "@/services/contentService";
-import { useQuery } from "@tanstack/react-query";
+import { useSubscription } from "@/contexts/SubscriptionContext";
 import Header from "@/components/Header";
+import SubscriptionStatus from "@/components/SubscriptionStatus";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { FileText, Search, BarChart3, Globe, CheckSquare, Sitemap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
   const { user } = useAuth();
+  const { subscribed, subscriptionTier, isTrialActive } = useSubscription();
   const navigate = useNavigate();
-  
-  // Fetch user content history
-  const {
-    data: contentHistory,
-    isLoading: contentLoading
-  } = useQuery({
-    queryKey: ['contentHistory'],
-    queryFn: getUserContentHistory
-  });
+
+  const features = [
+    {
+      title: "Content Generator",
+      description: "Generate AEO-optimized content",
+      icon: <FileText className="w-6 h-6" />,
+      path: "/generator",
+      tier: "basic"
+    },
+    {
+      title: "Content History",
+      description: "View and manage your generated content",
+      icon: <Search className="w-6 h-6" />,
+      path: "/history",
+      tier: "basic"
+    },
+    {
+      title: "SEO Analysis",
+      description: "Analyze your website's SEO performance",
+      icon: <BarChart3 className="w-6 h-6" />,
+      path: "/seo-analysis",
+      tier: "pro"
+    },
+    {
+      title: "Domain Analysis",
+      description: "Analyze domain keywords and performance",
+      icon: <Globe className="w-6 h-6" />,
+      path: "/domain-analysis",
+      tier: "team"
+    },
+    {
+      title: "Schema Analysis",
+      description: "Analyze and optimize schema markup",
+      icon: <CheckSquare className="w-6 h-6" />,
+      path: "/schema-analysis",
+      tier: "pro"
+    },
+    {
+      title: "AI Sitemap Generator",
+      description: "Generate intelligent sitemaps",
+      icon: <Sitemap className="w-6 h-6" />,
+      path: "/ai-sitemap",
+      tier: "team"
+    }
+  ];
+
+  const canAccessFeature = (featureTier: string) => {
+    if (!subscribed && !isTrialActive) return featureTier === "basic";
+    if (isTrialActive) return true; // Trial users get access to all features
+    
+    const tierHierarchy = { basic: 1, pro: 2, team: 3 };
+    const userTier = tierHierarchy[subscriptionTier as keyof typeof tierHierarchy] || 0;
+    const requiredTier = tierHierarchy[featureTier as keyof typeof tierHierarchy] || 0;
+    
+    return userTier >= requiredTier;
+  };
+
+  const getTierBadgeColor = (tier: string) => {
+    switch (tier) {
+      case 'basic': return 'bg-blue-100 text-blue-800';
+      case 'pro': return 'bg-purple-100 text-purple-800';
+      case 'team': return 'bg-green-100 text-green-800';
+      default: return 'bg-gray-100 text-gray-800';
+    }
+  };
 
   return (
     <>
       <Header />
-      <div className="container max-w-7xl mx-auto py-8">
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-          <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
-            <p className="text-muted-foreground">
-              Welcome back, {user?.email?.split('@')[0]}
+      <div className="container mx-auto py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold mb-2">
+              Welcome back, {user?.user_metadata?.full_name || user?.email}!
+            </h1>
+            <p className="text-gray-600">
+              Manage your AEO content generation and SEO analysis tools.
             </p>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="outline"
-              onClick={() => navigate('/settings')}
-            >
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-            
-            <Button onClick={() => navigate('/generator')}>
-              Create New Content
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
+
+          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+            <div className="lg:col-span-2">
+              <h2 className="text-2xl font-semibold mb-4">Available Tools</h2>
+              <div className="grid md:grid-cols-2 gap-4">
+                {features.map((feature) => {
+                  const hasAccess = canAccessFeature(feature.tier);
+                  
+                  return (
+                    <Card 
+                      key={feature.title} 
+                      className={`cursor-pointer transition-all duration-200 ${
+                        hasAccess 
+                          ? 'hover:shadow-lg hover:scale-105' 
+                          : 'opacity-60 bg-gray-50'
+                      }`}
+                      onClick={() => {
+                        if (hasAccess) {
+                          navigate(feature.path);
+                        } else {
+                          navigate('/upgrade');
+                        }
+                      }}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${
+                              hasAccess ? 'bg-aeo-blue text-white' : 'bg-gray-200 text-gray-400'
+                            }`}>
+                              {feature.icon}
+                            </div>
+                            <div>
+                              <CardTitle className="text-lg">{feature.title}</CardTitle>
+                            </div>
+                          </div>
+                          <span className={`text-xs px-2 py-1 rounded-full ${getTierBadgeColor(feature.tier)}`}>
+                            {feature.tier}
+                          </span>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <CardDescription>{feature.description}</CardDescription>
+                        {!hasAccess && (
+                          <div className="mt-3">
+                            <Button size="sm" variant="outline">
+                              Upgrade to Access
+                            </Button>
+                          </div>
+                        )}
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+              </div>
+            </div>
+
+            <div>
+              <SubscriptionStatus />
+            </div>
           </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          {/* Quick Actions */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>
-                Common tasks and shortcuts
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => navigate('/generator')}
-              >
-                <FileText className="mr-2 h-4 w-4" />
-                Generate New Content
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => navigate('/history')}
-              >
-                <History className="mr-2 h-4 w-4" />
-                View Content History
-              </Button>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start" 
-                onClick={() => navigate('/settings')}
-              >
-                <Settings className="mr-2 h-4 w-4" />
-                Account Settings
-              </Button>
-            </CardContent>
-          </Card>
-
-          {/* Usage Stats */}
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle>Usage Stats</CardTitle>
-              <CardDescription>
-                Your content generation activity
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {contentLoading ? (
-                <div className="flex justify-center py-4">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : contentHistory ? (
-                <div className="space-y-4">
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Total Content Created</span>
-                    <span>{contentHistory.length}</span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">This Month</span>
-                    <span>
-                      {contentHistory.filter(content => 
-                        new Date(content.created_at) > new Date(new Date().setDate(1))
-                      ).length}
-                    </span>
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <span className="font-medium">Last Generation</span>
-                    <span>
-                      {contentHistory.length > 0 
-                        ? new Date(contentHistory[0].created_at).toLocaleDateString() 
-                        : 'N/A'}
-                    </span>
-                  </div>
-                </div>
-              ) : (
-                <p className="text-center text-muted-foreground">
-                  No usage data available
-                </p>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Recent Content */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Content</CardTitle>
-            <CardDescription>
-              Your most recently generated content
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            {contentLoading ? (
-              <div className="flex justify-center py-4">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : contentHistory && contentHistory.length > 0 ? (
-              <div className="space-y-4">
-                {contentHistory.slice(0, 3).map((content, index) => (
-                  <div key={content.id} className="flex flex-col">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <h4 className="text-base font-medium leading-none">{content.title}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          Created on {new Date(content.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      <Button 
-                        variant="ghost" 
-                        size="sm"
-                        onClick={() => navigate(`/content/${content.id}`)}
-                      >
-                        View
-                      </Button>
-                    </div>
-                    {index < contentHistory.slice(0, 3).length - 1 && <Separator className="my-4" />}
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="py-8 text-center">
-                <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-muted">
-                  <FileText className="h-6 w-6 text-muted-foreground" />
-                </div>
-                <h3 className="mb-2 text-lg font-medium">No content yet</h3>
-                <p className="mb-4 text-sm text-muted-foreground">
-                  You haven't generated any content yet. Create your first content piece now.
-                </p>
-                <Button onClick={() => navigate('/generator')}>
-                  Create Content
+          {(!subscribed && !isTrialActive) && (
+            <Card className="border-aeo-blue/30 bg-gradient-to-r from-aeo-blue/5 to-aeo-blue/10">
+              <CardHeader>
+                <CardTitle className="text-center">Unlock Premium Features</CardTitle>
+                <CardDescription className="text-center">
+                  Start your 7-day free trial to access all advanced tools and features.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button 
+                  onClick={() => navigate('/upgrade')}
+                  className="bg-aeo-blue hover:bg-aeo-blue/90"
+                >
+                  Start Free Trial
                 </Button>
-              </div>
-            )}
-          </CardContent>
-          {contentHistory && contentHistory.length > 3 && (
-            <CardFooter>
-              <Button 
-                variant="outline" 
-                className="w-full"
-                onClick={() => navigate('/history')}
-              >
-                View All Content
-              </Button>
-            </CardFooter>
+              </CardContent>
+            </Card>
           )}
-        </Card>
+        </div>
       </div>
     </>
   );
