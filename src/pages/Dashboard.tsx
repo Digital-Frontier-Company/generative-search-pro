@@ -5,7 +5,7 @@ import Header from "@/components/Header";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Search, BarChart3, Globe, CheckSquare, Sitemap } from "lucide-react";
+import { FileText, Search, BarChart3, Globe, CheckSquare, Map } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
@@ -52,7 +52,7 @@ const Dashboard = () => {
     {
       title: "AI Sitemap Generator",
       description: "Generate intelligent sitemaps",
-      icon: <Sitemap className="w-6 h-6" />,
+      icon: <Map className="w-6 h-6" />,
       path: "/ai-sitemap",
       tier: "team"
     }
