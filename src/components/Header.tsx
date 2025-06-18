@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Menu, X, User, LogOut, Settings, CreditCard, LayoutDashboard } from "lucide-react";
+import { Menu, X, User, LogOut, Settings, CreditCard } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -31,10 +31,6 @@ const Header = () => {
 
   const handleUpgradeClick = () => {
     navigate('/upgrade');
-  };
-
-  const handleDashboardClick = () => {
-    navigate('/dashboard');
   };
 
   const navLinks = [
@@ -86,14 +82,6 @@ const Header = () => {
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
               <div className="flex items-center space-x-4">
-                <Button 
-                  onClick={handleDashboardClick}
-                  variant="outline" 
-                  className="border-matrix-green text-matrix-green hover:bg-matrix-green/10"
-                >
-                  <LayoutDashboard className="w-4 h-4 mr-2" />
-                  Dashboard
-                </Button>
                 {!subscribed && (
                   <Button 
                     onClick={handleUpgradeClick}
@@ -171,16 +159,18 @@ const Header = () => {
                 </Link>
               ))}
               
+              {user && (
+                <Link
+                  to="/dashboard"
+                  className="text-matrix-green/80 hover:text-matrix-green transition-colors"
+                  onClick={() => setIsMenuOpen(false)}
+                >
+                  Dashboard
+                </Link>
+              )}
+              
               {user ? (
                 <div className="flex flex-col space-y-2 pt-4 border-t border-matrix-green/30">
-                  <Button 
-                    onClick={() => { handleDashboardClick(); setIsMenuOpen(false); }}
-                    variant="outline" 
-                    className="border-matrix-green text-matrix-green hover:bg-matrix-green/10 justify-start"
-                  >
-                    <LayoutDashboard className="w-4 h-4 mr-2" />
-                    Dashboard
-                  </Button>
                   <Button 
                     onClick={() => { handleProfileClick(); setIsMenuOpen(false); }}
                     variant="outline" 
