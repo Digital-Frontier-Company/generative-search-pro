@@ -8,8 +8,8 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/efa6d4a6-cf30-4000-8443-bfd121535926.png" 
-                alt="GenerativeSearch.pro" 
+                src="/lovable-uploads/529aa5c1-ba3f-4d12-9363-2f95511fd4bd.png" 
+                alt="GenerativeSearch" 
                 className="h-10 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
                 style={{ background: 'transparent' }}
               />

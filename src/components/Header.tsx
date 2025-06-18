@@ -46,11 +46,12 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 bg-gradient-to-r from-matrix-green to-matrix-lime rounded-lg flex items-center justify-center">
-              <span className="text-black font-bold text-sm">GS</span>
-            </div>
-            <span className="text-matrix-green font-bold text-xl">GenerativeSearch.pro</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/lovable-uploads/529aa5c1-ba3f-4d12-9363-2f95511fd4bd.png" 
+              alt="GenerativeSearch" 
+              className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
+            />
           </Link>
 
           {/* Desktop Navigation */}
