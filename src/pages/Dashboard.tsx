@@ -1,11 +1,10 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import Header from "@/components/Header";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Search, BarChart3, Globe, CheckSquare, Map } from "lucide-react";
+import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
@@ -43,9 +42,9 @@ const Dashboard = () => {
       tier: "basic"
     },
     {
-      title: "Schema Analysis",
-      description: "Analyze and optimize schema markup",
-      icon: <CheckSquare className="w-6 h-6" />,
+      title: "AI Visibility Score",
+      description: "Get AI search visibility score and schema optimization recommendations",
+      icon: <Target className="w-6 h-6" />,
       path: "/schema-analysis",
       tier: "basic"
     },
