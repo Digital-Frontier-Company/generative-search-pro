@@ -46,26 +46,15 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-3">
-            <img 
-              src="/lovable-uploads/d4d8207f-143d-4e22-a023-2ebfade9de72.png" 
-              alt="GenerativeSearch.pro Logo" 
-              className="h-10 w-auto"
-            />
-            <span 
-              className="font-bold text-xl"
-              style={{
-                color: '#000000',
-                textShadow: '0 0 10px #00ff41, 0 0 20px #00ff41, 0 0 30px #00ff41',
-                WebkitTextStroke: '1px #00ff41'
-              }}
-            >
-              GenerativeSearch.pro
-            </span>
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-r from-matrix-green to-matrix-lime rounded-lg flex items-center justify-center">
+              <span className="text-black font-bold text-sm">GS</span>
+            </div>
+            <span className="text-matrix-green font-bold text-xl">GenerativeSearch.pro</span>
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-12">
+          <nav className="hidden md:flex items-center space-x-8">
             {navLinks.map((link) => (
               <Link
                 key={link.to}
