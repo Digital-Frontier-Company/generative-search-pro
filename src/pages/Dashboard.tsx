@@ -33,40 +33,41 @@ const Dashboard = () => {
       description: "Analyze your website's SEO performance",
       icon: <BarChart3 className="w-6 h-6" />,
       path: "/seo-analysis",
-      tier: "pro"
+      tier: "basic"
     },
     {
       title: "Domain Analysis",
       description: "Analyze domain keywords and performance",
       icon: <Globe className="w-6 h-6" />,
       path: "/domain-analysis",
-      tier: "team"
+      tier: "basic"
     },
     {
       title: "Schema Analysis",
       description: "Analyze and optimize schema markup",
       icon: <CheckSquare className="w-6 h-6" />,
       path: "/schema-analysis",
-      tier: "pro"
+      tier: "basic"
+    },
+    {
+      title: "Citation Checker",
+      description: "Check citations and references",
+      icon: <CheckSquare className="w-6 h-6" />,
+      path: "/citation-checker",
+      tier: "basic"
     },
     {
       title: "AI Sitemap Generator",
       description: "Generate intelligent sitemaps",
       icon: <Map className="w-6 h-6" />,
       path: "/ai-sitemap",
-      tier: "team"
+      tier: "basic"
     }
   ];
 
   const canAccessFeature = (featureTier: string) => {
-    if (!subscribed && !isTrialActive) return featureTier === "basic";
-    if (isTrialActive) return true; // Trial users get access to all features
-    
-    const tierHierarchy = { basic: 1, pro: 2, team: 3 };
-    const userTier = tierHierarchy[subscriptionTier as keyof typeof tierHierarchy] || 0;
-    const requiredTier = tierHierarchy[featureTier as keyof typeof tierHierarchy] || 0;
-    
-    return userTier >= requiredTier;
+    // All authenticated users can access all features
+    return true;
   };
 
   const getTierBadgeColor = (tier: string) => {
@@ -102,25 +103,13 @@ const Dashboard = () => {
                   return (
                     <Card 
                       key={feature.title} 
-                      className={`cursor-pointer transition-all duration-200 ${
-                        hasAccess 
-                          ? 'hover:shadow-lg hover:scale-105' 
-                          : 'opacity-60 bg-gray-50'
-                      }`}
-                      onClick={() => {
-                        if (hasAccess) {
-                          navigate(feature.path);
-                        } else {
-                          navigate('/upgrade');
-                        }
-                      }}
+                      className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105"
+                      onClick={() => navigate(feature.path)}
                     >
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex items-center gap-3">
-                            <div className={`p-2 rounded-lg ${
-                              hasAccess ? 'bg-aeo-blue text-white' : 'bg-gray-200 text-gray-400'
-                            }`}>
+                            <div className="p-2 rounded-lg bg-aeo-blue text-white">
                               {feature.icon}
                             </div>
                             <div>
@@ -134,13 +123,6 @@ const Dashboard = () => {
                       </CardHeader>
                       <CardContent>
                         <CardDescription>{feature.description}</CardDescription>
-                        {!hasAccess && (
-                          <div className="mt-3">
-                            <Button size="sm" variant="outline">
-                              Upgrade to Access
-                            </Button>
-                          </div>
-                        )}
                       </CardContent>
                     </Card>
                   );
