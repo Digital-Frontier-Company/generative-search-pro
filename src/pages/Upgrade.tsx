@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -7,6 +6,7 @@ import { CheckCircle, Loader2, Crown, Users, Zap, X } from "lucide-react";
 import Header from "@/components/Header";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 const Upgrade = () => {
   const navigate = useNavigate();
@@ -46,6 +46,7 @@ const Upgrade = () => {
   return (
     <>
       <Header />
+      <Breadcrumbs />
       <div className="container mx-auto py-8">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-12">
