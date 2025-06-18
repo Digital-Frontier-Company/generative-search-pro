@@ -8,9 +8,9 @@ const Footer = () => {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <img 
-                src="/lovable-uploads/529aa5c1-ba3f-4d12-9363-2f95511fd4bd.png" 
+                src="/lovable-uploads/96aa1ceb-6858-443c-8bc7-1f9af19024d5.png" 
                 alt="GenerativeSearch" 
-                className="h-12 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
+                className="h-20 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
                 style={{ background: 'transparent' }}
               />
             </div>
