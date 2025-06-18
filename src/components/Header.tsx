@@ -50,7 +50,7 @@ const Header = () => {
             <img 
               src="/lovable-uploads/529aa5c1-ba3f-4d12-9363-2f95511fd4bd.png" 
               alt="GenerativeSearch" 
-              className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
+              className="h-12 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
             />
           </Link>
 
