@@ -128,7 +128,7 @@
   }
 
   .neon-border {
-    border: 1px solid #00ff41;
-    box-shadow: 0 0 10px rgba(0, 255, 65, 0.5), inset 0 0 10px rgba(0, 255, 65, 0.1);
+    border: 2px solid #00ff41;
+    box-shadow: 0 0 5px #00ff41, 0 0 10px #00ff41;
   }
 }
