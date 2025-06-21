@@ -13,6 +13,7 @@ import Dashboard from "./pages/Dashboard";
 import ContentGenerator from "./pages/ContentGenerator";
 import ContentHistory from "./pages/ContentHistory";
 import ContentAnalysis from "./pages/ContentAnalysis";
+import ContentOptimizer from "./pages/ContentOptimizer";
 import Resources from "./pages/Resources";
 import SEOAnalysis from "./pages/SEOAnalysis";
 import DomainAnalysis from "./pages/DomainAnalysis";
