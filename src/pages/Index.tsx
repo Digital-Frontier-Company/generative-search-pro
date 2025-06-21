@@ -409,7 +409,7 @@ const Index = () => {
       </section>
       
       {/* Enhanced CTA Section */}
-      <section className="py-16 bg-gradient-to-r from-matrix-green to-matrix-lime text-black">
+      <section className="py-16 bg-gradient-to-r from-matrix-green to-matrix-lime text-black bg-[#000a00]/[0.76]">
         <div className="container mx-auto px-4 text-center">
           <h2 className="text-3xl font-bold mb-6">Ready to Dominate AI Search Results?</h2>
           <p className="text-xl mb-10 max-w-2xl mx-auto">
