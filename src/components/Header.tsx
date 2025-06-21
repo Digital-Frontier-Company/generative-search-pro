@@ -46,11 +46,12 @@ const Header = () => {
     <header className="sticky top-0 z-50 w-full border-b border-matrix-green/20 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-r from-matrix-green to-matrix-lime flex items-center justify-center shadow-green-glow">
-              <span className="text-black font-bold text-sm">GS</span>
-            </div>
-            <span className="text-xl font-bold text-matrix-green">GenerativeSearch.pro</span>
+          <Link to="/" className="flex items-center space-x-3">
+            <img 
+              src="/lovable-uploads/116d8223-82d2-48be-a0fa-567653c8f956.png"
+              alt="GenerativeSearch.pro"
+              className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)]"
+            />
           </Link>
         </div>
 
