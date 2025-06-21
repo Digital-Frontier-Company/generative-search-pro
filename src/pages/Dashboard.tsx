@@ -1,3 +1,4 @@
+
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import Header from "@/components/Header";
@@ -5,6 +6,7 @@ import SubscriptionStatus from "@/components/SubscriptionStatus";
 import AIVisibilityScore from "@/components/AIVisibilityScore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target, BookOpen, Microscope } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
