@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -11,6 +12,8 @@ import About from "./pages/About";
 import Dashboard from "./pages/Dashboard";
 import ContentGenerator from "./pages/ContentGenerator";
 import ContentHistory from "./pages/ContentHistory";
+import ContentAnalysis from "./pages/ContentAnalysis";
+import Resources from "./pages/Resources";
 import SEOAnalysis from "./pages/SEOAnalysis";
 import DomainAnalysis from "./pages/DomainAnalysis";
 import SchemaAnalysis from "./pages/SchemaAnalysis";
@@ -36,6 +39,7 @@ function App() {
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/about" element={<About />} />
                 <Route path="/upgrade" element={<Upgrade />} />
+                <Route path="/resources" element={<Resources />} />
                 <Route
                   path="/dashboard"
                   element={
@@ -57,6 +61,14 @@ function App() {
                   element={
                     <ProtectedRoute>
                       <ContentHistory />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/content-analysis"
+                  element={
+                    <ProtectedRoute>
+                      <ContentAnalysis />
                     </ProtectedRoute>
                   }
                 />

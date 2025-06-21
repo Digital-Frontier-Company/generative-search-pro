@@ -2,9 +2,10 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import Header from "@/components/Header";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
+import AIVisibilityScore from "@/components/AIVisibilityScore";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target } from "lucide-react";
+import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target, BookOpen, Microscope } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const Dashboard = () => {
@@ -25,6 +26,13 @@ const Dashboard = () => {
       description: "View and manage your generated content",
       icon: <Search className="w-6 h-6" />,
       path: "/history",
+      tier: "basic"
+    },
+    {
+      title: "Content Analysis",
+      description: "Analyze and optimize your content for AI search",
+      icon: <Microscope className="w-6 h-6" />,
+      path: "/content-analysis",
       tier: "basic"
     },
     {
@@ -61,6 +69,13 @@ const Dashboard = () => {
       icon: <Map className="w-6 h-6" />,
       path: "/ai-sitemap",
       tier: "basic"
+    },
+    {
+      title: "Resources & Learning",
+      description: "Guides, tutorials, and best practices",
+      icon: <BookOpen className="w-6 h-6" />,
+      path: "/resources",
+      tier: "basic"
     }
   ];
 
@@ -82,70 +97,75 @@ const Dashboard = () => {
     <>
       <Header />
       <div className="container mx-auto py-8">
-        <div className="max-w-6xl mx-auto">
+        <div className="max-w-7xl mx-auto">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold mb-2">
+            <h1 className="text-3xl font-bold mb-2 text-matrix-green">
               Welcome back, {user?.user_metadata?.full_name || user?.email}!
             </h1>
-            <p className="text-gray-600">
+            <p className="text-matrix-green/70">
               Manage your AEO content generation and SEO analysis tools.
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-3 gap-6 mb-8">
+          <div className="grid lg:grid-cols-4 gap-6 mb-8">
+            {/* AI Visibility Score Section */}
             <div className="lg:col-span-2">
-              <h2 className="text-2xl font-semibold mb-4">Available Tools</h2>
-              <div className="grid md:grid-cols-2 gap-4">
-                {features.map((feature) => {
-                  const hasAccess = canAccessFeature(feature.tier);
-                  
-                  return (
-                    <Card 
-                      key={feature.title} 
-                      className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-105"
-                      onClick={() => navigate(feature.path)}
-                    >
-                      <CardHeader>
-                        <div className="flex items-start justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-aeo-blue text-white">
-                              {feature.icon}
-                            </div>
-                            <div>
-                              <CardTitle className="text-lg">{feature.title}</CardTitle>
-                            </div>
-                          </div>
-                          <span className={`text-xs px-2 py-1 rounded-full ${getTierBadgeColor(feature.tier)}`}>
-                            {feature.tier}
-                          </span>
-                        </div>
-                      </CardHeader>
-                      <CardContent>
-                        <CardDescription>{feature.description}</CardDescription>
-                      </CardContent>
-                    </Card>
-                  );
-                })}
-              </div>
+              <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
+              <AIVisibilityScore />
             </div>
 
-            <div>
-              <SubscriptionStatus />
+            {/* Tools and Subscription */}
+            <div className="lg:col-span-2 space-y-6">
+              <div>
+                <SubscriptionStatus />
+              </div>
+
+              <div>
+                <h2 className="text-2xl font-semibold mb-4 text-matrix-green">Available Tools</h2>
+                <div className="grid grid-cols-1 gap-4">
+                  {features.map((feature) => {
+                    const hasAccess = canAccessFeature(feature.tier);
+                    
+                    return (
+                      <Card 
+                        key={feature.title} 
+                        className="content-card cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
+                        onClick={() => navigate(feature.path)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-matrix-green/10 text-matrix-green">
+                              {feature.icon}
+                            </div>
+                            <div className="flex-1">
+                              <h3 className="font-medium text-matrix-green">{feature.title}</h3>
+                              <p className="text-sm text-matrix-green/70">{feature.description}</p>
+                            </div>
+                            <Badge className={getTierBadgeColor(feature.tier)} variant="outline">
+                              {feature.tier}
+                            </Badge>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
 
           {(!subscribed && !isTrialActive) && (
-            <Card className="border-aeo-blue/30 bg-gradient-to-r from-aeo-blue/5 to-aeo-blue/10">
+            <Card className="content-card border-matrix-green/50">
               <CardHeader>
-                <CardTitle className="text-center">Unlock Premium Features</CardTitle>
-                <CardDescription className="text-center">
+                <CardTitle className="text-center text-matrix-green">Unlock Premium Features</CardTitle>
+                <CardDescription className="text-center text-matrix-green/70">
                   Start your 7-day free trial to access all advanced tools and features.
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center">
                 <Button 
                   onClick={() => navigate('/upgrade')}
-                  className="bg-aeo-blue hover:bg-aeo-blue/90"
+                  className="glow-button text-black font-semibold"
                 >
                   Start Free Trial
                 </Button>
