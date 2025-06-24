@@ -1,8 +1,7 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowRight, Zap, Database, Globe, Sparkles, ChevronDown, ChevronUp, Star, Users, TrendingUp, Search, Bot, Lightbulb, Upload, Clipboard, Bell, User, Info } from "lucide-react";
+import { CheckCircle, ArrowRight, Zap, Database, Globe, Sparkles, ChevronDown, ChevronUp, Star, Users, TrendingUp, Search, Bot, Lightbulb, Upload, Clipboard, Bell, User, Info, Clock } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLdSchema from "@/components/JsonLdSchema";
@@ -23,10 +22,14 @@ const Index = () => {
     const links = (text.match(/\[.*?\]\(.*?\)/g) || []).length;
     const citations = (text.match(/\(\w+,?\s?\d{4}\)/g) || []).length;
     
+    // Calculate reading time (average reading speed: 200 words per minute)
+    const readingTimeMinutes = Math.ceil(words / 200);
+    
     return {
       basicStats: {
         wordCount: words,
         sentences: sentences,
+        readingTime: readingTimeMinutes,
         readabilityScore: Math.min(100, Math.max(0, 100 - (words / sentences) * 2))
       },
       aiOptimization: {
@@ -319,7 +322,11 @@ const Index = () => {
                       <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
                         <div>Words: {analysis.basicStats.wordCount}</div>
                         <div>Sentences: {analysis.basicStats.sentences}</div>
-                        <div className="col-span-2">
+                        <div className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          <span>Reading time: {analysis.basicStats.readingTime} min</span>
+                        </div>
+                        <div>
                           Readability: {Math.round(analysis.basicStats.readabilityScore)}%
                         </div>
                       </div>
