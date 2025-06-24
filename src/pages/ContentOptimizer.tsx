@@ -1,38 +1,51 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/Header";
-import { Copy, FileText, TrendingUp, Search, Bot, Lightbulb } from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
+import { 
+  FileText, 
+  BarChart3, 
+  Code, 
+  Eye, 
+  Lightbulb,
+  Copy,
+  Download
+} from "lucide-react";
 import { toast } from "sonner";
-
-interface QAItem {
-  question: string;
-  answer: string;
-}
-
-interface AnalysisResults {
-  keywordDensity: number;
-  readabilityScore: number;
-  wordCount: number;
-  sentences: number;
-  keywordCount: number;
-  avgWordsPerSentence: number;
-}
+import { useAuth } from "@/contexts/AuthContext";
+import { getUserContentHistory } from "@/services/contentService";
 
 const ContentOptimizer = () => {
+  const { user } = useAuth();
   const [targetKeyword, setTargetKeyword] = useState("");
   const [content, setContent] = useState("");
-  const [analysisResults, setAnalysisResults] = useState<AnalysisResults | null>(null);
-  const [qaItems, setQaItems] = useState<QAItem[]>([]);
-  const [schemaMarkup, setSchemaMarkup] = useState("");
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisResults, setAnalysisResults] = useState<any>(null);
+  const [loading, setLoading] = useState(false);
+  const [userContent, setUserContent] = useState<any[]>([]);
 
-  const loadSample = () => {
+  useEffect(() => {
+    if (user) {
+      loadUserContent();
+    }
+  }, [user]);
+
+  const loadUserContent = async () => {
+    try {
+      const contentHistory = await getUserContentHistory();
+      setUserContent(contentHistory);
+    } catch (error) {
+      console.error('Error loading user content:', error);
+    }
+  };
+
+  const loadSampleContent = () => {
     setTargetKeyword("digital marketing");
     setContent(`Digital Frontier is a leading digital marketing agency in Memphis. We specialize in comprehensive digital strategies that drive results. Our team combines innovative approaches with data-driven insights to help businesses thrive online.
 
@@ -41,48 +54,99 @@ Our services include SEO optimization, web design, and brand development. We wor
 Digital marketing continues to evolve rapidly. New technologies and platforms emerge regularly. Businesses must adapt to stay competitive. That's why we focus on cutting-edge strategies and continuous learning.`);
   };
 
+  const loadFromUserContent = (contentItem: any) => {
+    setTargetKeyword(contentItem.metadata?.focusKeywords?.[0] || "");
+    setContent(contentItem.content || "");
+    setAnalysisResults(null);
+  };
+
+  const analyzeContent = async () => {
+    if (!targetKeyword.trim() || !content.trim()) {
+      toast.error("Please enter both target keyword and content");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Simulate API call delay
+      await new Promise(resolve => setTimeout(resolve, 1500));
+
+      const analysis = performContentAnalysis(content, targetKeyword);
+      setAnalysisResults(analysis);
+      toast.success("Content analysis completed successfully!");
+    } catch (error) {
+      toast.error("Failed to analyze content");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const performContentAnalysis = (text: string, keyword: string) => {
+    const words = text.split(/\s+/).length;
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim()).length;
+    const keywordCount = (text.toLowerCase().match(new RegExp(keyword.toLowerCase(), 'g')) || []).length;
+    const keywordDensity = ((keywordCount / words) * 100);
+    const avgWordsPerSentence = Math.round(words / sentences);
+    
+    // Simple readability calculation
+    const syllables = estimateSyllables(text);
+    const readabilityScore = Math.max(0, Math.min(100, 
+      Math.round(206.835 - 1.015 * (words/sentences) - 84.6 * (syllables/words))
+    ));
+
+    return {
+      words,
+      sentences,
+      keywordCount,
+      keywordDensity: parseFloat(keywordDensity.toFixed(1)),
+      avgWordsPerSentence,
+      readabilityScore,
+      qaQuestions: generateQAQuestions(text, keyword),
+      schemaMarkup: generateSchemaMarkup(text, keyword),
+      keywordSuggestions: generateKeywordSuggestions(text, keyword),
+      readabilitySuggestions: generateReadabilitySuggestions(text, avgWordsPerSentence),
+      contextSuggestions: generateContextSuggestions(text, keyword)
+    };
+  };
+
   const estimateSyllables = (text: string): number => {
     return text.toLowerCase().replace(/[^a-z]/g, '').replace(/[aeiou]{2,}/g, 'a').match(/[aeiou]/g)?.length || 0;
   };
 
-  const getReadabilityLevel = (score: number): string => {
-    if (score >= 90) return '(Very Easy)';
-    if (score >= 80) return '(Easy)';
-    if (score >= 70) return '(Fairly Easy)';
-    if (score >= 60) return '(Standard)';
-    if (score >= 50) return '(Fairly Difficult)';
-    if (score >= 30) return '(Difficult)';
-    return '(Very Difficult)';
-  };
+  const generateQAQuestions = (text: string, keyword: string) => {
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim());
+    const questions = [];
 
-  const generateQASuggestions = (content: string, keyword: string): QAItem[] => {
-    const sentences = content.split(/[.!?]+/).filter(s => s.trim());
-    const questions: QAItem[] = [];
-
-    // Add strategic questions
+    // Generate strategic questions
     questions.push({
       question: `What is ${keyword}?`,
-      answer: `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} encompasses the strategies and techniques used to promote products or services online. It includes various channels and methods to reach and engage target audiences.`
+      answer: `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} encompasses the strategies and techniques used to promote products or services online.`
     });
 
     questions.push({
       question: `Why is ${keyword} important for businesses?`,
-      answer: `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} is crucial for businesses because it enables them to reach their target audience where they spend most of their time - online. It provides measurable results and cost-effective solutions.`
+      answer: `${keyword.charAt(0).toUpperCase() + keyword.slice(1)} is crucial for businesses because it enables them to reach their target audience effectively and provides measurable results.`
     });
 
-    questions.push({
-      question: `How can ${keyword} help improve business results?`,
-      answer: `Effective ${keyword} strategies can increase brand visibility, generate qualified leads, improve customer engagement, and provide measurable ROI through data-driven campaigns.`
+    // Extract content-based questions
+    sentences.forEach((sentence, index) => {
+      if (sentence.toLowerCase().includes('we ') && index < 3) {
+        questions.push({
+          question: "What services do you offer?",
+          answer: sentence.trim()
+        });
+      }
     });
 
     return questions;
   };
 
-  const generateSchemaMarkup = (qaItems: QAItem[]) => {
-    const schema = {
+  const generateSchemaMarkup = (text: string, keyword: string) => {
+    const questions = generateQAQuestions(text, keyword);
+    return {
       "@context": "https://schema.org",
       "@type": "FAQPage",
-      "mainEntity": qaItems.map(qa => ({
+      "mainEntity": questions.slice(0, 3).map(qa => ({
         "@type": "Question",
         "name": qa.question,
         "acceptedAnswer": {
@@ -91,99 +155,131 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
         }
       }))
     };
-
-    return JSON.stringify(schema, null, 2);
   };
 
-  const analyzeContent = () => {
-    if (!content || !targetKeyword) {
-      toast.error("Please enter both content and keyword");
+  const generateKeywordSuggestions = (text: string, keyword: string) => {
+    const currentDensity = analysisResults?.keywordDensity || 0;
+    const optimalDensity = 2.0;
+    const suggestions = [];
+
+    if (currentDensity < 0.5) {
+      suggestions.push("Keyword density is too low. Consider adding more instances of your target keyword.");
+    } else if (currentDensity > 3.0) {
+      suggestions.push("Keyword density is too high. Consider reducing keyword usage to avoid over-optimization.");
+    } else {
+      suggestions.push("Keyword density is within acceptable range.");
+    }
+
+    suggestions.push(`Include variations like "${keyword} services" or "${keyword} solutions"`);
+    suggestions.push("Use the keyword in headings and subheadings");
+    suggestions.push("Add the keyword to the first and last paragraphs");
+
+    return suggestions;
+  };
+
+  const generateReadabilitySuggestions = (text: string, avgWords: number) => {
+    const suggestions = [];
+    
+    if (avgWords > 20) {
+      suggestions.push("Break long sentences into shorter ones (aim for 15-20 words)");
+    }
+    
+    suggestions.push("Use bullet points or numbered lists for complex information");
+    suggestions.push("Replace complex words with simpler alternatives");
+    suggestions.push("Add subheadings to break up long text blocks");
+    suggestions.push("Use active voice instead of passive voice");
+
+    return suggestions;
+  };
+
+  const generateContextSuggestions = (text: string, keyword: string) => {
+    const suggestions = [];
+    
+    if (!text.toLowerCase().includes('example')) {
+      suggestions.push("Add specific examples to illustrate your points");
+    }
+    
+    if (!text.match(/\d+%/) && !text.match(/\$\d+/)) {
+      suggestions.push("Include relevant statistics or data points");
+    }
+
+    suggestions.push("Add case studies or success stories");
+    suggestions.push("Include specific metrics and KPIs");
+    suggestions.push("Mention tools and technologies used");
+    suggestions.push(`Reference current trends in ${keyword}`);
+
+    return suggestions;
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success("Copied to clipboard!");
+    } catch (error) {
+      toast.error("Failed to copy to clipboard");
+    }
+  };
+
+  const exportAnalysis = () => {
+    if (!analysisResults) {
+      toast.error("No analysis data to export");
       return;
     }
 
-    setIsAnalyzing(true);
+    const reportData = {
+      keyword: targetKeyword,
+      analysis: analysisResults,
+      content: content,
+      exportDate: new Date().toISOString()
+    };
 
-    // Simulate analysis delay
-    setTimeout(() => {
-      const words = content.split(/\s+/).length;
-      const sentences = content.split(/[.!?]+/).filter(s => s.trim()).length;
-      const keywordRegex = new RegExp(targetKeyword, 'gi');
-      const keywordMatches = content.match(keywordRegex) || [];
-      const keywordCount = keywordMatches.length;
-      const keywordDensity = ((keywordCount / words) * 100);
-      const avgWordsPerSentence = Math.round(words / sentences);
-
-      // Calculate readability score (simplified Flesch Reading Ease)
-      const syllables = estimateSyllables(content);
-      const readabilityScore = Math.round(206.835 - 1.015 * (words/sentences) - 84.6 * (syllables/words));
-
-      const results: AnalysisResults = {
-        keywordDensity: parseFloat(keywordDensity.toFixed(1)),
-        readabilityScore,
-        wordCount: words,
-        sentences,
-        keywordCount,
-        avgWordsPerSentence
-      };
-
-      setAnalysisResults(results);
-
-      // Generate Q&A suggestions
-      const qaItems = generateQASuggestions(content, targetKeyword);
-      setQaItems(qaItems);
-
-      // Generate schema markup
-      const schema = generateSchemaMarkup(qaItems);
-      setSchemaMarkup(schema);
-
-      setIsAnalyzing(false);
-      toast.success("Content analysis completed!");
-    }, 1500);
-  };
-
-  const copySchema = () => {
-    navigator.clipboard.writeText(schemaMarkup);
-    toast.success("Schema copied to clipboard!");
-  };
-
-  const getScoreColor = (score: number, type: 'keyword' | 'readability') => {
-    if (type === 'keyword') {
-      if (score < 1) return 'text-red-500';
-      if (score > 3) return 'text-yellow-500';
-      return 'text-green-500';
-    } else {
-      if (score < 30) return 'text-red-500';
-      if (score < 60) return 'text-yellow-500';
-      return 'text-green-500';
-    }
+    const blob = new Blob([JSON.stringify(reportData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `content-analysis-${new Date().toISOString().split('T')[0]}.json`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    toast.success("Analysis exported successfully!");
   };
 
   return (
     <>
       <Header />
+      <Breadcrumbs customBreadcrumbs={[
+        { label: "Dashboard", path: "/dashboard" },
+        { label: "Content Optimizer", path: "/content-optimizer" }
+      ]} />
+      
       <div className="container mx-auto py-8">
-        <div className="max-w-7xl mx-auto space-y-6">
+        <div className="max-w-7xl mx-auto space-y-8">
           {/* Header */}
           <div className="text-center mb-8">
-            <h1 className="text-4xl font-bold text-[#39FF14] mb-4" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-              Digital Frontier AEO & SEO Optimizer
+            <h1 className="text-3xl font-bold mb-4 text-white">
+              Content <span className="text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>Optimizer</span>
             </h1>
-            <p className="text-lg text-gray-300">Optimize Your Content for AI Answer Engines and Search</p>
+            <p className="text-gray-300 max-w-2xl mx-auto">
+              Optimize your content for both AI answer engines and traditional search. Get actionable insights to improve your content's visibility and performance.
+            </p>
           </div>
 
-          {/* Main Content Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
-            {/* Input Section */}
+          {/* Input Section */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <Card className="bg-[#1E2329] border-[#39FF14]/30">
               <CardHeader>
-                <CardTitle className="text-[#39FF14] flex items-center gap-2">
-                  <FileText className="w-5 h-5" />
+                <CardTitle className="text-white flex items-center">
+                  <FileText className="w-5 h-5 mr-2 text-[#39FF14]" />
                   Content Input
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-[#39FF14]">Target Keyword:</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Target Keyword
+                  </label>
                   <Input
                     value={targetKeyword}
                     onChange={(e) => setTargetKeyword(e.target.value)}
@@ -191,84 +287,148 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                     className="bg-[#0D1117] border-[#39FF14]/30 text-white"
                   />
                 </div>
+                
                 <div>
-                  <label className="block text-sm font-medium mb-2 text-[#39FF14]">Your Content:</label>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Your Content
+                  </label>
                   <Textarea
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Paste your content here..."
-                    className="min-h-48 bg-[#0D1117] border-[#39FF14]/30 text-white"
+                    rows={10}
+                    className="bg-[#0D1117] border-[#39FF14]/30 text-white resize-none"
                   />
                 </div>
-                <div className="flex gap-4">
+
+                <div className="flex space-x-3">
                   <Button 
                     onClick={analyzeContent}
-                    disabled={isAnalyzing || !content || !targetKeyword}
-                    className="bg-[#39FF14] text-[#0D1117] font-bold hover:bg-[#39FF14]/80"
+                    disabled={loading}
+                    className="bg-[#39FF14] text-[#0D1117] font-bold hover:bg-[#39FF14]/80 flex-1"
                     style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}
                   >
-                    {isAnalyzing ? 'Analyzing...' : 'Analyze Content'}
+                    {loading ? "Analyzing..." : "Analyze Content"}
                   </Button>
                   <Button 
-                    onClick={loadSample}
+                    onClick={loadSampleContent}
                     variant="outline"
-                    className="border-[#39FF14]/30 text-[#39FF14] hover:bg-[#39FF14]/10"
+                    className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
                   >
                     Load Sample
                   </Button>
                 </div>
+
+                {userContent.length > 0 && (
+                  <div className="mt-4">
+                    <label className="block text-sm font-medium text-gray-300 mb-2">
+                      Load from Your Content History
+                    </label>
+                    <div className="space-y-2 max-h-32 overflow-y-auto">
+                      {userContent.slice(0, 5).map((item) => (
+                        <button
+                          key={item.id}
+                          onClick={() => loadFromUserContent(item)}
+                          className="w-full text-left p-2 text-sm bg-[#0D1117] border border-[#39FF14]/20 rounded hover:border-[#39FF14]/50 text-gray-300 truncate"
+                        >
+                          {item.title}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
             {/* Analysis Results */}
             <Card className="bg-[#1E2329] border-[#39FF14]/30">
               <CardHeader>
-                <CardTitle className="text-[#39FF14] flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5" />
-                  Analysis Results
+                <CardTitle className="text-white flex items-center justify-between">
+                  <span className="flex items-center">
+                    <BarChart3 className="w-5 h-5 mr-2 text-[#39FF14]" />
+                    Analysis Results
+                  </span>
+                  {analysisResults && (
+                    <Button
+                      onClick={exportAnalysis}
+                      size="sm"
+                      variant="outline"
+                      className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
+                    >
+                      <Download className="w-4 h-4 mr-1" />
+                      Export
+                    </Button>
+                  )}
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {!analysisResults ? (
-                  <div className="text-center py-12 text-gray-400">
-                    Enter your content and click "Analyze Content" to begin
+                  <div className="text-center py-12">
+                    <div className="text-gray-400 mb-4">
+                      <BarChart3 className="w-12 h-12 mx-auto opacity-50" />
+                    </div>
+                    <p className="text-gray-400">
+                      Enter your content and click "Analyze Content" to begin
+                    </p>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {/* Keyword Density */}
-                    <div className="p-4 bg-[#0D1117] rounded-lg border-l-4 border-[#39FF14]">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-white">Keyword Density</span>
-                        <span className={`font-bold text-lg ${getScoreColor(analysisResults.keywordDensity, 'keyword')}`}>
-                          {analysisResults.keywordDensity}%
-                        </span>
+                    {/* Overall Metrics */}
+                    <div className="grid grid-cols-2 gap-4">
+                      <div className="bg-[#0D1117] p-4 rounded">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-gray-300">Keyword Density</span>
+                          <span className={`font-bold ${
+                            analysisResults.keywordDensity < 1 ? 'text-red-400' : 
+                            analysisResults.keywordDensity > 3 ? 'text-yellow-400' : 'text-[#39FF14]'
+                          }`}>
+                            {analysisResults.keywordDensity}%
+                          </span>
+                        </div>
+                        <Progress 
+                          value={Math.min(analysisResults.keywordDensity * 20, 100)} 
+                          className="h-2"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">Target: 1-3%</p>
                       </div>
-                      <Progress value={Math.min(analysisResults.keywordDensity * 20, 100)} className="h-2 mb-2" />
-                      <p className="text-sm text-gray-400">Target: 1-3%</p>
-                    </div>
 
-                    {/* Readability Score */}
-                    <div className="p-4 bg-[#0D1117] rounded-lg border-l-4 border-[#39FF14]">
-                      <div className="flex justify-between items-center mb-2">
-                        <span className="font-bold text-white">Readability Score</span>
-                        <span className={`font-bold text-lg ${getScoreColor(analysisResults.readabilityScore, 'readability')}`}>
-                          {analysisResults.readabilityScore}/100
-                        </span>
+                      <div className="bg-[#0D1117] p-4 rounded">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-sm text-gray-300">Readability</span>
+                          <span className={`font-bold ${
+                            analysisResults.readabilityScore < 30 ? 'text-red-400' : 
+                            analysisResults.readabilityScore < 60 ? 'text-yellow-400' : 'text-[#39FF14]'
+                          }`}>
+                            {analysisResults.readabilityScore}/100
+                          </span>
+                        </div>
+                        <Progress 
+                          value={analysisResults.readabilityScore} 
+                          className="h-2"
+                        />
+                        <p className="text-xs text-gray-400 mt-1">
+                          Avg: {analysisResults.avgWordsPerSentence} words/sentence
+                        </p>
                       </div>
-                      <Progress value={analysisResults.readabilityScore} className="h-2 mb-2" />
-                      <p className="text-sm text-gray-400">
-                        {getReadabilityLevel(analysisResults.readabilityScore)} • Avg words/sentence: {analysisResults.avgWordsPerSentence}
-                      </p>
                     </div>
 
                     {/* Content Stats */}
-                    <div className="p-4 bg-[#0D1117] rounded-lg border-l-4 border-[#39FF14]">
-                      <h4 className="font-bold text-white mb-2">Content Stats</h4>
-                      <ul className="space-y-1 text-sm text-gray-300">
-                        <li>→ Word count: {analysisResults.wordCount}</li>
-                        <li>→ Sentences: {analysisResults.sentences}</li>
-                        <li>→ Keyword appearances: {analysisResults.keywordCount}</li>
-                      </ul>
+                    <div className="bg-[#0D1117] p-4 rounded">
+                      <h4 className="font-medium text-white mb-3">Content Statistics</h4>
+                      <div className="grid grid-cols-3 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-400">Words:</span>
+                          <span className="text-[#39FF14] ml-2 font-bold">{analysisResults.words}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Sentences:</span>
+                          <span className="text-[#39FF14] ml-2 font-bold">{analysisResults.sentences}</span>
+                        </div>
+                        <div>
+                          <span className="text-gray-400">Keywords:</span>
+                          <span className="text-[#39FF14] ml-2 font-bold">{analysisResults.keywordCount}</span>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -278,156 +438,181 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
 
           {/* Optimization Tabs */}
           {analysisResults && (
-            <Card className="bg-[#1E2329] border-[#39FF14]/30">
-              <CardHeader>
-                <CardTitle className="text-[#39FF14]">Optimization Tools</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="qa" className="w-full">
-                  <TabsList className="grid w-full grid-cols-5 bg-[#0D1117]">
-                    <TabsTrigger value="qa" className="text-[#39FF14] data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
-                      Q&A Format
-                    </TabsTrigger>
-                    <TabsTrigger value="keywords" className="text-[#39FF14] data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
-                      Keywords
-                    </TabsTrigger>
-                    <TabsTrigger value="schema" className="text-[#39FF14] data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
-                      Schema
-                    </TabsTrigger>
-                    <TabsTrigger value="readability" className="text-[#39FF14] data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
-                      Readability
-                    </TabsTrigger>
-                    <TabsTrigger value="context" className="text-[#39FF14] data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
-                      Context
-                    </TabsTrigger>
-                  </TabsList>
+            <Tabs defaultValue="qa" className="w-full">
+              <TabsList className="grid w-full grid-cols-5 bg-[#1E2329]">
+                <TabsTrigger value="qa" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                  Q&A Format
+                </TabsTrigger>
+                <TabsTrigger value="keywords" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                  Keywords
+                </TabsTrigger>
+                <TabsTrigger value="schema" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                  Schema
+                </TabsTrigger>
+                <TabsTrigger value="readability" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                  Readability
+                </TabsTrigger>
+                <TabsTrigger value="context" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                  Context
+                </TabsTrigger>
+              </TabsList>
 
-                  <TabsContent value="qa" className="space-y-4">
-                    <h3 className="text-xl font-bold text-[#39FF14] mb-4">Question & Answer Format</h3>
+              <TabsContent value="qa" className="mt-6">
+                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                  <CardHeader>
+                    <CardTitle className="text-white">Question & Answer Format</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="space-y-4">
-                      {qaItems.map((qa, index) => (
-                        <div key={index} className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                          <div className="font-bold text-[#39FF14] mb-2">Q{index + 1}: {qa.question}</div>
+                      {analysisResults.qaQuestions.map((qa: any, index: number) => (
+                        <div key={index} className="bg-[#0D1117] p-4 rounded border border-[#39FF14]/20">
+                          <div className="font-bold text-white mb-2">Q{index + 1}: {qa.question}</div>
                           <div className="text-gray-300">A: {qa.answer}</div>
                         </div>
                       ))}
                     </div>
-                  </TabsContent>
+                  </CardContent>
+                </Card>
+              </TabsContent>
 
-                  <TabsContent value="keywords" className="space-y-4">
-                    <h3 className="text-xl font-bold text-[#39FF14] mb-4">Keyword Density Analysis</h3>
+              <TabsContent value="keywords" className="mt-6">
+                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                  <CardHeader>
+                    <CardTitle className="text-white">Keyword Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
                     <div className="space-y-4">
-                      <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                        <h4 className="font-bold text-white mb-3">Current Analysis</h4>
-                        <ul className="space-y-2 text-gray-300">
-                          <li>→ Keyword: <span className="bg-yellow-200 text-black px-2 py-1 rounded">{targetKeyword}</span></li>
-                          <li>→ Current appearances: {analysisResults.keywordCount}</li>
-                          <li>→ Current density: {analysisResults.keywordDensity}%</li>
-                          <li>→ Recommended appearances: {Math.round(analysisResults.wordCount * 0.02)} (2% density)</li>
+                      <div className="bg-[#0D1117] p-4 rounded">
+                        <h4 className="font-medium text-white mb-3">Current Analysis</h4>
+                        <ul className="space-y-2 text-sm">
+                          <li className="text-gray-300">
+                            Keyword: <span className="bg-[#39FF14]/20 text-[#39FF14] px-2 py-1 rounded">{targetKeyword}</span>
+                          </li>
+                          <li className="text-gray-300">Current appearances: <span className="text-[#39FF14]">{analysisResults.keywordCount}</span></li>
+                          <li className="text-gray-300">Current density: <span className="text-[#39FF14]">{analysisResults.keywordDensity}%</span></li>
                         </ul>
                       </div>
                       
-                      {analysisResults.keywordCount < Math.round(analysisResults.wordCount * 0.02) && (
-                        <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                          <h4 className="font-bold text-white mb-3">Suggestions to Improve Keyword Density</h4>
-                          <ul className="space-y-2 text-gray-300">
-                            <li>→ Add {Math.round(analysisResults.wordCount * 0.02) - analysisResults.keywordCount} more instances of "{targetKeyword}"</li>
-                            <li>→ Include keyword variations like "{targetKeyword} services" or "{targetKeyword} solutions"</li>
-                            <li>→ Use the keyword in headings and subheadings</li>
-                            <li>→ Include the keyword in the first and last paragraphs</li>
-                            <li>→ Add the keyword to image alt texts</li>
-                          </ul>
-                        </div>
-                      )}
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="schema" className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-bold text-[#39FF14]">FAQ Schema Markup</h3>
-                      <Button
-                        onClick={copySchema}
-                        size="sm"
-                        className="bg-blue-600 hover:bg-blue-700"
-                      >
-                        <Copy className="w-4 h-4 mr-2" />
-                        Copy Schema
-                      </Button>
-                    </div>
-                    
-                    <div className="bg-[#0D1117] p-4 rounded-lg border border-[#39FF14]/30">
-                      <pre className="text-sm text-gray-300 overflow-x-auto">
-                        <code>{schemaMarkup}</code>
-                      </pre>
-                    </div>
-
-                    <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                      <h4 className="font-bold text-white mb-3">Implementation Instructions</h4>
-                      <ul className="space-y-2 text-gray-300">
-                        <li>→ Add this schema to your page's &lt;head&gt; section</li>
-                        <li>→ Wrap it in &lt;script type="application/ld+json"&gt; tags</li>
-                        <li>→ Test with Google's Rich Results Test tool</li>
-                        <li>→ Monitor performance in Search Console</li>
-                      </ul>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="readability" className="space-y-4">
-                    <h3 className="text-xl font-bold text-[#39FF14] mb-4">Readability Analysis</h3>
-                    
-                    <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                      <h4 className="font-bold text-white mb-3">Readability Metrics</h4>
-                      <ul className="space-y-2 text-gray-300">
-                        <li>→ Flesch Reading Ease: {analysisResults.readabilityScore}/100 {getReadabilityLevel(analysisResults.readabilityScore)}</li>
-                        <li>→ Average words per sentence: {analysisResults.avgWordsPerSentence}</li>
-                        <li>→ Total sentences: {analysisResults.sentences}</li>
-                        <li>→ Total words: {analysisResults.wordCount}</li>
-                      </ul>
-                    </div>
-
-                    <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                      <h4 className="font-bold text-white mb-3">Improvement Suggestions</h4>
-                      <ul className="space-y-2 text-gray-300">
-                        <li>→ Break long sentences into shorter ones (aim for 15-20 words)</li>
-                        <li>→ Use bullet points or numbered lists for complex information</li>
-                        <li>→ Replace complex words with simpler alternatives</li>
-                        <li>→ Add subheadings to break up long text blocks</li>
-                        <li>→ Use active voice instead of passive voice</li>
-                      </ul>
-                    </div>
-                  </TabsContent>
-
-                  <TabsContent value="context" className="space-y-4">
-                    <h3 className="text-xl font-bold text-[#39FF14] mb-4">Context Enhancement Suggestions</h3>
-                    
-                    <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                      <h4 className="font-bold text-white mb-3">Suggested Additions</h4>
-                      <ul className="space-y-2 text-gray-300">
-                        <li>→ Add case studies or success stories</li>
-                        <li>→ Include specific metrics and KPIs</li>
-                        <li>→ Mention tools and technologies used</li>
-                        <li>→ Add industry-specific terminology</li>
-                        <li>→ Include geographical context (Memphis, TN)</li>
-                        <li>→ Reference current trends in {targetKeyword}</li>
-                      </ul>
-                    </div>
-
-                    {targetKeyword.toLowerCase().includes('digital') || targetKeyword.toLowerCase().includes('marketing') ? (
-                      <div className="p-4 bg-[#0D1117] rounded-lg border border-[#39FF14]/30">
-                        <h4 className="font-bold text-white mb-3">Digital Marketing Specific Context</h4>
-                        <ul className="space-y-2 text-gray-300">
-                          <li>→ Mention specific platforms (Google Ads, Facebook, LinkedIn)</li>
-                          <li>→ Include conversion rate statistics</li>
-                          <li>→ Reference ROI improvements</li>
-                          <li>→ Add information about AI and automation tools</li>
-                          <li>→ Include mobile optimization statistics</li>
+                      <div className="bg-[#0D1117] p-4 rounded">
+                        <h4 className="font-medium text-white mb-3">Optimization Suggestions</h4>
+                        <ul className="space-y-2 text-sm">
+                          {analysisResults.keywordSuggestions.map((suggestion: string, index: number) => (
+                            <li key={index} className="text-gray-300 flex items-start">
+                              <span className="text-[#39FF14] mr-2">→</span>
+                              {suggestion}
+                            </li>
+                          ))}
                         </ul>
                       </div>
-                    ) : null}
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="schema" className="mt-6">
+                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                  <CardHeader>
+                    <CardTitle className="text-white flex items-center justify-between">
+                      FAQ Schema Markup
+                      <Button
+                        onClick={() => copyToClipboard(JSON.stringify(analysisResults.schemaMarkup, null, 2))}
+                        size="sm"
+                        variant="outline"
+                        className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
+                      >
+                        <Copy className="w-4 h-4 mr-1" />
+                        Copy
+                      </Button>
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-[#0D1117] p-4 rounded mb-4">
+                      <pre className="text-[#39FF14] text-sm overflow-x-auto">
+                        <code>{JSON.stringify(analysisResults.schemaMarkup, null, 2)}</code>
+                      </pre>
+                    </div>
+                    
+                    <div className="bg-[#0D1117] p-4 rounded">
+                      <h4 className="font-medium text-white mb-3">Implementation Instructions</h4>
+                      <ul className="space-y-2 text-sm">
+                        <li className="text-gray-300 flex items-start">
+                          <span className="text-[#39FF14] mr-2">→</span>
+                          Add this schema to your page's &lt;head&gt; section
+                        </li>
+                        <li className="text-gray-300 flex items-start">
+                          <span className="text-[#39FF14] mr-2">→</span>
+                          Wrap it in &lt;script type="application/ld+json"&gt; tags
+                        </li>
+                        <li className="text-gray-300 flex items-start">
+                          <span className="text-[#39FF14] mr-2">→</span>
+                          Test with Google's Rich Results Test tool
+                        </li>
+                        <li className="text-gray-300 flex items-start">
+                          <span className="text-[#39FF14] mr-2">→</span>
+                          Monitor performance in Search Console
+                        </li>
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="readability" className="mt-6">
+                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                  <CardHeader>
+                    <CardTitle className="text-white">Readability Analysis</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div className="bg-[#0D1117] p-4 rounded">
+                        <h4 className="font-medium text-white mb-3">Current Metrics</h4>
+                        <ul className="space-y-2 text-sm">
+                          <li className="text-gray-300">
+                            Flesch Reading Ease: <span className="text-[#39FF14]">{analysisResults.readabilityScore}/100</span>
+                          </li>
+                          <li className="text-gray-300">
+                            Average words per sentence: <span className="text-[#39FF14]">{analysisResults.avgWordsPerSentence}</span>
+                          </li>
+                        </ul>
+                      </div>
+
+                      <div className="bg-[#0D1117] p-4 rounded">
+                        <h4 className="font-medium text-white mb-3">Improvement Suggestions</h4>
+                        <ul className="space-y-2 text-sm">
+                          {analysisResults.readabilitySuggestions.map((suggestion: string, index: number) => (
+                            <li key={index} className="text-gray-300 flex items-start">
+                              <span className="text-[#39FF14] mr-2">→</span>
+                              {suggestion}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              <TabsContent value="context" className="mt-6">
+                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                  <CardHeader>
+                    <CardTitle className="text-white">Context Enhancement</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="bg-[#0D1117] p-4 rounded">
+                      <h4 className="font-medium text-white mb-3">Suggested Improvements</h4>
+                      <ul className="space-y-2 text-sm">
+                        {analysisResults.contextSuggestions.map((suggestion: string, index: number) => (
+                          <li key={index} className="text-gray-300 flex items-start">
+                            <span className="text-[#39FF14] mr-2">→</span>
+                            {suggestion}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+            </Tabs>
           )}
         </div>
       </div>

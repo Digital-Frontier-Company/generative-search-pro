@@ -215,6 +215,103 @@ export type Database = {
           },
         ]
       }
+      documents: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          id: number
+          metadata: Json | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          metadata?: Json | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          id?: number
+          metadata?: Json | null
+        }
+        Relationships: []
+      }
+      nods_page: {
+        Row: {
+          checksum: string | null
+          id: number
+          meta: Json | null
+          parent_page_id: number | null
+          path: string
+          source: string | null
+          type: string | null
+        }
+        Insert: {
+          checksum?: string | null
+          id?: number
+          meta?: Json | null
+          parent_page_id?: number | null
+          path: string
+          source?: string | null
+          type?: string | null
+        }
+        Update: {
+          checksum?: string | null
+          id?: number
+          meta?: Json | null
+          parent_page_id?: number | null
+          path?: string
+          source?: string | null
+          type?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nods_page_parent_page_id_fkey"
+            columns: ["parent_page_id"]
+            isOneToOne: false
+            referencedRelation: "nods_page"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      nods_page_section: {
+        Row: {
+          content: string | null
+          embedding: string | null
+          heading: string | null
+          id: number
+          page_id: number
+          slug: string | null
+          token_count: number | null
+        }
+        Insert: {
+          content?: string | null
+          embedding?: string | null
+          heading?: string | null
+          id?: number
+          page_id: number
+          slug?: string | null
+          token_count?: number | null
+        }
+        Update: {
+          content?: string | null
+          embedding?: string | null
+          heading?: string | null
+          id?: number
+          page_id?: number
+          slug?: string | null
+          token_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "nods_page_section_page_id_fkey"
+            columns: ["page_id"]
+            isOneToOne: false
+            referencedRelation: "nods_page"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -565,6 +662,15 @@ export type Database = {
         Args: { query_text: string }
         Returns: string
       }
+      get_page_parents: {
+        Args: { page_id: number }
+        Returns: {
+          id: number
+          parent_page_id: number
+          path: string
+          meta: Json
+        }[]
+      }
       halfvec_avg: {
         Args: { "": number[] }
         Returns: unknown
@@ -635,6 +741,31 @@ export type Database = {
           created_at: string
           generated_at: string
           user_id: string
+          similarity: number
+        }[]
+      }
+      match_documents: {
+        Args: { query_embedding: string; match_count?: number; filter?: Json }
+        Returns: {
+          id: number
+          content: string
+          metadata: Json
+          similarity: number
+        }[]
+      }
+      match_page_sections: {
+        Args: {
+          embedding: string
+          match_threshold: number
+          match_count: number
+          min_content_length: number
+        }
+        Returns: {
+          id: number
+          page_id: number
+          slug: string
+          heading: string
+          content: string
           similarity: number
         }[]
       }
