@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -11,12 +12,65 @@ const Index = () => {
   const navigate = useNavigate();
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
   const [contentInput, setContentInput] = useState("");
+  const [analysis, setAnalysis] = useState<any>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Analysis functions
+  const performAnalysis = (text: string) => {
+    const words = text.split(/\s+/).length;
+    const sentences = text.split(/[.!?]+/).filter(s => s.trim()).length;
+    const headings = (text.match(/#{1,6}\s/g) || []).length;
+    const links = (text.match(/\[.*?\]\(.*?\)/g) || []).length;
+    const citations = (text.match(/\(\w+,?\s?\d{4}\)/g) || []).length;
+    
+    return {
+      basicStats: {
+        wordCount: words,
+        sentences: sentences,
+        readabilityScore: Math.min(100, Math.max(0, 100 - (words / sentences) * 2))
+      },
+      aiOptimization: {
+        hasHeadings: headings > 0,
+        hasCitations: citations > 0,
+        hasLinks: links > 0,
+        isWellStructured: headings > 0 && sentences > 3,
+        readabilityGood: words / sentences < 20
+      },
+      score: calculateScore(headings, citations, links, words, sentences),
+      recommendations: generateRecommendations(headings, citations, links, words, sentences)
+    };
+  };
+
+  const calculateScore = (headings: number, citations: number, links: number, words: number, sentences: number) => {
+    let score = 0;
+    if (headings > 0) score += 25;
+    if (citations > 0) score += 25;
+    if (links > 0) score += 20;
+    if (words > 300) score += 15;
+    if (sentences > 5) score += 15;
+    return Math.min(100, score);
+  };
+
+  const generateRecommendations = (headings: number, citations: number, links: number, words: number, sentences: number) => {
+    const recs = [];
+    if (headings === 0) recs.push("Add clear headings (H2, H3) to structure your content");
+    if (citations === 0) recs.push("Include citations to credible sources (Author, Year)");
+    if (links === 0) recs.push("Add relevant external links to authoritative sources");
+    if (words < 300) recs.push("Expand content - AI prefers comprehensive information");
+    if (words / sentences > 20) recs.push("Use shorter sentences for better AI readability");
+    if (recs.length === 0) recs.push("Great job! Your content is well-optimized for AI engines");
+    return recs;
+  };
 
   const handleAnalyzeContent = () => {
     if (contentInput.trim()) {
-      navigate('/generator', { state: { initialContent: contentInput } });
-    } else {
-      navigate('/generator');
+      setIsAnalyzing(true);
+      // Simulate API call delay
+      setTimeout(() => {
+        const results = performAnalysis(contentInput);
+        setAnalysis(results);
+        setIsAnalyzing(false);
+      }, 1500);
     }
   };
 
@@ -26,6 +80,18 @@ const Index = () => {
 
   const handleWatchDemo = () => {
     navigate('/resources');
+  };
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return 'text-[#39FF14]';
+    if (score >= 60) return 'text-yellow-500';
+    return 'text-red-500';
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 80) return 'Excellent';
+    if (score >= 60) return 'Good';
+    return 'Needs Work';
   };
 
   return (
@@ -208,10 +274,18 @@ const Index = () => {
                   </div>
                   <button 
                     onClick={handleAnalyzeContent}
-                    className="px-4 py-2 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all"
+                    disabled={!contentInput.trim() || isAnalyzing}
+                    className="px-4 py-2 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all disabled:opacity-50"
                     style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}
                   >
-                    Analyze Content
+                    {isAnalyzing ? (
+                      <>
+                        <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#0D1117] border-t-transparent inline-block mr-2"></div>
+                        Analyzing...
+                      </>
+                    ) : (
+                      "Analyze Content"
+                    )}
                   </button>
                 </div>
               </div>
@@ -219,37 +293,111 @@ const Index = () => {
             
             <div className="border border-[#1E2329] rounded-lg overflow-hidden">
               <div className="bg-[#1E2329] p-4 flex justify-between items-center">
-                <h3 className="font-bold">AI Suggestions</h3>
-                <div>
-                  <select className="bg-[#0D1117] text-white border border-[#1E2329] rounded p-1 text-sm">
-                    <option>All Suggestions</option>
-                    <option>SEO Improvements</option>
-                    <option>AI Visibility</option>
-                    <option>Content Structure</option>
-                  </select>
-                </div>
+                <h3 className="font-bold">AI Analysis Results</h3>
+                {analysis && (
+                  <div className={`text-2xl font-bold ${getScoreColor(analysis.score)}`}>
+                    {analysis.score}/100
+                  </div>
+                )}
               </div>
               <div className="p-4 h-[340px] overflow-y-auto">
-                <div className="mb-4 p-3 border-l-4 border-[#39FF14] bg-[#1E2329] rounded">
-                  <h4 className="font-bold text-[#39FF14]">Add a Clear Question & Answer Format</h4>
-                  <p className="text-sm text-gray-300">Structure key information as direct questions and answers to improve visibility in AI answer engines.</p>
-                </div>
-                <div className="mb-4 p-3 border-l-4 border-yellow-500 bg-[#1E2329] rounded">
-                  <h4 className="font-bold text-yellow-500">Improve Keyword Density</h4>
-                  <p className="text-sm text-gray-300">Your primary keyword appears only 2 times. Consider increasing to 5-7 mentions for better SEO.</p>
-                </div>
-                <div className="mb-4 p-3 border-l-4 border-[#39FF14] bg-[#1E2329] rounded">
-                  <h4 className="font-bold text-[#39FF14]">Add Structured Data</h4>
-                  <p className="text-sm text-gray-300">Implement FAQ schema markup to enhance your content's visibility in both search and AI results.</p>
-                </div>
-                <div className="mb-4 p-3 border-l-4 border-blue-400 bg-[#1E2329] rounded">
-                  <h4 className="font-bold text-blue-400">Improve Readability</h4>
-                  <p className="text-sm text-gray-300">Current readability score is 65/100. Break longer paragraphs into shorter ones for better comprehension.</p>
-                </div>
-                <div className="mb-4 p-3 border-l-4 border-[#39FF14] bg-[#1E2329] rounded">
-                  <h4 className="font-bold text-[#39FF14]">Add Contextual Information</h4>
-                  <p className="text-sm text-gray-300">Enhance your content with more specific details and examples to provide better context for AI engines.</p>
-                </div>
+                {analysis ? (
+                  <div className="space-y-4">
+                    {/* Score Display */}
+                    <div className="text-center mb-4">
+                      <div className={`text-3xl font-bold ${getScoreColor(analysis.score)}`}>
+                        {analysis.score}/100
+                      </div>
+                      <div className={`text-lg ${getScoreColor(analysis.score)}`}>
+                        {getScoreLabel(analysis.score)}
+                      </div>
+                    </div>
+
+                    {/* Basic Stats */}
+                    <div className="mb-4 p-3 bg-[#1E2329] rounded">
+                      <h4 className="font-bold text-[#39FF14] mb-2">Content Stats</h4>
+                      <div className="grid grid-cols-2 gap-2 text-sm text-gray-300">
+                        <div>Words: {analysis.basicStats.wordCount}</div>
+                        <div>Sentences: {analysis.basicStats.sentences}</div>
+                        <div className="col-span-2">
+                          Readability: {Math.round(analysis.basicStats.readabilityScore)}%
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* AI Optimization Checks */}
+                    <div className="mb-4 p-3 bg-[#1E2329] rounded">
+                      <h4 className="font-bold text-[#39FF14] mb-2">AI Optimization Checklist</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex items-center gap-2">
+                          {analysis.aiOptimization.hasHeadings ? (
+                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
+                          )}
+                          <span className={analysis.aiOptimization.hasHeadings ? 'text-[#39FF14]' : 'text-gray-400'}>
+                            Clear headings structure
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {analysis.aiOptimization.hasCitations ? (
+                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
+                          )}
+                          <span className={analysis.aiOptimization.hasCitations ? 'text-[#39FF14]' : 'text-gray-400'}>
+                            Source citations included
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {analysis.aiOptimization.hasLinks ? (
+                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
+                          )}
+                          <span className={analysis.aiOptimization.hasLinks ? 'text-[#39FF14]' : 'text-gray-400'}>
+                            External links present
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {analysis.aiOptimization.isWellStructured ? (
+                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
+                          )}
+                          <span className={analysis.aiOptimization.isWellStructured ? 'text-[#39FF14]' : 'text-gray-400'}>
+                            Well-structured content
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {analysis.aiOptimization.readabilityGood ? (
+                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
+                          ) : (
+                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
+                          )}
+                          <span className={analysis.aiOptimization.readabilityGood ? 'text-[#39FF14]' : 'text-gray-400'}>
+                            Good readability
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Recommendations */}
+                    <div className="mb-4 p-3 bg-[#1E2329] rounded">
+                      <h4 className="font-bold text-[#39FF14] mb-2">Recommendations</h4>
+                      <ul className="space-y-1 text-sm text-gray-300">
+                        {analysis.recommendations.map((rec: string, index: number) => (
+                          <li key={index}>• {rec}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="text-center text-gray-400 py-12">
+                    <Bot className="w-16 h-16 mx-auto mb-4 text-gray-500" />
+                    <p>Enter your content and click "Analyze Content" to see AI optimization suggestions</p>
+                  </div>
+                )}
               </div>
             </div>
           </div>
