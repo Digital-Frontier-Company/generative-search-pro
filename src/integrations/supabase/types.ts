@@ -654,9 +654,21 @@ export type Database = {
         Args: { user_email: string; credit_amount: number }
         Returns: number
       }
+      analyze_content_quality: {
+        Args: { content_text: string }
+        Returns: Json
+      }
+      analyze_keywords: {
+        Args: { content_text: string; target_keyword: string }
+        Returns: Json
+      }
       binary_quantize: {
         Args: { "": string } | { "": unknown }
         Returns: unknown
+      }
+      check_ai_friendliness: {
+        Args: { content_text: string }
+        Returns: Json
       }
       get_openai_embedding: {
         Args: { query_text: string }

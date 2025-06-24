@@ -52,27 +52,30 @@ const ContentQualityAnalyzer = () => {
         return;
       }
 
-      // Call our enhanced content analysis function
-      const { data: qualityData, error: qualityError } = await supabase.rpc('analyze_content_quality', {
-        content_text: content
-      });
+      // Call our enhanced content analysis function using raw SQL
+      const { data: qualityData, error: qualityError } = await supabase
+        .rpc('analyze_content_quality' as any, {
+          content_text: content
+        });
 
       if (qualityError) throw qualityError;
 
-      // Call AI-friendliness checker
-      const { data: aiData, error: aiError } = await supabase.rpc('check_ai_friendliness', {
-        content_text: content
-      });
+      // Call AI-friendliness checker using raw SQL
+      const { data: aiData, error: aiError } = await supabase
+        .rpc('check_ai_friendliness' as any, {
+          content_text: content
+        });
 
       if (aiError) throw aiError;
 
       // Analyze keywords if provided
       let keywordData = null;
       if (targetKeyword.trim()) {
-        const { data: kwData, error: kwError } = await supabase.rpc('analyze_keywords', {
-          content_text: content,
-          target_keyword: targetKeyword.trim()
-        });
+        const { data: kwData, error: kwError } = await supabase
+          .rpc('analyze_keywords' as any, {
+            content_text: content,
+            target_keyword: targetKeyword.trim()
+          });
         
         if (kwError) throw kwError;
         keywordData = kwData;
@@ -80,9 +83,9 @@ const ContentQualityAnalyzer = () => {
 
       // Combine all analysis results
       const combinedAnalysis: ContentAnalysis = {
-        ...qualityData,
-        ...aiData,
-        keyword_analysis: keywordData
+        ...(qualityData as any),
+        ...(aiData as any),
+        keyword_analysis: keywordData as any
       };
 
       setAnalysis(combinedAnalysis);

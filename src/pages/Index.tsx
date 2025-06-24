@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -26,35 +27,40 @@ const Index = () => {
         return performBasicAnalysis(text);
       }
 
-      // Call enhanced database functions
-      const { data: qualityData, error: qualityError } = await supabase.rpc('analyze_content_quality', {
-        content_text: text
-      });
+      // Call enhanced database functions using type assertion
+      const { data: qualityData, error: qualityError } = await supabase
+        .rpc('analyze_content_quality' as any, {
+          content_text: text
+        });
 
       if (qualityError) throw qualityError;
 
-      const { data: aiData, error: aiError } = await supabase.rpc('check_ai_friendliness', {
-        content_text: text
-      });
+      const { data: aiData, error: aiError } = await supabase
+        .rpc('check_ai_friendliness' as any, {
+          content_text: text
+        });
 
       if (aiError) throw aiError;
 
+      const qualityResult = qualityData as any;
+      const aiResult = aiData as any;
+
       return {
         basicStats: {
-          wordCount: qualityData.word_count,
-          sentences: qualityData.sentence_count,
-          readingTime: qualityData.reading_time_minutes,
-          readabilityScore: Math.min(100, Math.max(0, 100 - (qualityData.word_count / qualityData.sentence_count) * 2))
+          wordCount: qualityResult.word_count,
+          sentences: qualityResult.sentence_count,
+          readingTime: qualityResult.reading_time_minutes,
+          readabilityScore: Math.min(100, Math.max(0, 100 - (qualityResult.word_count / qualityResult.sentence_count) * 2))
         },
         aiOptimization: {
-          hasHeadings: aiData.has_clear_structure,
-          hasCitations: aiData.has_citations,
-          hasLinks: qualityData.link_count > 0,
-          isWellStructured: aiData.has_clear_structure && qualityData.sentence_count > 3,
-          readabilityGood: aiData.avg_paragraph_length < 500
+          hasHeadings: aiResult.has_clear_structure,
+          hasCitations: aiResult.has_citations,
+          hasLinks: qualityResult.link_count > 0,
+          isWellStructured: aiResult.has_clear_structure && qualityResult.sentence_count > 3,
+          readabilityGood: aiResult.avg_paragraph_length < 500
         },
-        score: Math.max(qualityData.quality_score, aiData.ai_score),
-        recommendations: aiData.recommendations
+        score: Math.max(qualityResult.quality_score, aiResult.ai_score),
+        recommendations: aiResult.recommendations
       };
     } catch (error) {
       console.error('Enhanced analysis failed, using basic analysis:', error);
