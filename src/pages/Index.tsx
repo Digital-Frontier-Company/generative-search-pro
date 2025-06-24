@@ -6,6 +6,8 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import JsonLdSchema from "@/components/JsonLdSchema";
 import { getHomepageSchema, getHomepageFAQSchema } from "@/utils/jsonLdSchemas";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -14,15 +16,60 @@ const Index = () => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // Analysis functions
-  const performAnalysis = (text: string) => {
+  // Enhanced analysis functions using Supabase
+  const performAnalysis = async (text: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        // Fallback to basic analysis if not authenticated
+        return performBasicAnalysis(text);
+      }
+
+      // Call enhanced database functions
+      const { data: qualityData, error: qualityError } = await supabase.rpc('analyze_content_quality', {
+        content_text: text
+      });
+
+      if (qualityError) throw qualityError;
+
+      const { data: aiData, error: aiError } = await supabase.rpc('check_ai_friendliness', {
+        content_text: text
+      });
+
+      if (aiError) throw aiError;
+
+      return {
+        basicStats: {
+          wordCount: qualityData.word_count,
+          sentences: qualityData.sentence_count,
+          readingTime: qualityData.reading_time_minutes,
+          readabilityScore: Math.min(100, Math.max(0, 100 - (qualityData.word_count / qualityData.sentence_count) * 2))
+        },
+        aiOptimization: {
+          hasHeadings: aiData.has_clear_structure,
+          hasCitations: aiData.has_citations,
+          hasLinks: qualityData.link_count > 0,
+          isWellStructured: aiData.has_clear_structure && qualityData.sentence_count > 3,
+          readabilityGood: aiData.avg_paragraph_length < 500
+        },
+        score: Math.max(qualityData.quality_score, aiData.ai_score),
+        recommendations: aiData.recommendations
+      };
+    } catch (error) {
+      console.error('Enhanced analysis failed, using basic analysis:', error);
+      return performBasicAnalysis(text);
+    }
+  };
+
+  // Fallback basic analysis function
+  const performBasicAnalysis = (text: string) => {
     const words = text.split(/\s+/).length;
     const sentences = text.split(/[.!?]+/).filter(s => s.trim()).length;
     const headings = (text.match(/#{1,6}\s/g) || []).length;
     const links = (text.match(/\[.*?\]\(.*?\)/g) || []).length;
     const citations = (text.match(/\(\w+,?\s?\d{4}\)/g) || []).length;
     
-    // Calculate reading time (average reading speed: 200 words per minute)
     const readingTimeMinutes = Math.ceil(words / 200);
     
     return {
@@ -65,15 +112,19 @@ const Index = () => {
     return recs;
   };
 
-  const handleAnalyzeContent = () => {
+  const handleAnalyzeContent = async () => {
     if (contentInput.trim()) {
       setIsAnalyzing(true);
-      // Simulate API call delay
-      setTimeout(() => {
-        const results = performAnalysis(contentInput);
+      try {
+        const results = await performAnalysis(contentInput);
         setAnalysis(results);
+        toast.success("Content analysis completed!");
+      } catch (error) {
+        console.error('Analysis error:', error);
+        toast.error('Analysis failed. Please try again.');
+      } finally {
         setIsAnalyzing(false);
-      }, 1500);
+      }
     }
   };
 
