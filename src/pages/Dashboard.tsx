@@ -4,9 +4,11 @@ import { useSubscription } from "@/contexts/SubscriptionContext";
 import Header from "@/components/Header";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
 import AIVisibilityScore from "@/components/AIVisibilityScore";
+import CitationMonitoringDashboard from "@/components/CitationMonitoringDashboard";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target, BookOpen, Microscope } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
@@ -109,52 +111,56 @@ const Dashboard = () => {
             </p>
           </div>
 
-          <div className="grid lg:grid-cols-4 gap-6 mb-8">
-            {/* AI Visibility Score Section */}
-            <div className="lg:col-span-2">
-              <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
-              <AIVisibilityScore />
-            </div>
+          <Tabs defaultValue="overview" className="w-full">
+            <TabsList className="grid w-full grid-cols-3 mb-6">
+              <TabsTrigger value="overview">Overview</TabsTrigger>
+              <TabsTrigger value="citations">Citation Monitoring</TabsTrigger>
+              <TabsTrigger value="tools">Available Tools</TabsTrigger>
+            </TabsList>
 
-            {/* Tools and Subscription */}
-            <div className="lg:col-span-2 space-y-6">
-              <div>
-                <SubscriptionStatus />
-              </div>
-
-              <div>
-                <h2 className="text-2xl font-semibold mb-4 text-matrix-green">Available Tools</h2>
-                <div className="grid grid-cols-1 gap-4">
-                  {features.map((feature) => {
-                    const hasAccess = canAccessFeature(feature.tier);
-                    
-                    return (
-                      <Card 
-                        key={feature.title} 
-                        className="content-card cursor-pointer transition-all duration-200 hover:shadow-lg hover:scale-[1.02]"
-                        onClick={() => navigate(feature.path)}
-                      >
-                        <CardContent className="p-4">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-matrix-green/10 text-matrix-green">
-                              {feature.icon}
-                            </div>
-                            <div className="flex-1">
-                              <h3 className="font-medium text-matrix-green">{feature.title}</h3>
-                              <p className="text-sm text-matrix-green/70">{feature.description}</p>
-                            </div>
-                            <Badge className={getTierBadgeColor(feature.tier)} variant="outline">
-                              {feature.tier}
-                            </Badge>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    );
-                  })}
+            <TabsContent value="overview">
+              <div className="grid lg:grid-cols-4 gap-6">
+                <div className="lg:col-span-2">
+                  <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
+                  <AIVisibilityScore />
+                </div>
+                <div className="lg:col-span-2">
+                  <SubscriptionStatus />
                 </div>
               </div>
-            </div>
-          </div>
+            </TabsContent>
+
+            <TabsContent value="citations">
+              <CitationMonitoringDashboard />
+            </TabsContent>
+
+            <TabsContent value="tools">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {features.map((feature) => (
+                  <Card 
+                    key={feature.title} 
+                    className="content-card cursor-pointer hover-scale"
+                    onClick={() => navigate(feature.path)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-matrix-green/10 text-matrix-green">
+                          {feature.icon}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="font-medium text-matrix-green">{feature.title}</h3>
+                          <p className="text-sm text-matrix-green/70">{feature.description}</p>
+                        </div>
+                        <Badge className={getTierBadgeColor(feature.tier)} variant="outline">
+                          {feature.tier}
+                        </Badge>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
 
           {(!subscribed && !isTrialActive) && (
             <Card className="content-card border-matrix-green/50">
