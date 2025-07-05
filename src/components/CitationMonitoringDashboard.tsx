@@ -36,6 +36,16 @@ interface CitationData {
   checked_at: string;
 }
 
+interface Achievement {
+  id: string;
+  title: string;
+  description: string;
+  icon: string;
+  unlocked: boolean;
+  progress: number;
+  maxProgress: number;
+}
+
 interface CitationStats {
   totalCitations: number;
   weeklyGrowth: number;
@@ -44,6 +54,10 @@ interface CitationStats {
   voice: number;
   topQueries: Array<{ query: string; count: number; trend: 'up' | 'down' | 'stable' }>;
   recentCitations: CitationData[];
+  level: number;
+  points: number;
+  streak: number;
+  achievements: Achievement[];
 }
 
 const CitationMonitoringDashboard = () => {
@@ -55,7 +69,11 @@ const CitationMonitoringDashboard = () => {
     bingChat: 0,
     voice: 0,
     topQueries: [],
-    recentCitations: []
+    recentCitations: [],
+    level: 1,
+    points: 0,
+    streak: 0,
+    achievements: []
   });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -134,15 +152,91 @@ const CitationMonitoringDashboard = () => {
         trend: Math.random() > 0.5 ? 'up' : 'down' as 'up' | 'down' // Simplified for demo
       }));
 
+    // Gamification calculations
+    const totalCitations = cited.length;
+    const points = totalCitations * 10 + thisWeekCited * 5; // Base points
+    const level = Math.floor(points / 100) + 1;
+    const streak = calculateStreak(data);
+    const achievements = getAchievements(totalCitations, streak, level);
+
     return {
-      totalCitations: cited.length,
+      totalCitations,
       weeklyGrowth,
       googleSGE: Math.floor(cited.length * 0.7), // Simulated breakdown
       bingChat: Math.floor(cited.length * 0.2),
       voice: Math.floor(cited.length * 0.1),
       topQueries,
-      recentCitations: cited.slice(0, 5)
+      recentCitations: cited.slice(0, 5),
+      level,
+      points,
+      streak,
+      achievements
     };
+  };
+
+  const calculateStreak = (data: CitationData[]): number => {
+    // Simple streak calculation - consecutive days with citations
+    const days = [...Array(7)].map((_, i) => {
+      const date = new Date();
+      date.setDate(date.getDate() - i);
+      return date.toDateString();
+    });
+
+    let streak = 0;
+    for (const day of days) {
+      const hasActivity = data.some(item => 
+        new Date(item.checked_at).toDateString() === day
+      );
+      if (hasActivity) {
+        streak++;
+      } else {
+        break;
+      }
+    }
+    return streak;
+  };
+
+  const getAchievements = (citations: number, streak: number, level: number): Achievement[] => {
+    const allAchievements: Achievement[] = [
+      {
+        id: 'first_citation',
+        title: 'First Citation',
+        description: 'Get your first AI citation',
+        icon: '🎯',
+        unlocked: citations >= 1,
+        progress: Math.min(citations, 1),
+        maxProgress: 1
+      },
+      {
+        id: 'citation_master',
+        title: 'Citation Master',
+        description: 'Reach 10 citations',
+        icon: '👑',
+        unlocked: citations >= 10,
+        progress: Math.min(citations, 10),
+        maxProgress: 10
+      },
+      {
+        id: 'streak_warrior',
+        title: 'Streak Warrior',
+        description: 'Maintain a 7-day activity streak',
+        icon: '🔥',
+        unlocked: streak >= 7,
+        progress: Math.min(streak, 7),
+        maxProgress: 7
+      },
+      {
+        id: 'level_up',
+        title: 'Level Up',
+        description: 'Reach level 5',
+        icon: '⭐',
+        unlocked: level >= 5,
+        progress: Math.min(level, 5),
+        maxProgress: 5
+      }
+    ];
+
+    return allAchievements;
   };
 
   const formatDate = (dateString: string) => {
@@ -270,6 +364,125 @@ const CitationMonitoringDashboard = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Gamification Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <Card className="content-card hover-scale">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl mb-2">⭐</div>
+              <h3 className="text-lg font-semibold text-matrix-green mb-1">Level {stats.level}</h3>
+              <p className="text-sm text-matrix-green/70 mb-3">{stats.points} points earned</p>
+              <Progress 
+                value={(stats.points % 100)} 
+                className="h-2 mb-2"
+              />
+              <p className="text-xs text-matrix-green/60">{100 - (stats.points % 100)} points to next level</p>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="content-card hover-scale">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🔥</div>
+              <h3 className="text-lg font-semibold text-matrix-green mb-1">{stats.streak} Day Streak</h3>
+              <p className="text-sm text-matrix-green/70 mb-3">Keep the momentum going!</p>
+              <div className="flex justify-center space-x-1">
+                {[...Array(7)].map((_, i) => (
+                  <div 
+                    key={i}
+                    className={`w-3 h-3 rounded-full ${
+                      i < stats.streak ? 'bg-orange-500' : 'bg-matrix-green/20'
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="content-card hover-scale">
+          <CardContent className="p-6">
+            <div className="text-center">
+              <div className="text-3xl mb-2">🏆</div>
+              <h3 className="text-lg font-semibold text-matrix-green mb-1">Achievements</h3>
+              <p className="text-sm text-matrix-green/70 mb-3">
+                {stats.achievements.filter(a => a.unlocked).length} of {stats.achievements.length} unlocked
+              </p>
+              <div className="flex justify-center flex-wrap gap-1">
+                {stats.achievements.slice(0, 4).map((achievement) => (
+                  <div
+                    key={achievement.id}
+                    className={`text-lg ${
+                      achievement.unlocked ? 'opacity-100' : 'opacity-30'
+                    }`}
+                    title={`${achievement.title}: ${achievement.description}`}
+                  >
+                    {achievement.icon}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Achievements Panel */}
+      <Card className="content-card">
+        <CardHeader>
+          <CardTitle className="text-matrix-green flex items-center">
+            🏆 Your Achievements
+          </CardTitle>
+          <CardDescription>Track your progress and unlock rewards</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {stats.achievements.map((achievement) => (
+              <div
+                key={achievement.id}
+                className={`p-4 rounded-lg border transition-all ${
+                  achievement.unlocked
+                    ? 'bg-matrix-green/5 border-matrix-green/30 shadow-glow'
+                    : 'bg-gray-500/5 border-gray-500/20'
+                }`}
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center space-x-3">
+                    <span className={`text-2xl ${achievement.unlocked ? '' : 'grayscale opacity-50'}`}>
+                      {achievement.icon}
+                    </span>
+                    <div>
+                      <h4 className={`font-medium ${
+                        achievement.unlocked ? 'text-matrix-green' : 'text-gray-500'
+                      }`}>
+                        {achievement.title}
+                      </h4>
+                      <p className={`text-sm ${
+                        achievement.unlocked ? 'text-matrix-green/70' : 'text-gray-500/70'
+                      }`}>
+                        {achievement.description}
+                      </p>
+                    </div>
+                  </div>
+                  {achievement.unlocked && (
+                    <CheckCircle className="w-5 h-5 text-green-500" />
+                  )}
+                </div>
+                <div className="mt-3">
+                  <Progress 
+                    value={(achievement.progress / achievement.maxProgress) * 100}
+                    className="h-2"
+                  />
+                  <p className="text-xs text-matrix-green/60 mt-1">
+                    {achievement.progress} / {achievement.maxProgress}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Detailed Analytics */}
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
