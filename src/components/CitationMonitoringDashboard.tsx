@@ -21,9 +21,12 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
+import type { Tables } from '@/integrations/supabase/types';
+
+type CitationCheckRow = Tables<'citation_checks'>;
 
 interface CitationData {
-  id: string;
+  id: number;
   query: string;
   domain: string;
   is_cited: boolean;
@@ -77,8 +80,20 @@ const CitationMonitoringDashboard = () => {
 
       if (error) throw error;
 
+      // Transform the data to match our interface
+      const transformedData: CitationData[] = (citationData || []).map(row => ({
+        id: row.id,
+        query: row.query,
+        domain: row.domain,
+        is_cited: row.is_cited || false,
+        ai_answer: row.ai_answer || '',
+        cited_sources: Array.isArray(row.cited_sources) ? row.cited_sources : [],
+        recommendations: row.recommendations || '',
+        checked_at: row.checked_at || ''
+      }));
+
       // Process the data to create stats
-      const processedStats = processCitationData(citationData || []);
+      const processedStats = processCitationData(transformedData);
       setStats(processedStats);
     } catch (error) {
       console.error('Error loading citation data:', error);
