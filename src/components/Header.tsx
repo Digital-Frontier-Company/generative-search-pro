@@ -34,12 +34,6 @@ const Header = () => {
     name: 'Home',
     href: '/'
   }, {
-    name: 'Features',
-    action: () => scrollToSection('features')
-  }, {
-    name: 'Pricing',
-    action: () => scrollToSection('pricing')
-  }, {
     name: 'Resources',
     href: '/resources'
   }, {
@@ -56,13 +50,11 @@ const Header = () => {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-6">
-          {navigation.map(item => <div key={item.name}>
-              {item.href ? <Link to={item.href} className="text-matrix-green hover:text-matrix-lime transition-colors">
-                  {item.name}
-                </Link> : <button onClick={item.action} className="text-matrix-green hover:text-matrix-lime transition-colors">
-                  {item.name}
-                </button>}
-            </div>)}
+          {navigation.map(item => (
+            <Link key={item.name} to={item.href} className="text-matrix-green hover:text-matrix-lime transition-colors">
+              {item.name}
+            </Link>
+          ))}
         </nav>
 
         {/* User Actions */}
@@ -131,13 +123,11 @@ const Header = () => {
       {/* Mobile Navigation */}
       {isMenuOpen && <div className="md:hidden border-t border-matrix-green/20 bg-black/95 backdrop-blur">
           <div className="px-4 py-6 space-y-4">
-            {navigation.map(item => <div key={item.name}>
-                {item.href ? <Link to={item.href} className="block text-matrix-green hover:text-matrix-lime transition-colors" onClick={() => setIsMenuOpen(false)}>
-                    {item.name}
-                  </Link> : <button onClick={item.action} className="block text-matrix-green hover:text-matrix-lime transition-colors text-left">
-                    {item.name}
-                  </button>}
-              </div>)}
+            {navigation.map(item => (
+              <Link key={item.name} to={item.href} className="block text-matrix-green hover:text-matrix-lime transition-colors" onClick={() => setIsMenuOpen(false)}>
+                {item.name}
+              </Link>
+            ))}
             
             {!user && <div className="pt-4 border-t border-matrix-green/20 space-y-4">
                 <Button variant="ghost" onClick={() => {

@@ -5,6 +5,8 @@ import Header from "@/components/Header";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
 import AIVisibilityScore from "@/components/AIVisibilityScore";
 import CitationMonitoringDashboard from "@/components/CitationMonitoringDashboard";
+import AIAudit from "@/components/AIAudit";
+import SEOToolsAnalytics from "@/components/SEOToolsAnalytics";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -182,9 +184,15 @@ const Dashboard = () => {
                   <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
                   <AIVisibilityScore />
                 </div>
-                <div className="lg:col-span-2">
-                  <SubscriptionStatus />
+                <div className="lg:col-span-1">
+                  <AIAudit />
                 </div>
+                <div className="lg:col-span-1">
+                  <SEOToolsAnalytics />
+                </div>
+              </div>
+              <div className="mt-6">
+                <SubscriptionStatus />
               </div>
             </TabsContent>
 
