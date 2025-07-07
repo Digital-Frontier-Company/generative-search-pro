@@ -9,6 +9,13 @@ import JsonLdSchema from "@/components/JsonLdSchema";
 import { getHomepageSchema, getHomepageFAQSchema } from "@/utils/jsonLdSchemas";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import LeadCaptureModal from "@/components/landing/LeadCaptureModal";
+import NewsletterSignup from "@/components/landing/NewsletterSignup";
+import TestimonialSection from "@/components/landing/TestimonialSection";
+import SocialProofSection from "@/components/landing/SocialProofSection";
+import HowItWorksSection from "@/components/landing/HowItWorksSection";
+import FeatureComparisonSection from "@/components/landing/FeatureComparisonSection";
+import TrustSection from "@/components/landing/TrustSection";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -225,20 +232,19 @@ const Index = () => {
               <p className="text-lg mb-6 text-gray-300">
                 Create SEO-friendly content that ranks well in both traditional search engines and new AI-powered answer engines.
               </p>
-              <div className="flex space-x-4">
-                <button 
-                  onClick={handleStartOptimization}
-                  className="px-6 py-3 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all"
-                  style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}
-                >
-                  Start Optimization
-                </button>
-                <button 
-                  onClick={handleWatchDemo}
-                  className="px-6 py-3 border border-[#39FF14] text-[#39FF14] rounded-lg hover:bg-[#39FF14] hover:text-[#0D1117] transition-all"
-                >
-                  Watch Demo
-                </button>
+              <div className="flex flex-col sm:flex-row gap-4">
+                <LeadCaptureModal 
+                  triggerText="Start Free Trial"
+                  title="Start Your Free Trial"
+                  description="Get instant access to all AI-powered SEO tools"
+                  type="trial"
+                />
+                <LeadCaptureModal 
+                  triggerText="Watch Demo"
+                  title="Book Your Demo"
+                  description="See how GenerativeSearch.pro works for your business"
+                  type="demo"
+                />
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
@@ -643,26 +649,50 @@ const Index = () => {
           </div>
         </section>
 
-        {/* CTA Section */}
+        {/* Newsletter Signup */}
         <section className="mb-12">
-          <div className="border-2 border-[#39FF14] rounded-lg p-8 text-center" style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-            <h2 className="text-3xl font-bold mb-4">Ready to Optimize Your Content for AI?</h2>
-            <p className="text-lg mb-6 max-w-2xl mx-auto">Get comprehensive analysis and actionable recommendations to improve your content's visibility in both traditional search and AI-powered answer engines.</p>
-            <div className="flex justify-center space-x-4">
-              <button 
-                onClick={() => navigate('/auth', { state: { signUp: true } })}
-                className="px-6 py-3 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all"
-                style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}
-              >
-                Start Free Trial
-              </button>
-              <button 
-                onClick={() => navigate('/resources')}
-                className="px-6 py-3 border border-[#39FF14] text-[#39FF14] rounded-lg hover:bg-[#39FF14] hover:text-[#0D1117] transition-all"
-              >
-                Schedule Demo
-              </button>
+          <NewsletterSignup />
+        </section>
+
+        {/* Social Proof */}
+        <SocialProofSection />
+
+        {/* Testimonials */}
+        <TestimonialSection />
+
+        {/* How It Works */}
+        <HowItWorksSection />
+
+        {/* Feature Comparison */}
+        <FeatureComparisonSection />
+
+        {/* Trust Section */}
+        <TrustSection />
+
+        {/* Final CTA Section */}
+        <section className="mb-12">
+          <div className="neon-border rounded-lg p-8 text-center">
+            <h2 className="text-3xl font-bold mb-4 gradient-text">Ready to Dominate AI Search Results?</h2>
+            <p className="text-lg mb-6 max-w-2xl mx-auto text-muted-foreground">
+              Join 1000+ businesses already winning with AI-optimized content. Start your free trial today.
+            </p>
+            <div className="flex flex-col sm:flex-row justify-center gap-4">
+              <LeadCaptureModal 
+                triggerText="Start Free Trial"
+                title="Start Your Free Trial"
+                description="Get instant access to all AI-powered SEO tools"
+                type="trial"
+              />
+              <LeadCaptureModal 
+                triggerText="Schedule Demo"
+                title="Book Your Demo"
+                description="See how GenerativeSearch.pro works for your business"
+                type="demo"
+              />
             </div>
+            <p className="text-sm text-muted-foreground mt-4">
+              Free trial • No credit card required • Setup in minutes
+            </p>
           </div>
         </section>
       </main>
