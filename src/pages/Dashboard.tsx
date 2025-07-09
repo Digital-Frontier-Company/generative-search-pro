@@ -1,6 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { useDomain } from "@/contexts/DomainContext";
 import Header from "@/components/Header";
 import SubscriptionStatus from "@/components/SubscriptionStatus";
 import AIVisibilityScore from "@/components/AIVisibilityScore";
@@ -20,15 +21,40 @@ import { toast } from "sonner";
 const Dashboard = () => {
   const { user } = useAuth();
   const { subscribed, subscriptionTier, isTrialActive } = useSubscription();
+  const { defaultDomain, setDefaultDomain } = useDomain();
   const navigate = useNavigate();
-  const [globalDomain, setGlobalDomain] = useState(() => {
-    return localStorage.getItem('globalDomain') || '';
-  });
+  const [isSaving, setIsSaving] = useState(false);
 
-  const handleDomainChange = (domain: string) => {
-    setGlobalDomain(domain);
-    localStorage.setItem('globalDomain', domain);
-    toast.success(`Domain set to ${domain} - Now available across all tools!`);
+  const validateDomain = (domain: string) => {
+    const domainRegex = /^(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}$/;
+    return domainRegex.test(domain);
+  };
+
+  const cleanDomain = (domain: string) => {
+    return domain.replace(/^https?:\/\//, '').replace(/^www\./, '').replace(/\/$/, '');
+  };
+
+  const handleDomainSave = async (domain: string) => {
+    if (!domain.trim()) {
+      toast.error('Please enter a domain');
+      return;
+    }
+
+    if (!validateDomain(domain)) {
+      toast.error('Please enter a valid domain (e.g., example.com)');
+      return;
+    }
+
+    setIsSaving(true);
+    try {
+      const cleanedDomain = cleanDomain(domain);
+      await setDefaultDomain(cleanedDomain);
+      toast.success('Default domain saved successfully!');
+    } catch (error) {
+      toast.error('Failed to save default domain');
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const analysisTools = [
@@ -122,11 +148,11 @@ const Dashboard = () => {
   };
 
   const handleToolClick = (tool: any) => {
-    if (tool.usesDomain && !globalDomain) {
-      toast.error('Please set a global domain first to use this tool!');
+    if (tool.usesDomain && !defaultDomain) {
+      toast.error('Please set a default domain first to use this tool!');
       return;
     }
-    navigate(tool.path, { state: { domain: globalDomain } });
+    navigate(tool.path, { state: { domain: defaultDomain } });
   };
 
   const ToolCard = ({ tool }: { tool: any }) => (
@@ -143,8 +169,8 @@ const Dashboard = () => {
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-medium text-matrix-green">{tool.title}</h3>
               {tool.usesDomain && (
-                <div className={`w-2 h-2 rounded-full ${globalDomain ? 'bg-green-500' : 'bg-yellow-500'}`} 
-                     title={globalDomain ? 'Domain configured' : 'Needs domain'} />
+                <div className={`w-2 h-2 rounded-full ${defaultDomain ? 'bg-green-500' : 'bg-yellow-500'}`} 
+                     title={defaultDomain ? 'Domain configured' : 'Needs domain'} />
               )}
             </div>
             <p className="text-sm text-matrix-green/70">{tool.description}</p>
@@ -212,31 +238,36 @@ const Dashboard = () => {
                     Set your primary domain to use across all analysis tools
                   </CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex gap-4 items-end">
-                    <div className="flex-1">
-                      <Input
-                        placeholder="Enter your domain (e.g., example.com)"
-                        value={globalDomain}
-                        onChange={(e) => setGlobalDomain(e.target.value)}
-                        className="text-lg"
-                      />
-                    </div>
-                    <Button 
-                      onClick={() => handleDomainChange(globalDomain)}
-                      className="glow-button text-black font-semibold px-8"
-                      disabled={!globalDomain.trim()}
-                    >
-                      <Zap className="w-4 h-4 mr-2" />
-                      Set Domain
-                    </Button>
-                  </div>
-                  {globalDomain && (
-                    <div className="mt-3 text-sm text-matrix-green/70">
-                      Current domain: <span className="font-medium text-matrix-green">{globalDomain}</span>
-                    </div>
-                  )}
-                </CardContent>
+                 <CardContent>
+                   <div className="flex gap-4 items-end">
+                     <div className="flex-1">
+                       <Input
+                         placeholder="Enter your domain (e.g., example.com)"
+                         value={defaultDomain || ''}
+                         onChange={(e) => {}}
+                         className="text-lg"
+                         readOnly
+                       />
+                     </div>
+                     <Button 
+                       onClick={() => navigate('/settings')}
+                       className="glow-button text-black font-semibold px-8"
+                     >
+                       <Settings className="w-4 h-4 mr-2" />
+                       Configure
+                     </Button>
+                   </div>
+                   {defaultDomain && (
+                     <div className="mt-3 text-sm text-matrix-green/70">
+                       Current domain: <span className="font-medium text-matrix-green">{defaultDomain}</span>
+                     </div>
+                   )}
+                   {!defaultDomain && (
+                     <div className="mt-3 text-sm text-yellow-600">
+                       No default domain set. Click "Configure" to set one.
+                     </div>
+                   )}
+                 </CardContent>
               </Card>
 
               {/* Analysis Tools */}
