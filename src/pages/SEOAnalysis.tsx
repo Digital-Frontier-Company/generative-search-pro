@@ -5,6 +5,8 @@ import Footer from "@/components/Footer";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 const SEOAnalysis = () => {
+  console.log('SEOAnalysis component rendering');
+  
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <Header />

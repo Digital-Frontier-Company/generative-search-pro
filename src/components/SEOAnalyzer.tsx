@@ -23,6 +23,7 @@ interface SEOAnalysisResult {
 }
 
 const SEOAnalyzer = () => {
+  console.log('SEOAnalyzer component rendering');
   const [results, setResults] = useState<SEOAnalysisResult | null>(null);
   const [loading, setLoading] = useState(false);
 
