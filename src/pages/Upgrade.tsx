@@ -80,8 +80,8 @@ const Upgrade = () => {
           {/* Stripe Pricing Table */}
           <div className="flex justify-center mb-16">
             <stripe-pricing-table 
-              pricing-table-id="prctbl_1RWyDKR6PY2CQi08V2yVHgvT"
-              publishable-key="pk_live_51RHs1gR6PY2CQi08V2HcEGt1rJmFZeIO9OwgTM47AjtDUiFbP00Mtt6oxNnqfhtx23aKk8kYhdR9fbP5FqB8v5oj00ur83rY5t"
+              pricing-table-id="prctbl_1Rj6u2QrntSTmFE1Sf8kXW3B"
+              publishable-key="pk_live_51Rj6P5QrntSTmFE1xOTkWDrPkXxVV8IRWmglWFTVBKH3uqMpkof2g03ILVLEZZTojeNi4ji0wPukgc74zVlCoyj500joOZt9E5"
             />
           </div>
           
