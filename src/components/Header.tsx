@@ -104,12 +104,8 @@ const Header = () => {
               <Button variant="ghost" onClick={() => navigate('/auth')} className="text-matrix-green hover:text-matrix-lime hover:bg-matrix-green/10">
                 Sign In
               </Button>
-              <Button onClick={() => navigate('/auth', {
-            state: {
-              signUp: true
-            }
-          })} className="glow-button text-black font-semibold">
-                Get Started
+              <Button onClick={() => navigate('/upgrade')} className="glow-button text-black font-semibold">
+                Start Free Trial
               </Button>
             </div>}
 
@@ -137,14 +133,10 @@ const Header = () => {
                   Sign In
                 </Button>
                 <Button onClick={() => {
-            navigate('/auth', {
-              state: {
-                signUp: true
-              }
-            });
+            navigate('/upgrade');
             setIsMenuOpen(false);
           }} className="w-full glow-button text-black font-semibold">
-                  Get Started
+                  Start Free Trial
                 </Button>
               </div>}
           </div>

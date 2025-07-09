@@ -233,12 +233,13 @@ const Index = () => {
                 Create SEO-friendly content that ranks well in both traditional search engines and new AI-powered answer engines.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <LeadCaptureModal 
-                  triggerText="Start Free Trial"
-                  title="Start Your Free Trial"
-                  description="Get instant access to all AI-powered SEO tools"
-                  type="trial"
-                />
+                <Button 
+                  onClick={() => navigate('/upgrade')}
+                  className="px-8 py-3 bg-[#39FF14] text-[#0D1117] font-semibold rounded-lg hover:bg-[#39FF14]/90 transition-all"
+                  style={{boxShadow: '0 0 10px #39FF14'}}
+                >
+                  Start Free Trial
+                </Button>
                 <LeadCaptureModal 
                   triggerText="Watch Demo"
                   title="Book Your Demo"
@@ -349,7 +350,10 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> AI visibility scoring</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Email support</li>
               </ul>
-              <button className="w-full px-6 py-3 border border-[#39FF14] text-[#39FF14] rounded-lg hover:bg-[#39FF14] hover:text-[#0D1117] transition-all">
+              <button 
+                onClick={() => navigate('/upgrade')}
+                className="w-full px-6 py-3 border border-[#39FF14] text-[#39FF14] rounded-lg hover:bg-[#39FF14] hover:text-[#0D1117] transition-all"
+              >
                 Start Free Trial
               </button>
             </div>
@@ -371,7 +375,11 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Content generator (unlimited)</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Priority support</li>
               </ul>
-              <button className="w-full px-6 py-3 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all" style={{boxShadow: '0 0 5px #39FF14'}}>
+              <button 
+                onClick={() => navigate('/upgrade')}
+                className="w-full px-6 py-3 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all" 
+                style={{boxShadow: '0 0 5px #39FF14'}}
+              >
                 Start Free Trial
               </button>
             </div>
@@ -677,12 +685,13 @@ const Index = () => {
               Join 1000+ businesses already winning with AI-optimized content. Start your free trial today.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <LeadCaptureModal 
-                triggerText="Start Free Trial"
-                title="Start Your Free Trial"
-                description="Get instant access to all AI-powered SEO tools"
-                type="trial"
-              />
+              <Button 
+                onClick={() => navigate('/upgrade')}
+                className="px-8 py-3 bg-[#39FF14] text-[#0D1117] font-semibold rounded-lg hover:bg-[#39FF14]/90 transition-all"
+                style={{boxShadow: '0 0 10px #39FF14'}}
+              >
+                Start Free Trial
+              </Button>
               <LeadCaptureModal 
                 triggerText="Schedule Demo"
                 title="Book Your Demo"
