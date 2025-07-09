@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import SEODashboard from "@/components/SEODashboard";
 
 const SEOAnalysisSimple = () => {
   const [domain, setDomain] = useState("");
@@ -134,16 +135,7 @@ const SEOAnalysisSimple = () => {
             )}
 
             {results && (
-              <Card className="bg-gray-900 border-gray-700">
-                <CardHeader>
-                  <CardTitle className="text-white">Analysis Results</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <pre className="text-white text-sm bg-gray-800 p-4 rounded overflow-auto">
-                    {JSON.stringify(results, null, 2)}
-                  </pre>
-                </CardContent>
-              </Card>
+              <SEODashboard analysis={results.analysis} />
             )}
           </div>
         </div>

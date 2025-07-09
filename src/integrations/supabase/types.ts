@@ -406,7 +406,10 @@ export type Database = {
         Row: {
           analysis_data: Json | null
           backlink_score: number | null
+          cache_key: string | null
           created_at: string | null
+          dashboard_content: string | null
+          dashboard_generated_at: string | null
           domain: string
           id: string
           performance_score: number | null
@@ -419,7 +422,10 @@ export type Database = {
         Insert: {
           analysis_data?: Json | null
           backlink_score?: number | null
+          cache_key?: string | null
           created_at?: string | null
+          dashboard_content?: string | null
+          dashboard_generated_at?: string | null
           domain: string
           id?: string
           performance_score?: number | null
@@ -432,7 +438,10 @@ export type Database = {
         Update: {
           analysis_data?: Json | null
           backlink_score?: number | null
+          cache_key?: string | null
           created_at?: string | null
+          dashboard_content?: string | null
+          dashboard_generated_at?: string | null
           domain?: string
           id?: string
           performance_score?: number | null

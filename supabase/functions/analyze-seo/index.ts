@@ -94,6 +94,41 @@ async function analyzeDomain(domain, user_id, supabaseConfig) {
     const scores = calculateSEOScore(metaResults.findings, backlinkResults, speedResults)
     console.log('SEO scores calculated:', scores)
     
+    // Prepare analysis data
+    const analysisData = {
+      ...metaResults.analysisData,
+      performance: speedResults,
+      backlinks: backlinkResults
+    }
+    
+    // Generate cache key from analysis data
+    const cacheKey = await generateCacheKey(analysisData, scores)
+    console.log('Generated cache key:', cacheKey)
+    
+    // Check if dashboard already exists for this cache key
+    const existingDashboard = await checkExistingDashboard(cacheKey, supabaseConfig)
+    let dashboardContent = null
+    
+    if (existingDashboard) {
+      console.log('Using cached dashboard')
+      dashboardContent = existingDashboard.dashboard_content
+    } else {
+      console.log('Generating new dashboard with OpenAI')
+      // Generate dashboard using OpenAI
+      const allFindings = [
+        ...metaResults.findings,
+        ...speedResults.findings,
+        ...backlinkResults.findings
+      ]
+      
+      dashboardContent = await generateSEODashboard({
+        domain: cleanDomain,
+        scores,
+        analysisData,
+        findings: allFindings
+      })
+    }
+    
     // Store analysis in Supabase
     const analysisResponse = await fetch(`${supabaseConfig.supabaseUrl}/rest/v1/seo_analyses`, {
       method: 'POST',
@@ -110,11 +145,10 @@ async function analyzeDomain(domain, user_id, supabaseConfig) {
         backlink_score: scores.backlinks,
         performance_score: scores.speed,
         total_score: scores.total,
-        analysis_data: {
-          ...metaResults.analysisData,
-          performance: speedResults,
-          backlinks: backlinkResults
-        },
+        analysis_data: analysisData,
+        dashboard_content: dashboardContent,
+        dashboard_generated_at: new Date().toISOString(),
+        cache_key: cacheKey,
         status: 'completed'
       }),
     })
@@ -693,6 +727,287 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
     },
     findings: technicalFindings
   }
+}
+
+// Generate cache key from analysis data using a simple hash
+async function generateCacheKey(analysisData, scores) {
+  const dataString = JSON.stringify({ analysisData, scores })
+  const encoder = new TextEncoder()
+  const data = encoder.encode(dataString)
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data)
+  const hashArray = Array.from(new Uint8Array(hashBuffer))
+  const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('')
+  return hashHex.substring(0, 16) // Use first 16 characters
+}
+
+// Check if dashboard already exists for cache key
+async function checkExistingDashboard(cacheKey, supabaseConfig) {
+  try {
+    const response = await fetch(
+      `${supabaseConfig.supabaseUrl}/rest/v1/seo_analyses?cache_key=eq.${cacheKey}&select=dashboard_content&limit=1`,
+      {
+        headers: {
+          'Authorization': `Bearer ${supabaseConfig.supabaseKey}`,
+          'Content-Type': 'application/json',
+          'apikey': supabaseConfig.supabaseKey,
+        },
+      }
+    )
+    
+    if (!response.ok) {
+      console.warn('Failed to check existing dashboard')
+      return null
+    }
+    
+    const data = await response.json()
+    return data.length > 0 && data[0].dashboard_content ? data[0] : null
+  } catch (error) {
+    console.warn('Error checking existing dashboard:', error)
+    return null
+  }
+}
+
+// Generate SEO Dashboard using OpenAI
+async function generateSEODashboard(analysisResult) {
+  const openaiApiKey = Deno.env.get('OPENAI_API_KEY')
+  
+  if (!openaiApiKey) {
+    console.warn('OpenAI API key not found, skipping dashboard generation')
+    return null
+  }
+
+  try {
+    const prompt = `As an expert SEO analyst, transform the following raw SEO analysis data into a detailed, well-structured dashboard. Format it in Markdown for a website owner who may not be an SEO expert.
+
+**Raw SEO Data:**
+${JSON.stringify(analysisResult, null, 2)}
+
+**Structure your response exactly as follows:**
+
+# 🔍 SEO Analysis Dashboard for ${analysisResult.domain}
+
+## 📊 Overall SEO Health Score
+
+| Metric | Score | Rating |
+|--------|-------|--------|
+| **Total Score** | ${analysisResult.scores.total}/100 | ${getScoreEmoji(analysisResult.scores.total)} ${getScoreRating(analysisResult.scores.total)} |
+| **Technical SEO** | ${analysisResult.scores.technical}/40 | ${getScoreEmoji(analysisResult.scores.technical * 2.5)} ${getScoreRating(analysisResult.scores.technical * 2.5)} |
+| **Performance** | ${analysisResult.scores.speed}/30 | ${getScoreEmoji(analysisResult.scores.speed * 3.33)} ${getScoreRating(analysisResult.scores.speed * 3.33)} |
+| **Backlinks** | ${analysisResult.scores.backlinks}/30 | ${getScoreEmoji(analysisResult.scores.backlinks * 3.33)} ${getScoreRating(analysisResult.scores.backlinks * 3.33)} |
+
+## 🎯 Key Metrics at a Glance
+
+| Metric | Value | Status |
+|--------|-------|---------|
+| **Domain Authority** | ${analysisResult.analysisData?.backlinks?.domain_authority || 'N/A'}/100 | ${getDAEmoji(analysisResult.analysisData?.backlinks?.domain_authority)} |
+| **PageSpeed Score** | ${analysisResult.analysisData?.performance?.score || 'N/A'}/100 | ${getSpeedEmoji(analysisResult.analysisData?.performance?.score)} |
+| **Page Size** | ${formatBytes(analysisResult.analysisData?.pageSize || 0)} | ${getSizeEmoji(analysisResult.analysisData?.pageSize)} |
+| **Images** | ${analysisResult.analysisData?.imageCount || 0} total | ${getImageEmoji(analysisResult.analysisData?.imagesWithoutAlt, analysisResult.analysisData?.imageCount)} |
+
+## 🔧 On-Page SEO Analysis
+
+| Finding | Status | Details |
+|---------|---------|---------|
+| **Title Tag** | ${getTitleStatus(analysisResult.analysisData?.titleLength)} | Length: ${analysisResult.analysisData?.titleLength || 0} characters |
+| **Meta Description** | ${getMetaStatus(analysisResult.analysisData?.metaDescriptionLength)} | Length: ${analysisResult.analysisData?.metaDescriptionLength || 0} characters |
+| **Heading Structure** | ${getHeadingStatus(analysisResult.analysisData?.h1Count)} | H1: ${analysisResult.analysisData?.headingCounts?.h1 || 0}, H2: ${analysisResult.analysisData?.headingCounts?.h2 || 0} |
+| **Images SEO** | ${getImageSEOStatus(analysisResult.analysisData?.imagesWithoutAlt)} | ${analysisResult.analysisData?.imagesWithoutAlt || 0} missing alt tags |
+| **Structured Data** | ${getStructuredDataStatus(analysisResult.analysisData?.hasStructuredData)} | ${analysisResult.analysisData?.hasStructuredData ? 'Present' : 'Missing'} |
+| **Open Graph** | ${getOGStatus(analysisResult.analysisData?.openGraphTags)} | ${analysisResult.analysisData?.openGraphTags || 0}/3 tags found |
+
+## ⚡ Performance & Speed Analysis
+
+| Metric | Value | Status | Priority |
+|--------|-------|---------|----------|
+| **Overall Speed** | ${analysisResult.analysisData?.performance?.score || 'N/A'}/100 | ${getSpeedEmoji(analysisResult.analysisData?.performance?.score)} | ${getSpeedPriority(analysisResult.analysisData?.performance?.score)} |
+| **Page Size** | ${formatBytes(analysisResult.analysisData?.pageSize || 0)} | ${getSizeEmoji(analysisResult.analysisData?.pageSize)} | ${getSizePriority(analysisResult.analysisData?.pageSize)} |
+
+## 🔗 Off-Page SEO: Backlinks & Authority
+
+| Metric | Value | Status | Impact |
+|--------|-------|---------|---------|
+| **Domain Authority** | ${analysisResult.analysisData?.backlinks?.domain_authority || 'N/A'}/100 | ${getDAEmoji(analysisResult.analysisData?.backlinks?.domain_authority)} | ${getDAImpact(analysisResult.analysisData?.backlinks?.domain_authority)} |
+
+## 🎯 High-Priority Action Plan
+
+${generateActionPlan(analysisResult)}
+
+---
+*Analysis completed on ${new Date().toLocaleDateString()}*
+
+Please provide the complete markdown dashboard following this exact structure. Use emojis, tables, and clear formatting for easy reading.`
+
+    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${openaiApiKey}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o',
+        messages: [
+          {
+            role: 'system',
+            content: 'You are an expert SEO analyst who creates beautiful, easy-to-read dashboards from raw data. Always format in clean Markdown with proper tables and emojis.'
+          },
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.3,
+        max_tokens: 2000
+      }),
+    })
+
+    if (!response.ok) {
+      throw new Error(`OpenAI API error: ${response.status}`)
+    }
+
+    const data = await response.json()
+    const dashboardContent = data.choices[0].message.content
+
+    console.log('Dashboard generated successfully')
+    return dashboardContent
+
+  } catch (error) {
+    console.error('Dashboard generation error:', error)
+    return null
+  }
+}
+
+// Helper functions for dashboard generation
+function getScoreEmoji(score) {
+  if (score >= 80) return '🟢'
+  if (score >= 60) return '🟡'
+  return '🔴'
+}
+
+function getScoreRating(score) {
+  if (score >= 80) return 'Excellent'
+  if (score >= 60) return 'Good'
+  if (score >= 40) return 'Needs Improvement'
+  return 'Poor'
+}
+
+function getDAEmoji(da) {
+  if (!da) return '⚪'
+  if (da >= 50) return '🟢'
+  if (da >= 20) return '🟡'
+  return '🔴'
+}
+
+function getSpeedEmoji(speed) {
+  if (!speed) return '⚪'
+  if (speed >= 90) return '🟢'
+  if (speed >= 50) return '🟡'
+  return '🔴'
+}
+
+function formatBytes(bytes) {
+  if (bytes === 0) return '0 Bytes'
+  const k = 1024
+  const sizes = ['Bytes', 'KB', 'MB', 'GB']
+  const i = Math.floor(Math.log(bytes) / Math.log(k))
+  return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i]
+}
+
+function getSizeEmoji(size) {
+  if (!size) return '⚪'
+  if (size < 500000) return '🟢' // < 500KB
+  if (size < 2000000) return '🟡' // < 2MB
+  return '🔴' // > 2MB
+}
+
+function getImageEmoji(missingAlt, total) {
+  if (!total) return '⚪'
+  if (missingAlt === 0) return '🟢'
+  if (missingAlt < total / 2) return '🟡'
+  return '🔴'
+}
+
+function getTitleStatus(length) {
+  if (!length) return '🔴 Missing'
+  if (length >= 30 && length <= 60) return '🟢 Optimal'
+  return '🟡 Needs Work'
+}
+
+function getMetaStatus(length) {
+  if (!length) return '🔴 Missing'
+  if (length >= 120 && length <= 160) return '🟢 Optimal'
+  return '🟡 Needs Work'
+}
+
+function getHeadingStatus(h1Count) {
+  if (h1Count === 1) return '🟢 Good'
+  if (h1Count === 0) return '🔴 Missing H1'
+  return '🟡 Multiple H1s'
+}
+
+function getImageSEOStatus(missingAlt) {
+  if (missingAlt === 0) return '🟢 Good'
+  if (missingAlt > 0) return '🔴 Issues Found'
+  return '⚪ No Images'
+}
+
+function getStructuredDataStatus(hasData) {
+  return hasData ? '🟢 Present' : '🔴 Missing'
+}
+
+function getOGStatus(count) {
+  if (count >= 3) return '🟢 Complete'
+  if (count > 0) return '🟡 Partial'
+  return '🔴 Missing'
+}
+
+function getSpeedPriority(speed) {
+  if (!speed || speed < 50) return '🔥 High Priority'
+  if (speed < 80) return '🟡 Medium Priority'
+  return '✅ Low Priority'
+}
+
+function getSizePriority(size) {
+  if (!size) return '⚪ Unknown'
+  if (size > 2000000) return '🔥 High Priority'
+  if (size > 1000000) return '🟡 Medium Priority'
+  return '✅ Low Priority'
+}
+
+function getDAImpact(da) {
+  if (!da) return 'Unknown'
+  if (da < 20) return 'Critical - Build Authority'
+  if (da < 40) return 'Important - Grow Links'
+  return 'Good Foundation'
+}
+
+function generateActionPlan(analysisResult) {
+  const actions = []
+  
+  // Check performance issues
+  if (analysisResult.analysisData?.performance?.score < 50) {
+    actions.push('1. **Improve Page Speed** - Current score is below 50/100. Optimize images, enable compression, and minimize CSS/JS.')
+  }
+  
+  // Check technical SEO issues
+  if (!analysisResult.analysisData?.titleLength || analysisResult.analysisData.titleLength < 30) {
+    actions.push('2. **Optimize Title Tags** - Create compelling, keyword-rich titles between 30-60 characters.')
+  }
+  
+  // Check DA issues
+  if (analysisResult.analysisData?.backlinks?.domain_authority < 20) {
+    actions.push('3. **Build Backlink Strategy** - Low domain authority detected. Focus on earning quality backlinks from reputable sources.')
+  }
+  
+  // Check meta description
+  if (!analysisResult.analysisData?.metaDescriptionLength || analysisResult.analysisData.metaDescriptionLength < 120) {
+    actions.push('4. **Write Better Meta Descriptions** - Create compelling descriptions between 120-160 characters to improve click-through rates.')
+  }
+  
+  if (actions.length === 0) {
+    actions.push('🎉 **Great job!** Your website has strong SEO fundamentals. Continue monitoring and improving content quality.')
+  }
+  
+  return actions.join('\n\n')
 }
 
 function calculateSEOScore(technicalFindings, backlinkData, pageSpeedData) {
