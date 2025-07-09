@@ -65,7 +65,7 @@ const Breadcrumbs = ({ customBreadcrumbs }: BreadcrumbsProps) => {
           </BreadcrumbItem>
           
           {breadcrumbs.map((breadcrumb, index) => (
-            <React.Fragment key={breadcrumb.path}>
+            <div key={breadcrumb.path} className="contents">
               <BreadcrumbSeparator />
               <BreadcrumbItem>
                 {index === breadcrumbs.length - 1 ? (
@@ -76,7 +76,7 @@ const Breadcrumbs = ({ customBreadcrumbs }: BreadcrumbsProps) => {
                   </BreadcrumbLink>
                 )}
               </BreadcrumbItem>
-            </React.Fragment>
+            </div>
           ))}
         </BreadcrumbList>
       </Breadcrumb>
