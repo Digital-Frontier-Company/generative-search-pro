@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
+import { DomainProvider } from "@/contexts/DomainContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -32,7 +33,8 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <SubscriptionProvider>
-          <TooltipProvider>
+          <DomainProvider>
+            <TooltipProvider>
             <Toaster />
             <BrowserRouter>
               <Routes>
@@ -132,7 +134,8 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
-          </TooltipProvider>
+            </TooltipProvider>
+          </DomainProvider>
         </SubscriptionProvider>
       </AuthProvider>
     </QueryClientProvider>

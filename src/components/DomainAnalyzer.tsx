@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,6 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Loader2, Search, Globe } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { useDomain } from "@/contexts/DomainContext";
 
 interface KeywordData {
   word: string;
@@ -23,9 +24,17 @@ interface AnalysisResult {
 }
 
 const DomainAnalyzer = () => {
+  const { defaultDomain } = useDomain();
   const [domain, setDomain] = useState("");
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [result, setResult] = useState<AnalysisResult | null>(null);
+
+  // Auto-populate with default domain when available
+  useEffect(() => {
+    if (defaultDomain && !domain) {
+      setDomain(defaultDomain);
+    }
+  }, [defaultDomain, domain]);
 
   const handleAnalyze = async () => {
     if (!domain.trim()) {

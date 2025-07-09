@@ -6,6 +6,7 @@ import { Separator } from '@/components/ui/separator';
 import { LogOut, Settings as SettingsIcon } from 'lucide-react';
 import ProfileSettings from '@/components/ProfileSettings';
 import DocumentUpload from '@/components/DocumentUpload';
+import DomainConfiguration from '@/components/DomainConfiguration';
 import Header from '@/components/Header';
 
 const Settings = () => {
@@ -29,6 +30,8 @@ const Settings = () => {
         </div>
 
         <div className="space-y-6">
+          <DomainConfiguration />
+          
           <ProfileSettings />
           
           <DocumentUpload />

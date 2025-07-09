@@ -1,8 +1,9 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
+import { useDomain } from "@/contexts/DomainContext";
 
 interface DomainInputProps {
   onAnalyze: (domain: string) => void;
@@ -10,7 +11,15 @@ interface DomainInputProps {
 }
 
 const DomainInput = ({ onAnalyze, loading = false }: DomainInputProps) => {
+  const { defaultDomain } = useDomain();
   const [domain, setDomain] = useState("");
+
+  // Auto-populate with default domain when available
+  useEffect(() => {
+    if (defaultDomain && !domain) {
+      setDomain(defaultDomain);
+    }
+  }, [defaultDomain, domain]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
