@@ -16,7 +16,7 @@ import ContentHistory from "./pages/ContentHistory";
 import ContentAnalysis from "./pages/ContentAnalysis";
 import ContentOptimizer from "./pages/ContentOptimizer";
 import Resources from "./pages/Resources";
-import SEOAnalysis from "./pages/SEOAnalysis";
+import SEOAnalysisSimple from "./pages/SEOAnalysisSimple";
 import DomainAnalysis from "./pages/DomainAnalysis";
 import SchemaAnalysis from "./pages/SchemaAnalysis";
 import CitationChecker from "./pages/CitationChecker";
@@ -79,7 +79,7 @@ function App() {
                   path="/seo-analysis"
                   element={
                     <ProtectedRoute>
-                      <SEOAnalysis />
+                      <SEOAnalysisSimple />
                     </ProtectedRoute>
                   }
                 />
