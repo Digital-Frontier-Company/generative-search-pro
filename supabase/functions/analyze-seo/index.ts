@@ -552,7 +552,15 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
     })
     technicalScore -= 5
   } else {
-    const h1Content = h1Matches[0].replace(/<[^>]*>/g, '').trim()
+    const sanitizeHtmlContent = (input: string): string => {
+      let previous: string;
+      do {
+        previous = input;
+        input = input.replace(/<[^>]*>/g, '');
+      } while (input !== previous);
+      return input.trim();
+    };
+    const h1Content = sanitizeHtmlContent(h1Matches[0]);
     technicalFindings.push({
       type: 'headings',
       status: 'good',
