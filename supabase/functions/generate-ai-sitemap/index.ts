@@ -57,7 +57,8 @@ serve(async (req) => {
         
         const pageContent = await pageResponse.text()
         const title = extractTitle(pageContent)
-        const excerpt = pageContent.replace(/<[^>]*>/g, '').substring(0, 1000)
+        const sanitizeHtml = require("sanitize-html");
+        const excerpt = sanitizeHtml(pageContent).substring(0, 1000)
         
         // Generate AI summary and keywords
         const summaryPrompt = `
