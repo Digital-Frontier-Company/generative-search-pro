@@ -183,7 +183,13 @@ function extractStructuredData(html: string) {
   if (jsonLdMatches) {
     jsonLdMatches.forEach(match => {
       try {
-        const jsonContent = match.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '').trim()
+        let jsonContent = match.trim();
+        let previous;
+        do {
+          previous = jsonContent;
+          jsonContent = jsonContent.replace(/<script[^>]*>/i, '').replace(/<\/script>/i, '');
+        } while (jsonContent !== previous);
+        jsonContent = jsonContent.trim();
         const parsed = JSON.parse(jsonContent)
         schemas.push(parsed)
       } catch (e) {
