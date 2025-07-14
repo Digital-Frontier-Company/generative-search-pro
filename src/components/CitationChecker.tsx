@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, Search, CheckCircle, XCircle, ExternalLink } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { useDomain } from '@/contexts/DomainContext';
 
 interface CitationResult {
   query: string;
@@ -19,6 +20,7 @@ interface CitationResult {
 }
 
 const CitationChecker = () => {
+  const { defaultDomain } = useDomain();
   const [query, setQuery] = useState('');
   const [domain, setDomain] = useState('');
   const [loading, setLoading] = useState(false);
@@ -28,6 +30,13 @@ const CitationChecker = () => {
   useEffect(() => {
     loadHistory();
   }, []);
+
+  // Pre-populate domain field with default domain when available
+  useEffect(() => {
+    if (defaultDomain && !domain) {
+      setDomain(defaultDomain);
+    }
+  }, [defaultDomain, domain]);
 
   const loadHistory = async () => {
     try {
