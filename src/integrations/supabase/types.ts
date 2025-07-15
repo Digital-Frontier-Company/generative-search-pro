@@ -93,27 +93,6 @@ export type Database = {
           },
         ]
       }
-      company: {
-        Row: {
-          attrs: Json | null
-          created_at: string | null
-          id: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          created_at?: string | null
-          id?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          created_at?: string | null
-          id?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
       compliance_checks: {
         Row: {
           ai_policy_status: string | null
@@ -157,24 +136,6 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
-      }
-      contacts: {
-        Row: {
-          attrs: Json | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          attrs?: Json | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          attrs?: Json | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
       }
       content_blocks: {
         Row: {
