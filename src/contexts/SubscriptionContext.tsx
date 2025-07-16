@@ -101,7 +101,7 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
   };
 
   useEffect(() => {
-    if (user) {
+    if (user && session?.access_token) {
       refreshSubscription();
     } else {
       setLoading(false);
@@ -111,18 +111,18 @@ export function SubscriptionProvider({ children }: { children: ReactNode }) {
       setTrialEnd(null);
       setSubscriptionEnd(null);
     }
-  }, [user, session]);
+  }, [user?.id, session?.access_token]); // Only depend on essential changing values
 
-  // Auto-refresh subscription status every 30 seconds
+  // Auto-refresh subscription status every 5 minutes (reduced frequency)
   useEffect(() => {
-    if (!user) return;
+    if (!user || !session?.access_token) return;
 
     const interval = setInterval(() => {
       refreshSubscription();
-    }, 30000);
+    }, 300000); // 5 minutes instead of 30 seconds
 
     return () => clearInterval(interval);
-  }, [user]);
+  }, [user?.id, session?.access_token]);
 
   const value = {
     subscribed,
