@@ -27,6 +27,7 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     const loadDefaultDomain = async () => {
       if (!user) {
+        setDefaultDomainState(null);
         setIsLoading(false);
         return;
       }
@@ -36,9 +37,9 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           .from('profiles')
           .select('default_domain')
           .eq('id', user.id)
-          .single();
+          .maybeSingle();
 
-        if (error && error.code !== 'PGRST116') { // PGRST116 = no rows returned
+        if (error) {
           console.error('Error loading default domain:', error);
         } else if (data?.default_domain) {
           setDefaultDomainState(data.default_domain);
@@ -50,8 +51,9 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     };
 
+    // Only load if we haven't loaded yet or user changed
     loadDefaultDomain();
-  }, [user]);
+  }, [user?.id]); // Only depend on user.id to prevent duplicate calls
 
   const setDefaultDomain = async (domain: string | null) => {
     if (!user) return;
