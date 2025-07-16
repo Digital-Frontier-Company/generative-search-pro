@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { createClient } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 // Step 1: Define clear types for what we expect to receive
 interface ContentQualityResult {
@@ -43,11 +43,6 @@ interface AnalysisResults {
 }
 
 const ContentQualityAnalyzer: React.FC = () => {
-  // Initialize Supabase client
-  const supabase = createClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-  );
 
   // State with proper typing
   const [content, setContent] = useState<string>('');
@@ -62,11 +57,11 @@ const ContentQualityAnalyzer: React.FC = () => {
 
   // Step 3: Helper function to safely handle RPC calls
   const safelyCallRPC = async <T,>(
-    functionName: string, 
+    functionName: 'analyze_content_quality' | 'check_ai_friendliness' | 'analyze_keywords', 
     params: Record<string, unknown>
   ): Promise<T | null> => {
     try {
-      const { data, error } = await supabase.rpc(functionName, params);
+      const { data, error } = await supabase.rpc(functionName as any, params);
       
       if (error) {
         console.error(`Error calling ${functionName}:`, error);
