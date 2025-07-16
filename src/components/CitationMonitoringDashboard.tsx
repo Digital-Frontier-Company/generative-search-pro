@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 import type { Tables } from '@/integrations/supabase/types';
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 type CitationCheckRow = Tables<'citation_checks'>;
 
@@ -34,6 +35,11 @@ interface CitationData {
   cited_sources: any[];
   recommendations: string;
   checked_at: string;
+}
+
+interface ChartData {
+  date: string;
+  citations: number;
 }
 
 interface Achievement {
@@ -58,6 +64,7 @@ interface CitationStats {
   points: number;
   streak: number;
   achievements: Achievement[];
+  citationTrend: ChartData[];
 }
 
 const CitationMonitoringDashboard = () => {
@@ -73,7 +80,8 @@ const CitationMonitoringDashboard = () => {
     level: 1,
     points: 0,
     streak: 0,
-    achievements: []
+    achievements: [],
+    citationTrend: [],
   });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState('overview');
@@ -84,159 +92,46 @@ const CitationMonitoringDashboard = () => {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (!user) return;
+
+    const channel = supabase.channel('citation-changes');
+    channel
+      .on<CitationCheckRow>(
+        'postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'citation_checks' },
+        (payload) => {
+          console.log('New citation check received!', payload);
+          if (payload.new.user_id === user.id && payload.new.is_cited) {
+            toast.success(`New citation found for query: "${payload.new.query}"`);
+            loadCitationData(); // Refresh the dashboard
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const loadCitationData = async () => {
     try {
       setLoading(true);
       
-      // Get citation data from the last 30 days
-      const { data: citationData, error } = await supabase
-        .from('citation_checks')
-        .select('*')
-        .eq('user_id', user?.id)
-        .gte('checked_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
-        .order('checked_at', { ascending: false });
+      const { data, error } = await supabase.functions.invoke('process-citation-stats', {
+        body: JSON.stringify({ user_id: user?.id })
+      });
 
       if (error) throw error;
 
-      // Transform the data to match our interface
-      const transformedData: CitationData[] = (citationData || []).map(row => ({
-        id: row.id,
-        query: row.query,
-        domain: row.domain,
-        is_cited: row.is_cited || false,
-        ai_answer: row.ai_answer || '',
-        cited_sources: Array.isArray(row.cited_sources) ? row.cited_sources : [],
-        recommendations: row.recommendations || '',
-        checked_at: row.checked_at || ''
-      }));
-
-      // Process the data to create stats
-      const processedStats = processCitationData(transformedData);
-      setStats(processedStats);
+      setStats(data.stats);
     } catch (error) {
       console.error('Error loading citation data:', error);
       toast.error('Failed to load citation data');
     } finally {
       setLoading(false);
     }
-  };
-
-  const processCitationData = (data: CitationData[]): CitationStats => {
-    const cited = data.filter(item => item.is_cited);
-    const thisWeek = data.filter(item => 
-      new Date(item.checked_at) > new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
-    );
-    const lastWeek = data.filter(item => {
-      const date = new Date(item.checked_at);
-      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-      const twoWeeksAgo = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
-      return date <= weekAgo && date > twoWeeksAgo;
-    });
-
-    const thisWeekCited = thisWeek.filter(item => item.is_cited).length;
-    const lastWeekCited = lastWeek.filter(item => item.is_cited).length;
-    const weeklyGrowth = lastWeekCited > 0 ? ((thisWeekCited - lastWeekCited) / lastWeekCited) * 100 : 0;
-
-    // Analyze query performance
-    const queryStats = cited.reduce((acc, item) => {
-      acc[item.query] = (acc[item.query] || 0) + 1;
-      return acc;
-    }, {} as Record<string, number>);
-
-    const topQueries = Object.entries(queryStats)
-      .sort(([,a], [,b]) => b - a)
-      .slice(0, 5)
-      .map(([query, count]) => ({
-        query,
-        count,
-        trend: Math.random() > 0.5 ? 'up' : 'down' as 'up' | 'down' // Simplified for demo
-      }));
-
-    // Gamification calculations
-    const totalCitations = cited.length;
-    const points = totalCitations * 10 + thisWeekCited * 5; // Base points
-    const level = Math.floor(points / 100) + 1;
-    const streak = calculateStreak(data);
-    const achievements = getAchievements(totalCitations, streak, level);
-
-    return {
-      totalCitations,
-      weeklyGrowth,
-      googleSGE: Math.floor(cited.length * 0.7), // Simulated breakdown
-      bingChat: Math.floor(cited.length * 0.2),
-      voice: Math.floor(cited.length * 0.1),
-      topQueries,
-      recentCitations: cited.slice(0, 5),
-      level,
-      points,
-      streak,
-      achievements
-    };
-  };
-
-  const calculateStreak = (data: CitationData[]): number => {
-    // Simple streak calculation - consecutive days with citations
-    const days = [...Array(7)].map((_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() - i);
-      return date.toDateString();
-    });
-
-    let streak = 0;
-    for (const day of days) {
-      const hasActivity = data.some(item => 
-        new Date(item.checked_at).toDateString() === day
-      );
-      if (hasActivity) {
-        streak++;
-      } else {
-        break;
-      }
-    }
-    return streak;
-  };
-
-  const getAchievements = (citations: number, streak: number, level: number): Achievement[] => {
-    const allAchievements: Achievement[] = [
-      {
-        id: 'first_citation',
-        title: 'First Citation',
-        description: 'Get your first AI citation',
-        icon: '🎯',
-        unlocked: citations >= 1,
-        progress: Math.min(citations, 1),
-        maxProgress: 1
-      },
-      {
-        id: 'citation_master',
-        title: 'Citation Master',
-        description: 'Reach 10 citations',
-        icon: '👑',
-        unlocked: citations >= 10,
-        progress: Math.min(citations, 10),
-        maxProgress: 10
-      },
-      {
-        id: 'streak_warrior',
-        title: 'Streak Warrior',
-        description: 'Maintain a 7-day activity streak',
-        icon: '🔥',
-        unlocked: streak >= 7,
-        progress: Math.min(streak, 7),
-        maxProgress: 7
-      },
-      {
-        id: 'level_up',
-        title: 'Level Up',
-        description: 'Reach level 5',
-        icon: '⭐',
-        unlocked: level >= 5,
-        progress: Math.min(level, 5),
-        maxProgress: 5
-      }
-    ];
-
-    return allAchievements;
   };
 
   const formatDate = (dateString: string) => {

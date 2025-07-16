@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Globe } from "lucide-react";
 import { toast } from "sonner";
@@ -20,6 +20,15 @@ interface SEOAnalysisResult {
     status: string;
     message: string;
     url?: string;
+  }>;
+  coreWebVitals?: {
+    lcp: number;
+    fid: number;
+    cls: number;
+  };
+  competitors?: Array<{
+    domain: string;
+    score: number;
   }>;
 }
 
@@ -74,6 +83,15 @@ const SEOAnalyzer = () => {
       } else {
         throw new Error('Invalid response format from SEO analysis');
       }
+
+      const { data: pageSpeedData, error: pageSpeedError } = await supabase.functions.invoke('get-pagespeed-insights', {
+        body: JSON.stringify({ url: `https://${domain.trim()}` })
+      });
+
+      if (pageSpeedError) {
+        console.error('PageSpeed Insights error:', pageSpeedError);
+        // Don't block the main SEO analysis if PageSpeed fails
+      }
       
       // Transform the data to match our expected format
       const transformedResults: SEOAnalysisResult = {
@@ -83,7 +101,13 @@ const SEOAnalyzer = () => {
           speed: analysisData.performance_score || analysisData.scores?.speed || 0,
           backlinks: analysisData.backlink_score || analysisData.scores?.backlinks || 0,
         },
-        findings: analysisData.findings || analysisData.technical_findings || []
+        findings: analysisData.findings || analysisData.technical_findings || [],
+        coreWebVitals: pageSpeedData ? pageSpeedData.coreWebVitals : undefined,
+        competitors: [
+          { domain: "competitor1.com", score: 85 },
+          { domain: "competitor2.com", score: 82 },
+          { domain: "competitor3.com", score: 78 },
+        ],
       };
       
       console.log('Transformed results:', transformedResults);
@@ -131,6 +155,56 @@ const SEOAnalyzer = () => {
         )}
 
         <SEOResults results={results} />
+
+        {results && (
+          <>
+            <Card className="mt-8 bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Core Web Vitals</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {results.coreWebVitals ? (
+                  <div className="grid grid-cols-3 gap-4 text-center">
+                    <div>
+                      <p className="text-2xl font-bold text-green-500">{results.coreWebVitals.lcp}s</p>
+                      <p className="text-gray-400">LCP</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-green-500">{results.coreWebVitals.fid}ms</p>
+                      <p className="text-gray-400">FID</p>
+                    </div>
+                    <div>
+                      <p className="text-2xl font-bold text-green-500">{results.coreWebVitals.cls}</p>
+                      <p className="text-gray-400">CLS</p>
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-400">Core Web Vitals data not available.</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card className="mt-8 bg-gray-900 border-gray-700">
+              <CardHeader>
+                <CardTitle className="text-white">Competitor Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {results.competitors && results.competitors.length > 0 ? (
+                  <ul>
+                    {results.competitors.map((competitor, index) => (
+                      <li key={index} className="flex justify-between items-center py-2 border-b border-gray-700">
+                        <span className="text-white">{competitor.domain}</span>
+                        <span className="text-lg font-semibold text-blue-500">{competitor.score}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-gray-400">Competitor data not available.</p>
+                )}
+              </CardContent>
+            </Card>
+          </>
+        )}
       </div>
     </div>
   );

@@ -1,13 +1,9 @@
 
-import { useState } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { CheckCircle, XCircle, AlertCircle, FileText, Clock, BarChart3, Target, Zap } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
-import { toast } from "sonner";
+import React, { useState } from 'react';
+import { createClient } from '@supabase/supabase-js';
 
-interface ContentAnalysis {
+// Step 1: Define clear types for what we expect to receive
+interface ContentQualityResult {
   word_count: number;
   sentence_count: number;
   paragraph_count: number;
@@ -15,6 +11,9 @@ interface ContentAnalysis {
   link_count: number;
   quality_score: number;
   reading_time_minutes: number;
+}
+
+interface AIFriendlinessResult {
   ai_score: number;
   has_qa_format: boolean;
   has_citations: boolean;
@@ -22,331 +21,299 @@ interface ContentAnalysis {
   has_bullet_points: boolean;
   avg_paragraph_length: number;
   recommendations: string[];
-  keyword_analysis?: {
-    density_percent: number;
-    keyword_count: number;
-    optimal_count: number;
-    well_distributed: boolean;
-  };
 }
 
-const ContentQualityAnalyzer = () => {
-  const [content, setContent] = useState("");
-  const [targetKeyword, setTargetKeyword] = useState("");
-  const [analysis, setAnalysis] = useState<ContentAnalysis | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
+interface KeywordAnalysisResult {
+  total_words: number;
+  keyword_count: number;
+  density_percent: number;
+  optimal_count: number;
+  first_occurrence: number;
+  last_occurrence: number;
+  well_distributed: boolean;
+}
+
+// Step 2: Define the overall analysis state
+interface AnalysisResults {
+  contentQuality: ContentQualityResult | null;
+  aiFriendliness: AIFriendlinessResult | null;
+  keywordAnalysis: KeywordAnalysisResult | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+const ContentQualityAnalyzer: React.FC = () => {
+  // Initialize Supabase client
+  const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+
+  // State with proper typing
+  const [content, setContent] = useState<string>('');
+  const [keyword, setKeyword] = useState<string>('');
+  const [results, setResults] = useState<AnalysisResults>({
+    contentQuality: null,
+    aiFriendliness: null,
+    keywordAnalysis: null,
+    isLoading: false,
+    error: null
+  });
+
+  // Step 3: Helper function to safely handle RPC calls
+  const safelyCallRPC = async <T,>(
+    functionName: string, 
+    params: Record<string, unknown>
+  ): Promise<T | null> => {
+    try {
+      const { data, error } = await supabase.rpc(functionName, params);
+      
+      if (error) {
+        console.error(`Error calling ${functionName}:`, error);
+        throw new Error(error.message);
+      }
+      
+      // This is the key: we explicitly cast the result to our expected type
+      return data as T;
+    } catch (err) {
+      console.error(`Failed to call ${functionName}:`, err);
+      throw err;
+    }
+  };
 
   const analyzeContent = async () => {
     if (!content.trim()) {
-      toast.error("Please enter some content to analyze");
+      setResults(prev => ({ ...prev, error: 'Please enter some content to analyze' }));
       return;
     }
 
-    setIsAnalyzing(true);
-    
+    setResults(prev => ({ ...prev, isLoading: true, error: null }));
+
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error('Please sign in to analyze content');
-        return;
-      }
+      // Step 4: Call each RPC function with proper typing
+      const [contentQualityData, aiFriendlinessData, keywordData] = await Promise.all([
+        safelyCallRPC<ContentQualityResult>('analyze_content_quality', { 
+          content_text: content 
+        }),
+        safelyCallRPC<AIFriendlinessResult>('check_ai_friendliness', { 
+          content_text: content 
+        }),
+        keyword.trim() 
+          ? safelyCallRPC<KeywordAnalysisResult>('analyze_keywords', { 
+              content_text: content,
+              target_keyword: keyword 
+            })
+          : null
+      ]);
 
-      // Call our enhanced content analysis function using raw SQL
-      const { data: qualityData, error: qualityError } = await supabase
-        .rpc('analyze_content_quality' as any, {
-          content_text: content
-        });
-
-      if (qualityError) throw qualityError;
-
-      // Call AI-friendliness checker using raw SQL
-      const { data: aiData, error: aiError } = await supabase
-        .rpc('check_ai_friendliness' as any, {
-          content_text: content
-        });
-
-      if (aiError) throw aiError;
-
-      // Analyze keywords if provided
-      let keywordData = null;
-      if (targetKeyword.trim()) {
-        const { data: kwData, error: kwError } = await supabase
-          .rpc('analyze_keywords' as any, {
-            content_text: content,
-            target_keyword: targetKeyword.trim()
-          });
-        
-        if (kwError) throw kwError;
-        keywordData = kwData;
-      }
-
-      // Combine all analysis results
-      const combinedAnalysis: ContentAnalysis = {
-        ...(qualityData as any),
-        ...(aiData as any),
-        keyword_analysis: keywordData as any
-      };
-
-      setAnalysis(combinedAnalysis);
-      toast.success("Content analysis completed!");
+      // Update state with results
+      setResults({
+        contentQuality: contentQualityData,
+        aiFriendliness: aiFriendlinessData,
+        keywordAnalysis: keywordData,
+        isLoading: false,
+        error: null
+      });
 
     } catch (error) {
-      console.error('Analysis error:', error);
-      toast.error('Analysis failed. Please try again.');
-    } finally {
-      setIsAnalyzing(false);
+      console.error('Analysis failed:', error);
+      setResults(prev => ({
+        ...prev,
+        isLoading: false,
+        error: error instanceof Error ? error.message : 'Analysis failed'
+      }));
     }
   };
 
-  const getScoreColor = (score: number) => {
+  // Helper function to get quality score color
+  const getScoreColor = (score: number): string => {
     if (score >= 80) return 'text-green-600';
     if (score >= 60) return 'text-yellow-600';
     return 'text-red-600';
   };
 
-  const getScoreLabel = (score: number) => {
-    if (score >= 80) return 'Excellent';
-    if (score >= 60) return 'Good';
-    return 'Needs Work';
-  };
-
   return (
-    <div className="space-y-6">
-      <Card className="bg-gray-900 border-gray-700">
-        <CardHeader>
-          <CardTitle className="text-white flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Advanced Content Quality Analyzer
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
+    <div className="max-w-4xl mx-auto p-6 space-y-6">
+      <div className="bg-white rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-6 text-gray-800">
+          Content Quality Analyzer
+        </h2>
+        
+        {/* Input Section */}
+        <div className="space-y-4 mb-6">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Content to Analyze
             </label>
-            <Textarea
+            <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Paste your article, blog post, or content here..."
-              className="min-h-[200px] bg-gray-800 border-gray-600 text-white"
+              placeholder="Paste your content here..."
+              className="w-full h-32 p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
           
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
               Target Keyword (Optional)
             </label>
             <input
               type="text"
-              value={targetKeyword}
-              onChange={(e) => setTargetKeyword(e.target.value)}
-              placeholder="Enter target keyword for density analysis"
-              className="w-full px-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="Enter keyword for density analysis..."
+              className="w-full p-3 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
             />
           </div>
-
-          <Button 
+          
+          <button
             onClick={analyzeContent}
-            disabled={!content.trim() || isAnalyzing}
-            className="w-full bg-green-600 hover:bg-green-700"
+            disabled={results.isLoading || !content.trim()}
+            className="w-full bg-blue-600 text-white py-3 px-4 rounded-md hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
-            {isAnalyzing ? (
-              <>
-                <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                Analyzing Content...
-              </>
-            ) : (
-              <>
-                <BarChart3 className="h-4 w-4 mr-2" />
-                Analyze Content Quality
-              </>
-            )}
-          </Button>
-        </CardContent>
-      </Card>
-
-      {analysis && (
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Quality Score */}
-          <Card className="bg-gray-900 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Quality Score</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className={`text-4xl font-bold ${getScoreColor(analysis.quality_score)}`}>
-                  {analysis.quality_score}/100
-                </div>
-                <div className={`text-lg ${getScoreColor(analysis.quality_score)}`}>
-                  {getScoreLabel(analysis.quality_score)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* AI-Friendliness Score */}
-          <Card className="bg-gray-900 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <Zap className="h-5 w-5" />
-                AI-Friendliness Score
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="text-center">
-                <div className={`text-4xl font-bold ${getScoreColor(analysis.ai_score)}`}>
-                  {analysis.ai_score}/100
-                </div>
-                <div className={`text-lg ${getScoreColor(analysis.ai_score)}`}>
-                  {getScoreLabel(analysis.ai_score)}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Content Statistics */}
-          <Card className="bg-gray-900 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">Content Statistics</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div className="text-gray-300">
-                  <span className="font-medium">Words:</span> {analysis.word_count}
-                </div>
-                <div className="text-gray-300">
-                  <span className="font-medium">Sentences:</span> {analysis.sentence_count}
-                </div>
-                <div className="text-gray-300">
-                  <span className="font-medium">Paragraphs:</span> {analysis.paragraph_count}
-                </div>
-                <div className="text-gray-300">
-                  <span className="font-medium">Headings:</span> {analysis.heading_count}
-                </div>
-                <div className="text-gray-300 flex items-center gap-1">
-                  <Clock className="w-3 h-3" />
-                  <span>Reading time: {analysis.reading_time_minutes} min</span>
-                </div>
-                <div className="text-gray-300">
-                  <span className="font-medium">Links:</span> {analysis.link_count}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* AI Optimization Checklist */}
-          <Card className="bg-gray-900 border-gray-700">
-            <CardHeader>
-              <CardTitle className="text-white">AI Optimization Checklist</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <div className="flex items-center gap-2">
-                  {analysis.has_qa_format ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className="text-gray-300">Q&A Format Present</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {analysis.has_citations ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className="text-gray-300">Citations Included</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {analysis.has_clear_structure ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className="text-gray-300">Clear Structure</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {analysis.has_bullet_points ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className="text-gray-300">Bullet Points/Lists</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  {analysis.avg_paragraph_length < 500 ? (
-                    <CheckCircle className="w-4 h-4 text-green-500" />
-                  ) : (
-                    <XCircle className="w-4 h-4 text-red-500" />
-                  )}
-                  <span className="text-gray-300">Optimal Paragraph Length</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Keyword Analysis */}
-          {analysis.keyword_analysis && (
-            <Card className="bg-gray-900 border-gray-700 lg:col-span-2">
-              <CardHeader>
-                <CardTitle className="text-white flex items-center gap-2">
-                  <Target className="h-5 w-5" />
-                  Keyword Analysis: "{targetKeyword}"
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-green-500">
-                      {analysis.keyword_analysis.keyword_count}
-                    </div>
-                    <div className="text-sm text-gray-400">Occurrences</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-blue-500">
-                      {analysis.keyword_analysis.density_percent}%
-                    </div>
-                    <div className="text-sm text-gray-400">Density</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-2xl font-bold text-yellow-500">
-                      {analysis.keyword_analysis.optimal_count}
-                    </div>
-                    <div className="text-sm text-gray-400">Optimal Count</div>
-                  </div>
-                  <div className="text-center">
-                    <div className={`text-2xl font-bold ${analysis.keyword_analysis.well_distributed ? 'text-green-500' : 'text-red-500'}`}>
-                      {analysis.keyword_analysis.well_distributed ? 'Yes' : 'No'}
-                    </div>
-                    <div className="text-sm text-gray-400">Well Distributed</div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          )}
-
-          {/* Recommendations */}
-          <Card className="bg-gray-900 border-gray-700 lg:col-span-2">
-            <CardHeader>
-              <CardTitle className="text-white flex items-center gap-2">
-                <AlertCircle className="h-5 w-5" />
-                Recommendations
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-2">
-                {analysis.recommendations.map((rec, index) => (
-                  <li key={index} className="text-gray-300 flex items-start gap-2">
-                    <span className="text-yellow-500 mt-1">•</span>
-                    {rec}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
+            {results.isLoading ? 'Analyzing...' : 'Analyze Content'}
+          </button>
         </div>
-      )}
+
+        {/* Error Display */}
+        {results.error && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <p className="text-red-800">{results.error}</p>
+          </div>
+        )}
+
+        {/* Results Section */}
+        {(results.contentQuality || results.aiFriendliness || results.keywordAnalysis) && (
+          <div className="space-y-6">
+            {/* Content Quality Results */}
+            {results.contentQuality && (
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                  Content Quality Analysis
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Word Count</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {results.contentQuality.word_count}
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Quality Score</p>
+                    <p className={`text-2xl font-bold ${getScoreColor(results.contentQuality.quality_score)}`}>
+                      {results.contentQuality.quality_score}/100
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Reading Time</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {results.contentQuality.reading_time_minutes} min
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Sentences</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {results.contentQuality.sentence_count}
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Paragraphs</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {results.contentQuality.paragraph_count}
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Headings</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {results.contentQuality.heading_count}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* AI Friendliness Results */}
+            {results.aiFriendliness && (
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                  AI-Friendliness Analysis
+                </h3>
+                <div className="mb-4">
+                  <p className="text-sm text-gray-600 mb-2">AI Score</p>
+                  <p className={`text-3xl font-bold ${getScoreColor(results.aiFriendliness.ai_score)}`}>
+                    {results.aiFriendliness.ai_score}/100
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-2 gap-4 mb-4">
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-3 h-3 rounded-full ${results.aiFriendliness.has_qa_format ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className="text-sm">Q&A Format</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-3 h-3 rounded-full ${results.aiFriendliness.has_citations ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className="text-sm">Citations</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-3 h-3 rounded-full ${results.aiFriendliness.has_clear_structure ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className="text-sm">Clear Structure</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className={`w-3 h-3 rounded-full ${results.aiFriendliness.has_bullet_points ? 'bg-green-500' : 'bg-red-500'}`}></span>
+                    <span className="text-sm">Bullet Points</span>
+                  </div>
+                </div>
+
+                {results.aiFriendliness.recommendations.length > 0 && (
+                  <div>
+                    <p className="text-sm font-medium text-gray-700 mb-2">Recommendations:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {results.aiFriendliness.recommendations.map((rec, index) => (
+                        <li key={index} className="text-sm text-gray-600">{rec}</li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Keyword Analysis Results */}
+            {results.keywordAnalysis && keyword && (
+              <div className="bg-gray-50 rounded-lg p-6">
+                <h3 className="text-xl font-semibold mb-4 text-gray-800">
+                  Keyword Analysis: "{keyword}"
+                </h3>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Density</p>
+                    <p className="text-2xl font-bold text-blue-600">
+                      {results.keywordAnalysis.density_percent}%
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Count</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {results.keywordAnalysis.keyword_count}
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md">
+                    <p className="text-sm text-gray-600">Optimal Count</p>
+                    <p className="text-2xl font-bold text-gray-700">
+                      {results.keywordAnalysis.optimal_count}
+                    </p>
+                  </div>
+                  <div className="bg-white p-4 rounded-md col-span-2 md:col-span-3">
+                    <p className="text-sm text-gray-600 mb-2">Distribution</p>
+                    <p className={`font-medium ${results.keywordAnalysis.well_distributed ? 'text-green-600' : 'text-yellow-600'}`}>
+                      {results.keywordAnalysis.well_distributed ? 'Well Distributed' : 'Could Be Better Distributed'}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

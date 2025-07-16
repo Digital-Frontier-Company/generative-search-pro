@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -250,40 +251,35 @@ const CitationChecker = () => {
                 <CardTitle>AI Recommendations</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="bg-blue-50 p-4 rounded-lg">
-                  <p className="text-gray-700 whitespace-pre-wrap">{result.recommendations}</p>
+                <div className="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                  <p className="text-yellow-800">{result.recommendations}</p>
                 </div>
               </CardContent>
             </Card>
           )}
-        </div>
-      )}
 
-      {/* Citation History */}
-      {history.length > 0 && (
-        <Card className="mt-8">
-          <CardHeader>
-            <CardTitle>Recent Citation Checks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-3">
-              {history.map((item, index) => (
-                <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div>
-                    <p className="font-medium">"{item.query}"</p>
-                    <p className="text-sm text-gray-600">{item.domain}</p>
-                    <p className="text-xs text-gray-500">
-                      {new Date(item.checkedAt).toLocaleDateString()}
-                    </p>
+          {/* History */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Checks</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {history.map((item, index) => (
+                  <div key={index} className="flex justify-between items-center p-3 border rounded-lg">
+                    <div>
+                      <p className="font-medium text-sm">"{item.query}"</p>
+                      <p className="text-xs text-gray-500">{item.domain}</p>
+                    </div>
+                    <Badge variant={item.isCited ? "default" : "destructive"}>
+                      {item.isCited ? 'Cited' : 'Not Cited'}
+                    </Badge>
                   </div>
-                  <Badge variant={item.isCited ? "default" : "destructive"}>
-                    {item.isCited ? "Cited" : "Not Cited"}
-                  </Badge>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
       )}
     </div>
   );
