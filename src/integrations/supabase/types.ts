@@ -17,6 +17,7 @@ export type Database = {
       ai_sitemaps: {
         Row: {
           domain: string
+          email: string | null
           generated_at: string | null
           id: number
           page_count: number | null
@@ -25,6 +26,7 @@ export type Database = {
         }
         Insert: {
           domain: string
+          email?: string | null
           generated_at?: string | null
           id?: number
           page_count?: number | null
@@ -33,6 +35,7 @@ export type Database = {
         }
         Update: {
           domain?: string
+          email?: string | null
           generated_at?: string | null
           id?: number
           page_count?: number | null
@@ -55,6 +58,7 @@ export type Database = {
           checked_at: string | null
           cited_sources: Json | null
           domain: string
+          email: string | null
           id: number
           is_cited: boolean | null
           query: string
@@ -66,6 +70,7 @@ export type Database = {
           checked_at?: string | null
           cited_sources?: Json | null
           domain: string
+          email?: string | null
           id?: number
           is_cited?: boolean | null
           query: string
@@ -77,6 +82,7 @@ export type Database = {
           checked_at?: string | null
           cited_sources?: Json | null
           domain?: string
+          email?: string | null
           id?: number
           is_cited?: boolean | null
           query?: string
@@ -184,51 +190,63 @@ export type Database = {
       documents: {
         Row: {
           content: string | null
+          email: string | null
           embedding: string | null
           id: number
           metadata: Json | null
+          user_id: string | null
         }
         Insert: {
           content?: string | null
+          email?: string | null
           embedding?: string | null
           id?: number
           metadata?: Json | null
+          user_id?: string | null
         }
         Update: {
           content?: string | null
+          email?: string | null
           embedding?: string | null
           id?: number
           metadata?: Json | null
+          user_id?: string | null
         }
         Relationships: []
       }
       nods_page: {
         Row: {
           checksum: string | null
+          email: string | null
           id: number
           meta: Json | null
           parent_page_id: number | null
           path: string
           source: string | null
           type: string | null
+          user_id: string | null
         }
         Insert: {
           checksum?: string | null
+          email?: string | null
           id?: number
           meta?: Json | null
           parent_page_id?: number | null
           path: string
           source?: string | null
           type?: string | null
+          user_id?: string | null
         }
         Update: {
           checksum?: string | null
+          email?: string | null
           id?: number
           meta?: Json | null
           parent_page_id?: number | null
           path?: string
           source?: string | null
           type?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -288,6 +306,7 @@ export type Database = {
           id: string
           preferences: Json | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           avatar_url?: string | null
@@ -298,6 +317,7 @@ export type Database = {
           id: string
           preferences?: Json | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           avatar_url?: string | null
@@ -308,6 +328,7 @@ export type Database = {
           id?: string
           preferences?: Json | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Relationships: [
           {
