@@ -5,10 +5,18 @@ import { HelmetProvider } from "react-helmet-async";
 import App from "./App.tsx";
 import "./index.css";
 
+// Initialize analytics
+import { useAnalytics } from "./hooks/useAnalytics";
+
+function AppWithAnalytics() {
+  useAnalytics();
+  return <App />;
+}
+
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HelmetProvider>
-      <App />
+      <AppWithAnalytics />
     </HelmetProvider>
   </StrictMode>
 );

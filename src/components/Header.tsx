@@ -5,6 +5,7 @@ import { Menu, X, User, Settings, LogOut, ChevronDown } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
+import { AnalyticsCTA, defaultCTAVariants } from "@/components/optimized/AnalyticsCTA";
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
@@ -104,9 +105,12 @@ const Header = () => {
               <Button variant="ghost" onClick={() => navigate('/auth')} className="text-matrix-green hover:text-matrix-lime hover:bg-matrix-green/10">
                 Sign In
               </Button>
-              <Button onClick={() => navigate('/upgrade')} className="glow-button text-black font-semibold">
-                Start Free Trial
-              </Button>
+              <AnalyticsCTA
+                variants={defaultCTAVariants.header}
+                location="header"
+                onClick={() => navigate('/upgrade')}
+                className="text-black"
+              />
             </div>}
 
           {/* Mobile menu button */}
@@ -132,12 +136,15 @@ const Header = () => {
           }} className="w-full text-matrix-green hover:text-matrix-lime hover:bg-matrix-green/10">
                   Sign In
                 </Button>
-                <Button onClick={() => {
-            navigate('/upgrade');
-            setIsMenuOpen(false);
-          }} className="w-full glow-button text-black font-semibold">
-                  Start Free Trial
-                </Button>
+                <AnalyticsCTA
+                  variants={defaultCTAVariants.header}
+                  location="header-mobile"
+                  onClick={() => {
+                    navigate('/upgrade');
+                    setIsMenuOpen(false);
+                  }}
+                  className="w-full text-black"
+                />
               </div>}
           </div>
         </div>}

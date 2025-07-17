@@ -3,13 +3,15 @@ import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { SmartInput } from '@/components/optimized/SmartInput';
+import { ProgressIndicator, commonStepConfigurations } from '@/components/optimized/ProgressIndicator';
+import { useAnalytics } from '@/hooks/useAnalytics';
+import { commonRules } from '@/hooks/useFormValidation';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -18,6 +20,9 @@ const Auth = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('login');
+  const [formStep, setFormStep] = useState(0);
+  
+  const { trackFormInteraction, trackConversion } = useAnalytics();
   
   const navigate = useNavigate();
   const location = useLocation();
@@ -34,6 +39,7 @@ const Auth = () => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    trackFormInteraction('signin', 'start');
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
@@ -42,6 +48,7 @@ const Auth = () => {
       });
 
       if (error) {
+        trackFormInteraction('signin', 'error');
         if (error.message.includes('Invalid login credentials')) {
           toast.error('Invalid email or password. Please check your credentials.');
         } else if (error.message.includes('Email not confirmed')) {
@@ -52,10 +59,13 @@ const Auth = () => {
         return;
       }
 
+      trackFormInteraction('signin', 'complete');
+      trackConversion('signup');
       toast.success('Signed in successfully!');
       navigate(from, { replace: true });
     } catch (error) {
       console.error('Sign in error:', error);
+      trackFormInteraction('signin', 'error');
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -65,6 +75,7 @@ const Auth = () => {
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    trackFormInteraction('signup', 'start');
 
     try {
       const { error } = await supabase.auth.signUp({
@@ -79,6 +90,7 @@ const Auth = () => {
       });
 
       if (error) {
+        trackFormInteraction('signup', 'error');
         if (error.message.includes('already registered')) {
           toast.error('This email is already registered. Please sign in instead.');
           setActiveTab('login');
@@ -88,10 +100,13 @@ const Auth = () => {
         return;
       }
 
+      trackFormInteraction('signup', 'complete');
+      trackConversion('signup');
       toast.success('Account created successfully! Please check your email for verification.');
       setActiveTab('login');
     } catch (error) {
       console.error('Sign up error:', error);
+      trackFormInteraction('signup', 'error');
       toast.error('An unexpected error occurred. Please try again.');
     } finally {
       setLoading(false);
@@ -121,43 +136,44 @@ const Auth = () => {
             
             <TabsContent value="login" className="space-y-4 mt-4">
               <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
+                <SmartInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={setEmail}
+                  validationRules={commonRules.email}
+                  formName="signin"
+                  required
+                />
                 
                 <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Enter your password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
+                  <SmartInput
+                    label="Password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={setPassword}
+                    validationRules={commonRules.password}
+                    formName="signin"
+                    showValidationIcon={false}
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-8 h-8 px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={loading}>
@@ -174,60 +190,67 @@ const Auth = () => {
             </TabsContent>
             
             <TabsContent value="signup" className="space-y-4 mt-4">
+              <ProgressIndicator
+                steps={commonStepConfigurations.onboarding.slice(0, 3)}
+                currentStep={formStep}
+                variant="minimal"
+                className="mb-6"
+              />
+              
               <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="fullName">Full Name</Label>
-                  <Input
-                    id="fullName"
-                    type="text"
-                    placeholder="Enter your full name"
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
+                <SmartInput
+                  label="Full Name"
+                  name="fullName"
+                  type="text"
+                  placeholder="Enter your full name"
+                  value={fullName}
+                  onChange={setFullName}
+                  validationRules={commonRules.fullName}
+                  formName="signup"
+                  helpText="This will be displayed on your profile"
+                  required
+                />
+                
+                <SmartInput
+                  label="Email"
+                  name="email"
+                  type="email"
+                  placeholder="Enter your email"
+                  value={email}
+                  onChange={setEmail}
+                  validationRules={commonRules.email}
+                  formName="signup"
+                  helpText="We'll send verification to this email"
+                  required
+                />
+                
+                <div className="relative">
+                  <SmartInput
+                    label="Password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    placeholder="Create a password"
+                    value={password}
+                    onChange={setPassword}
+                    validationRules={commonRules.password}
+                    formName="signup"
+                    helpText="Must be at least 6 characters long"
+                    showValidationIcon={false}
                     required
                   />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="email">Email</Label>
-                  <Input
-                    id="email"
-                    type="email"
-                    placeholder="Enter your email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                
-                <div className="space-y-2">
-                  <Label htmlFor="password">Password</Label>
-                  <div className="relative">
-                    <Input
-                      id="password"
-                      type={showPassword ? 'text' : 'password'}
-                      placeholder="Create a password"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                      required
-                      minLength={6}
-                    />
-                    <Button
-                      type="button"
-                      variant="ghost"
-                      size="sm"
-                      className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4" />
-                      ) : (
-                        <Eye className="h-4 w-4" />
-                      )}
-                    </Button>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Password must be at least 6 characters long
-                  </p>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-8 h-8 px-3 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4" />
+                    ) : (
+                      <Eye className="h-4 w-4" />
+                    )}
+                  </Button>
                 </div>
                 
                 <Button type="submit" className="w-full" disabled={loading}>
