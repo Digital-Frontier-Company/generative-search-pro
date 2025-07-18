@@ -71,3 +71,14 @@ Yes, you can!
 To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
 
 Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+
+## New Features
+
+### Progressive Web App (PWA)
+This project now ships a Web App Manifest (`public/manifest.webmanifest`) with icons, theme and background colours. When you "Add to Home Screen" you’ll get a stand-alone experience with the brand colours applied.
+
+### Accessibility – Skip Link
+A `<SkipLink />` component is mounted near the top of the DOM (see `src/App.tsx`).   It’s hidden off-screen until focused, then becomes visible so keyboard users can jump directly to the `#main-content` landmark.
+
+### Optimized Images
+Use the `OptimizedImage` wrapper (`src/components/ui/OptimizedImage.tsx`) instead of raw `<img>` tags.  It adds lazy-loading and can be extended later for src-set, placeholders, etc.

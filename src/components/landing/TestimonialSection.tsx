@@ -1,6 +1,8 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 import { Star } from "lucide-react";
+import { Helmet } from "react-helmet-async";
 
 const testimonials = [
   {
@@ -29,9 +31,26 @@ const testimonials = [
   }
 ];
 
+// Aggregate rating schema for SEO rich snippets
+const aggregateSchema = {
+  "@context": "https://schema.org",
+  "@type": "Product",
+  "name": "GenerativeSearch.pro",
+  "aggregateRating": {
+    "@type": "AggregateRating",
+    "ratingValue": "5",
+    "reviewCount": testimonials.length.toString()
+  }
+};
+
 const TestimonialSection = () => {
   return (
     <section className="py-16">
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify(aggregateSchema)}
+        </script>
+      </Helmet>
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl font-bold mb-4 gradient-text">
@@ -57,8 +76,8 @@ const TestimonialSection = () => {
                 </p>
                 
                 <div className="flex items-center">
-                  <Avatar className="h-10 w-10 mr-3">
-                    <AvatarImage src={testimonial.avatar} alt={testimonial.name} />
+                  <Avatar className="h-10 w-10 mr-3 overflow-hidden">
+                    <OptimizedImage src={testimonial.avatar} alt={testimonial.name} className="h-10 w-10 object-cover" />
                     <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                   </Avatar>
                   <div>

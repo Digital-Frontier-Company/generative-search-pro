@@ -106,8 +106,30 @@
 
   body {
     @apply bg-background text-foreground;
-    background: linear-gradient(135deg, hsl(220 13% 8%) 0%, hsl(220 13% 6%) 100%);
+    /* Deep indigo → violet → neon lime gradient */
+    background: linear-gradient(135deg, #1d1e5f 0%, #332c80 35%, #5040a3 60%, #6c5cc4 75%, #b6e06b 100%);
+    font-size: 1rem; /* 16px base */
+    line-height: 1.6; /* 1.6 improves readability */
   }
+
+  p {
+    @apply text-base leading-relaxed max-w-prose my-4;
+  }
+
+  ul, ol {
+    @apply list-inside list-disc pl-6 leading-relaxed max-w-prose my-4;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold leading-tight;
+  }
+
+  h1 { @apply text-4xl mb-4; }
+  h2 { @apply text-3xl mb-3; }
+  h3 { @apply text-2xl mb-2; }
+  h4 { @apply text-xl mb-2; }
+  h5 { @apply text-lg mb-1; }
+  h6 { @apply text-base mb-1; }
 }
 
 @layer components {
@@ -117,13 +139,16 @@
   
   .hero-gradient {
     @apply bg-gradient-to-br from-primary/10 via-primary/5 to-background;
-    background: linear-gradient(135deg, hsl(120 100% 50% / 0.1) 0%, hsl(220 13% 8%) 50%, hsl(220 13% 6%) 100%);
+    /* Softer overlay of the new brand gradient */
+    background: linear-gradient(135deg, rgba(198, 255, 102, 0.08) 0%, rgba(29, 30, 95, 0.9) 50%, rgba(29, 30, 95, 1) 100%);
   }
   
   .content-card {
     @apply bg-card rounded-lg border border-border/50 transition-all duration-300;
-    background: linear-gradient(145deg, hsl(220 13% 12%) 0%, hsl(220 13% 10%) 100%);
-    box-shadow: 0 4px 6px -1px hsl(220 13% 4% / 0.3), 0 2px 4px -1px hsl(220 13% 4% / 0.2);
+    /* Subtle glassy card on top of gradient */
+    background: linear-gradient(145deg, rgba(50, 52, 120, 0.7) 0%, rgba(30, 32, 90, 0.7) 100%);
+    backdrop-filter: blur(8px);
+    box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.35);
   }
 
   .content-card:hover {

@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Zap, Database, Globe, Sparkles, ChevronDown, ChevronUp, Star, Users, TrendingUp, Search, Bot, Lightbulb, Upload, Clipboard, Bell, User, Info, Clock, CheckSquare, Target } from "lucide-react";
@@ -23,6 +23,30 @@ const Index = () => {
   const [contentInput, setContentInput] = useState("");
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+
+  // Real-time social-proof toast notifications
+  useEffect(() => {
+    const names = [
+      "John", "Sarah", "Alex", "Emily", "Michael", "Olivia", "Daniel", "Sophia", "David", "Emma"
+    ];
+    const cities = ["NYC", "London", "Berlin", "Toronto", "Sydney", "San Francisco", "Singapore", "Tokyo"];
+    const plans = ["Starter", "Professional", "Enterprise"];
+
+    const randomMessage = () => {
+      const name = names[Math.floor(Math.random() * names.length)];
+      const city = cities[Math.floor(Math.random() * cities.length)];
+      const plan = plans[Math.floor(Math.random() * plans.length)];
+      return `${name} from ${city} just signed up for the ${plan} plan!`;
+    };
+
+    // Show first toast after 6 s, then every 35 s
+    const firstTimeout = setTimeout(() => toast.custom(randomMessage()), 6000);
+    const interval = setInterval(() => toast.custom(randomMessage()), 35000);
+    return () => {
+      clearTimeout(firstTimeout);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Enhanced analysis functions using Supabase
   const performAnalysis = async (text: string) => {
@@ -234,8 +258,9 @@ const Index = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Button 
+                  size="cta"
                   onClick={() => navigate('/upgrade')}
-                  className="px-8 py-3 bg-[#39FF14] text-[#0D1117] font-semibold rounded-lg hover:bg-[#39FF14]/90 transition-all"
+                  className="bg-[#39FF14] text-[#0D1117] hover:bg-[#39FF14]/90"
                   style={{boxShadow: '0 0 10px #39FF14'}}
                 >
                   Start Free Trial
@@ -350,12 +375,14 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> AI visibility scoring</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Email support</li>
               </ul>
-              <button 
+              <Button 
+                size="cta"
+                variant="outline"
                 onClick={() => navigate('/upgrade')}
-                className="w-full px-6 py-3 border border-[#39FF14] text-[#39FF14] rounded-lg hover:bg-[#39FF14] hover:text-[#0D1117] transition-all"
+                className="w-full border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
               >
                 Start Free Trial
-              </button>
+              </Button>
             </div>
 
             {/* Professional Plan */}
@@ -375,13 +402,14 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Content generator (unlimited)</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Priority support</li>
               </ul>
-              <button 
+              <Button 
+                size="cta"
                 onClick={() => navigate('/upgrade')}
-                className="w-full px-6 py-3 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all" 
+                className="w-full bg-[#39FF14] text-[#0D1117] font-bold hover:bg-[#39FF14]/90" 
                 style={{boxShadow: '0 0 5px #39FF14'}}
               >
                 Start Free Trial
-              </button>
+              </Button>
             </div>
 
             {/* Enterprise Plan */}
@@ -398,9 +426,9 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Team collaboration tools</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Dedicated account manager</li>
               </ul>
-              <button className="w-full px-6 py-3 border border-[#39FF14] text-[#39FF14] rounded-lg hover:bg-[#39FF14] hover:text-[#0D1117] transition-all">
+              <Button size="cta" variant="outline" className="w-full border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]">
                 Contact Sales
-              </button>
+              </Button>
             </div>
           </div>
         </section>

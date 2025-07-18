@@ -1,0 +1,22 @@
+{
+  "name": "GenerativeSearch.pro",
+  "short_name": "GSP",
+  "description": "AI & SEO optimization platform for generative search visibility.",
+  "start_url": "/",
+  "display": "standalone",
+  "scope": "/",
+  "theme_color": "#0d1117",
+  "background_color": "#0d1117",
+  "icons": [
+    {
+      "src": "/gsp-logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/gsp-logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+} 

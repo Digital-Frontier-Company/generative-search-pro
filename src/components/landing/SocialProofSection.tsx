@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Users, Zap, Award } from "lucide-react";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 const stats = [
   {
@@ -70,7 +71,7 @@ const SocialProofSection = () => {
         <div className="grid grid-cols-3 md:grid-cols-6 gap-8 items-center opacity-60 hover:opacity-80 transition-opacity">
           {companyLogos.map((company, index) => (
             <div key={index} className="flex justify-center">
-              <img 
+              <OptimizedImage 
                 src={company.logo} 
                 alt={`${company.name} logo`}
                 className="h-8 w-auto filter grayscale hover:grayscale-0 transition-all duration-300"

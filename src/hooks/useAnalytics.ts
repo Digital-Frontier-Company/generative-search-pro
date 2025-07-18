@@ -7,38 +7,53 @@ declare global {
   }
 }
 
-// Analytics configuration
-const GA_MEASUREMENT_ID = 'G-XXXXXXXXXX'; // Replace with actual GA4 ID
+// Analytics configuration from environment variables (defined as VITE_*)
+const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
+const CLARITY_ID = import.meta.env.VITE_CLARITY_ID as string | undefined;
 
 export const useAnalytics = () => {
   useEffect(() => {
-    // Load Google Analytics 4
-    const script = document.createElement('script');
-    script.async = true;
-    script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-    document.head.appendChild(script);
+    if (GA_MEASUREMENT_ID) {
+      const gaScript = document.createElement('script');
+      gaScript.async = true;
+      gaScript.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
+      document.head.appendChild(gaScript);
 
-    // Initialize dataLayer
-    window.dataLayer = window.dataLayer || [];
-    function gtag(...args: any[]) {
-      window.dataLayer.push(args);
+      window.dataLayer = window.dataLayer || [];
+      function gtag(...args: any[]) {
+        window.dataLayer.push(args);
+      }
+      window.gtag = gtag;
+
+      gtag('js', new Date());
+      gtag('config', GA_MEASUREMENT_ID, {
+        page_title: document.title,
+        page_location: window.location.href,
+      });
     }
-    window.gtag = gtag;
 
-    gtag('js', new Date());
-    gtag('config', GA_MEASUREMENT_ID, {
-      page_title: document.title,
-      page_location: window.location.href,
-    });
-
+    // Load Microsoft Clarity heatmap if ID provided
+    if (CLARITY_ID) {
+      const clarityScript = document.createElement('script');
+      clarityScript.type = 'text/javascript';
+      clarityScript.async = true;
+      clarityScript.innerHTML = `
+        (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+        })(window, document, "clarity", "script", "${CLARITY_ID}");
+      `;
+      document.head.appendChild(clarityScript);
+    }
     return () => {
-      document.head.removeChild(script);
+      // cleanup is optional; scripts persist
     };
   }, []);
 
   // Event tracking functions
   const trackEvent = (eventName: string, parameters?: Record<string, any>) => {
-    if (window.gtag) {
+    if (GA_MEASUREMENT_ID && window.gtag) {
       window.gtag('event', eventName, {
         ...parameters,
         timestamp: Date.now(),
@@ -71,7 +86,7 @@ export const useAnalytics = () => {
   };
 
   const trackPageView = (pageName: string, pageCategory?: string) => {
-    if (window.gtag) {
+    if (GA_MEASUREMENT_ID && window.gtag) {
       window.gtag('config', GA_MEASUREMENT_ID, {
         page_title: pageName,
         page_location: window.location.href,

@@ -1,9 +1,9 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SmartInput } from "@/components/optimized/SmartInput";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
-import { Mail, Gift } from "lucide-react";
+import { Mail, Gift, Loader2 } from "lucide-react";
 
 const NewsletterSignup = () => {
   const [email, setEmail] = useState("");
@@ -52,21 +52,30 @@ const NewsletterSignup = () => {
         </p>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <Input
+        <form onSubmit={handleSubmit} className="flex gap-2 items-end">
+          <SmartInput
+            label="Email"
+            name="newsletterEmail"
             type="email"
             placeholder="Enter your email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
+            onChange={setEmail}
+            validationRules={{ email: true, required: true }}
+            formName="newsletter"
             className="flex-1 bg-input border-border focus:border-primary"
+            required
           />
           <Button 
             type="submit" 
             disabled={isLoading || !email}
             className="bg-primary hover:bg-primary/90"
+            aria-label="Subscribe"
           >
-            <Mail className="w-4 h-4" />
+            {isLoading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Mail className="w-4 h-4" />
+            )}
           </Button>
         </form>
         <p className="text-xs text-muted-foreground mt-2 text-center">

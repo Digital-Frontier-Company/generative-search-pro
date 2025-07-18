@@ -1,7 +1,8 @@
 
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { SmartInput } from "@/components/optimized/SmartInput";
+import { Tooltip, TooltipTrigger, TooltipContent, TooltipProvider } from "@/components/ui/tooltip";
 import { Search } from "lucide-react";
 import { useDomain } from "@/contexts/DomainContext";
 
@@ -38,33 +39,51 @@ const DomainInput = ({ onAnalyze, loading = false }: DomainInputProps) => {
     <div className="max-w-2xl mx-auto mb-8">
       <form onSubmit={handleSubmit} className="flex gap-4">
         <div className="flex-1">
-          <Input
+          <SmartInput
+            label="Domain"
+            name="domain"
             type="text"
-            placeholder="Enter domain (e.g., example.com or https://example.com)"
+            placeholder="e.g., example.com or https://example.com"
             value={domain}
-            onChange={(e) => setDomain(e.target.value)}
-            onKeyDown={handleKeyPress}
+            onChange={setDomain}
+            onKeyDown={handleKeyPress as any}
+            validationRules={{
+              required: true,
+              pattern: /^(https?:\/\/)?([\w-]+\.)+[\w-]{2,}(\/.*)?$/i,
+            }}
+            helpText="We support http(s) and naked domains"
+            formName="domain-analyze"
             className="text-base bg-gray-800 border-gray-600 text-white"
-            disabled={loading}
+            required
           />
         </div>
-        <Button 
-          type="submit"
-          disabled={loading || !domain.trim()}
-          className="min-w-[120px] bg-green-600 hover:bg-green-700"
-        >
-          {loading ? (
-            <>
-              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-              Analyzing...
-            </>
-          ) : (
-            <>
-              <Search className="h-4 w-4 mr-2" />
-              Analyze SEO
-            </>
-          )}
-        </Button>
+        <TooltipProvider delayDuration={300}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <Button 
+                type="submit"
+                disabled={loading || !domain.trim()}
+                className="min-w-[140px] bg-green-600 hover:bg-green-700"
+                aria-label="Analyze the entered domain"
+              >
+                {loading ? (
+                  <>
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Search className="h-4 w-4 mr-2" />
+                    Analyze SEO
+                  </>
+                )}
+              </Button>
+            </TooltipTrigger>
+            <TooltipContent>
+              Run a full SEO & AI-visibility scan for this domain
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </form>
     </div>
   );
