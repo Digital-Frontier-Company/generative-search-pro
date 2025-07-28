@@ -8,6 +8,7 @@ import AIVisibilityScore from "@/components/AIVisibilityScore";
 import CitationMonitoringDashboard from "@/components/CitationMonitoringDashboard";
 import AIAudit from "@/components/AIAudit";
 import SEOToolsAnalytics from "@/components/SEOToolsAnalytics";
+import { SEOAnalysisProvider } from "@/contexts/SEOAnalysisContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -205,21 +206,23 @@ const Dashboard = () => {
             </TabsList>
 
             <TabsContent value="overview">
-              <div className="grid lg:grid-cols-4 gap-6">
-                <div className="lg:col-span-2">
-                  <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
-                  <AIVisibilityScore />
+              <SEOAnalysisProvider>
+                <div className="grid lg:grid-cols-4 gap-6">
+                  <div className="lg:col-span-2">
+                    <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
+                    <AIVisibilityScore />
+                  </div>
+                  <div className="lg:col-span-1">
+                    <AIAudit />
+                  </div>
+                  <div className="lg:col-span-1">
+                    <SEOToolsAnalytics />
+                  </div>
                 </div>
-                <div className="lg:col-span-1">
-                  <AIAudit />
+                <div className="mt-6">
+                  <SubscriptionStatus />
                 </div>
-                <div className="lg:col-span-1">
-                  <SEOToolsAnalytics />
-                </div>
-              </div>
-              <div className="mt-6">
-                <SubscriptionStatus />
-              </div>
+              </SEOAnalysisProvider>
             </TabsContent>
 
             <TabsContent value="citations">

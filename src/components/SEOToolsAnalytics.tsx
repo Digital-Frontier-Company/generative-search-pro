@@ -1,34 +1,67 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { TrendingUp, Users, Globe, BarChart3, Eye, Clock } from "lucide-react";
+import { TrendingUp, Users, Globe, BarChart3, Eye } from "lucide-react";
+import { useSEOAnalysis } from "@/contexts/SEOAnalysisContext";
 
 const SEOToolsAnalytics = () => {
-  const [analyticsData] = useState({
+  const { analysis, keywords } = useSEOAnalysis();
+
+  const [analyticsData, setAnalyticsData] = useState({
     overview: {
       totalVisibility: 85,
       organicTraffic: 12430,
       avgPosition: 8.2,
-      impressions: 45600
+      impressions: 45600,
     },
     trends: [
       { metric: 'Visibility', value: '+12%', trend: 'up' },
       { metric: 'Clicks', value: '+8%', trend: 'up' },
       { metric: 'Impressions', value: '+15%', trend: 'up' },
-      { metric: 'CTR', value: '-2%', trend: 'down' }
+      { metric: 'CTR', value: '-2%', trend: 'down' },
     ],
     topPages: [
       { url: '/best-practices', clicks: 2340, impressions: 12500, ctr: 18.7 },
       { url: '/getting-started', clicks: 1890, impressions: 9800, ctr: 19.3 },
-      { url: '/advanced-tips', clicks: 1560, impressions: 8200, ctr: 19.0 }
+      { url: '/advanced-tips', clicks: 1560, impressions: 8200, ctr: 19.0 },
     ],
     keywords: [
       { term: 'AI optimization', position: 3, volume: 8900 },
       { term: 'content analysis', position: 7, volume: 5400 },
-      { term: 'SEO tools', position: 12, volume: 12000 }
-    ]
+      { term: 'SEO tools', position: 12, volume: 12000 },
+    ],
   });
+
+  // Update analytics data when analysis or keywords change
+  useEffect(() => {
+    if (!analysis) return;
+
+    const visibility = analysis.total_score ?? analyticsData.overview.totalVisibility;
+
+    const kwArray = keywords ?? analyticsData.keywords;
+
+    const updatedKeywords = kwArray.map((kw, idx) => ({
+      term: kw.word ?? kw.term,
+      position: idx + 1,
+      volume: kw.count ?? kw.volume,
+    }));
+
+    // OrganicTraffic & impressions rough estimations based on keyword counts
+    const totalKeywordCount = kwArray?.reduce((acc: number, k: any) => acc + (k.count || 0), 0) ?? analyticsData.overview.organicTraffic;
+
+    setAnalyticsData(prev => ({
+      ...prev,
+      overview: {
+        totalVisibility: visibility,
+        organicTraffic: totalKeywordCount * 10,
+        avgPosition: updatedKeywords.length ? updatedKeywords.reduce((acc, k) => acc + k.position, 0) / updatedKeywords.length : 0,
+        impressions: totalKeywordCount * 30,
+      },
+      keywords: updatedKeywords,
+    }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [analysis, keywords]);
 
   const getTrendIcon = (trend: string) => {
     return trend === 'up' ? '↗️' : '↘️';

@@ -179,6 +179,14 @@ const CitationMonitoringDashboard = () => {
         </Button>
       </div>
 
+      {stats.totalCitations === 0 && (
+        <Alert className="mb-4 bg-yellow-100 text-yellow-800">
+          <AlertDescription>
+            No citation data found yet. Try running the Citation Checker for your top queries to start tracking.
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Key Metrics */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <Card className="content-card hover-scale">
@@ -217,7 +225,7 @@ const CitationMonitoringDashboard = () => {
               </div>
             </div>
             <Progress 
-              value={(stats.googleSGE / stats.totalCitations) * 100} 
+              value={stats.totalCitations > 0 ? (stats.googleSGE / stats.totalCitations) * 100 : 0} 
               className="mt-4 h-2"
             />
           </CardContent>
@@ -235,7 +243,7 @@ const CitationMonitoringDashboard = () => {
               </div>
             </div>
             <Progress 
-              value={(stats.bingChat / stats.totalCitations) * 100} 
+              value={stats.totalCitations > 0 ? (stats.bingChat / stats.totalCitations) * 100 : 0} 
               className="mt-4 h-2"
             />
           </CardContent>
@@ -253,7 +261,7 @@ const CitationMonitoringDashboard = () => {
               </div>
             </div>
             <Progress 
-              value={(stats.voice / stats.totalCitations) * 100} 
+              value={stats.totalCitations > 0 ? (stats.voice / stats.totalCitations) * 100 : 0} 
               className="mt-4 h-2"
             />
           </CardContent>

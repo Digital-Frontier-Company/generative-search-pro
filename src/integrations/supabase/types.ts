@@ -64,6 +64,12 @@ export type Database = {
           query: string
           recommendations: string | null
           user_id: string | null
+          confidence_score: number | null
+          competitor_analysis: Json | null
+          citation_position: number | null
+          total_sources: number | null
+          query_complexity: string | null
+          improvement_areas: string[] | null
         }
         Insert: {
           ai_answer?: string | null
@@ -76,6 +82,12 @@ export type Database = {
           query: string
           recommendations?: string | null
           user_id?: string | null
+          confidence_score?: number | null
+          competitor_analysis?: Json | null
+          citation_position?: number | null
+          total_sources?: number | null
+          query_complexity?: string | null
+          improvement_areas?: string[] | null
         }
         Update: {
           ai_answer?: string | null
@@ -88,6 +100,12 @@ export type Database = {
           query?: string
           recommendations?: string | null
           user_id?: string | null
+          confidence_score?: number | null
+          competitor_analysis?: Json | null
+          citation_position?: number | null
+          total_sources?: number | null
+          query_complexity?: string | null
+          improvement_areas?: string[] | null
         }
         Relationships: [
           {
@@ -96,6 +114,56 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "admin_user_credits"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      citation_monitoring: {
+        Row: {
+          id: string
+          user_id: string | null
+          query: string
+          domain: string
+          is_active: boolean | null
+          check_frequency: string | null
+          last_checked_at: string | null
+          last_citation_status: boolean | null
+          alert_on_change: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          query: string
+          domain: string
+          is_active?: boolean | null
+          check_frequency?: string | null
+          last_checked_at?: string | null
+          last_citation_status?: boolean | null
+          alert_on_change?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          query?: string
+          domain?: string
+          is_active?: boolean | null
+          check_frequency?: string | null
+          last_checked_at?: string | null
+          last_citation_status?: boolean | null
+          alert_on_change?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "citation_monitoring_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
