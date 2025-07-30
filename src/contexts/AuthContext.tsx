@@ -154,8 +154,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Enhanced sign in with security measures
   const signIn = useCallback(async (email: string, password: string): Promise<{ error?: AuthError }> => {
     if (checkLockout()) {
-      const error = new Error(`Account locked due to too many failed attempts. Try again in ${Math.ceil(LOCKOUT_DURATION / 60000)} minutes.`) as AuthError;
-      error.__isAuthError = true;
+      const error = Object.assign(new Error(`Account locked due to too many failed attempts. Try again in ${Math.ceil(LOCKOUT_DURATION / 60000)} minutes.`), { 
+        __isAuthError: true,
+        code: 'account_locked',
+        status: 429 
+      }) as unknown as AuthError;
       return { error };
     }
 
@@ -180,8 +183,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage = 'Please check your email and click the confirmation link before signing in.';
         }
 
-        const enhancedError = new Error(errorMessage) as AuthError;
-        enhancedError.__isAuthError = true;
+        const enhancedError = Object.assign(new Error(errorMessage), { 
+          __isAuthError: true,
+          code: 'invalid_credentials',
+          status: 401 
+        }) as unknown as AuthError;
         return { error: enhancedError };
       }
 
@@ -213,8 +219,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { error: undefined };
     } catch (error) {
       console.error('Sign in error:', error);
-      const authError = new Error('An unexpected error occurred. Please try again.') as AuthError;
-      authError.__isAuthError = true;
+      const authError = Object.assign(new Error('An unexpected error occurred. Please try again.'), { 
+        __isAuthError: true,
+        code: 'unexpected_error',
+        status: 500 
+      }) as unknown as AuthError;
       return { error: authError };
     } finally {
       setLoading(false);
@@ -228,14 +237,20 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       // Client-side password validation
       if (password.length < 8) {
-        const error = new Error('Password must be at least 8 characters long.') as AuthError;
-        error.__isAuthError = true;
+        const error = Object.assign(new Error('Password must be at least 8 characters long.'), { 
+          __isAuthError: true,
+          code: 'password_too_short',
+          status: 400 
+        }) as unknown as AuthError;
         return { error };
       }
       
       if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
-        const error = new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number.') as AuthError;
-        error.__isAuthError = true;
+        const error = Object.assign(new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number.'), { 
+          __isAuthError: true,
+          code: 'password_weak',
+          status: 400 
+        }) as unknown as AuthError;
         return { error };
       }
 
@@ -252,8 +267,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (error.message.includes('User already registered')) {
           errorMessage = 'An account with this email already exists. Please sign in instead.';
         }
-        const enhancedError = new Error(errorMessage) as AuthError;
-        enhancedError.__isAuthError = true;
+        const enhancedError = Object.assign(new Error(errorMessage), { 
+          __isAuthError: true,
+          code: 'signup_error',
+          status: 400 
+        }) as unknown as AuthError;
         return { error: enhancedError };
       }
 
@@ -264,8 +282,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { error: undefined };
     } catch (error) {
       console.error('Sign up error:', error);
-      const authError = new Error('An unexpected error occurred. Please try again.') as AuthError;
-      authError.__isAuthError = true;
+      const authError = Object.assign(new Error('An unexpected error occurred. Please try again.'), { 
+        __isAuthError: true,
+        code: 'signup_unexpected_error',
+        status: 500 
+      }) as unknown as AuthError;
       return { error: authError };
     } finally {
       setLoading(false);
@@ -322,8 +343,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { error: undefined };
     } catch (error) {
       console.error('Password reset error:', error);
-      const authError = new Error('Failed to send password reset email. Please try again.') as AuthError;
-      authError.__isAuthError = true;
+      const authError = Object.assign(new Error('Failed to send password reset email. Please try again.'), { 
+        __isAuthError: true,
+        code: 'reset_password_error',
+        status: 500 
+      }) as unknown as AuthError;
       return { error: authError };
     }
   }, []);
@@ -333,8 +357,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     try {
       // Client-side validation
       if (password.length < 8) {
-        const error = new Error('Password must be at least 8 characters long.') as AuthError;
-        error.__isAuthError = true;
+        const error = Object.assign(new Error('Password must be at least 8 characters long.'), { 
+          __isAuthError: true,
+          code: 'password_too_short',
+          status: 400 
+        }) as unknown as AuthError;
         return { error };
       }
 
@@ -348,8 +375,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       return { error: undefined };
     } catch (error) {
       console.error('Password update error:', error);
-      const authError = new Error('Failed to update password. Please try again.') as AuthError;
-      authError.__isAuthError = true;
+      const authError = Object.assign(new Error('Failed to update password. Please try again.'), { 
+        __isAuthError: true,
+        code: 'update_password_error',
+        status: 500 
+      }) as unknown as AuthError;
       return { error: authError };
     }
   }, []);

@@ -88,10 +88,10 @@ const AIAudit = () => {
     // Add AI-specific findings
     const aiFindings: AuditFinding[] = [
       {
-        type: analysis.schema_count > 0 ? 'success' : 'error',
+        type: (analysis as any).schema_count > 0 ? 'success' : 'error',
         title: 'Structured Data Implementation',
-        description: analysis.schema_count > 0 
-          ? `${analysis.schema_count} schema types detected` 
+        description: (analysis as any).schema_count > 0 
+          ? `${(analysis as any).schema_count} schema types detected` 
           : 'No structured data found - critical for AI visibility',
         impact: 'high',
         category: 'ai-optimization',
@@ -99,9 +99,9 @@ const AIAudit = () => {
         priority: 1
       },
       {
-        type: analysis.meta_description ? 'success' : 'warning',
+        type: (analysis as any).meta_description ? 'success' : 'warning',
         title: 'Meta Description Optimization',
-        description: analysis.meta_description 
+        description: (analysis as any).meta_description 
           ? 'Meta description is present'
           : 'Missing or inadequate meta description',
         impact: 'medium',
@@ -110,9 +110,9 @@ const AIAudit = () => {
         priority: 3
       },
       {
-        type: analysis.heading_structure?.h1_count === 1 ? 'success' : 'warning',
+        type: (analysis as any).heading_structure?.h1_count === 1 ? 'success' : 'warning',
         title: 'Heading Structure',
-        description: analysis.heading_structure?.h1_count === 1
+        description: (analysis as any).heading_structure?.h1_count === 1
           ? 'Proper H1 structure detected'
           : 'Multiple or missing H1 tags detected',
         impact: 'medium',
@@ -132,15 +132,15 @@ const AIAudit = () => {
       metrics: {
         contentStructure: analysis.technical_score ?? 0,
         readability: analysis.performance_score ?? 0,
-        aiOptimization: analysis.ai_optimization_score ?? analysis.backlink_score ?? 0,
+        aiOptimization: (analysis as any).ai_optimization_score ?? analysis.backlink_score ?? 0,
         technicalSEO: analysis.technical_score ?? 0,
         performance: analysis.performance_score ?? 0,
-        accessibility: analysis.accessibility_score ?? 75
+        accessibility: (analysis as any).accessibility_score ?? 75
       },
       findings: allFindings,
-      competitorComparison: analysis.competitor_comparison || [],
+      competitorComparison: (analysis as any).competitor_comparison || [],
       lastUpdated: new Date(),
-      recommendations: analysis.recommendations || [],
+      recommendations: (analysis as any).recommendations || [],
       priorityActions
     }));
   }, [analysis]);

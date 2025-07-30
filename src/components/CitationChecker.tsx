@@ -108,10 +108,17 @@ const CitationChecker = () => {
         recommendations: item.recommendations || '',
         checkedAt: item.checked_at,
         confidenceScore: item.confidence_score,
-        competitorAnalysis: item.competitor_analysis || [],
+        competitorAnalysis: Array.isArray(item.competitor_analysis) ? item.competitor_analysis.map((comp: any) => ({
+          domain: comp.domain || '',
+          citationCount: comp.citationCount || 0,
+          queries: comp.queries || [],
+          averagePosition: comp.averagePosition || 0
+        })) : [],
         citationPosition: item.citation_position,
         totalSources: item.total_sources,
-        queryComplexity: item.query_complexity || 'medium',
+        queryComplexity: (item.query_complexity === 'simple' || item.query_complexity === 'medium' || item.query_complexity === 'complex') 
+          ? item.query_complexity as 'simple' | 'medium' | 'complex'
+          : 'medium' as const,
         improvementAreas: item.improvement_areas || []
       })) || [];
 

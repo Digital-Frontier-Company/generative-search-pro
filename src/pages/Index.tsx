@@ -40,8 +40,8 @@ const Index = () => {
     };
 
     // Show first toast after 6 s, then every 35 s
-    const firstTimeout = setTimeout(() => toast.custom(randomMessage()), 6000);
-    const interval = setInterval(() => toast.custom(randomMessage()), 35000);
+    const firstTimeout = setTimeout(() => toast.custom((id) => <div key={id}>{randomMessage()}</div>), 6000);
+    const interval = setInterval(() => toast.custom((id) => <div key={id}>{randomMessage()}</div>), 35000);
     return () => {
       clearTimeout(firstTimeout);
       clearInterval(interval);
