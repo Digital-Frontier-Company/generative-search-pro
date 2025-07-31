@@ -107,19 +107,13 @@ const CitationChecker = () => {
         })) : [],
         recommendations: item.recommendations || '',
         checkedAt: item.checked_at,
-        confidenceScore: item.confidence_score,
-        competitorAnalysis: Array.isArray(item.competitor_analysis) ? item.competitor_analysis.map((comp: any) => ({
-          domain: comp.domain || '',
-          citationCount: comp.citationCount || 0,
-          queries: comp.queries || [],
-          averagePosition: comp.averagePosition || 0
-        })) : [],
-        citationPosition: item.citation_position,
-        totalSources: item.total_sources,
-        queryComplexity: (item.query_complexity === 'simple' || item.query_complexity === 'medium' || item.query_complexity === 'complex') 
-          ? item.query_complexity as 'simple' | 'medium' | 'complex'
-          : 'medium' as const,
-        improvementAreas: item.improvement_areas || []
+        // Set default values for properties that don't exist in DB yet
+        confidenceScore: 85, // Default confidence score
+        competitorAnalysis: [], // Empty array as this data isn't stored yet
+        citationPosition: undefined, // Will be undefined if not available
+        totalSources: undefined, // Will be undefined if not available
+        queryComplexity: 'medium' as const, // Default complexity
+        improvementAreas: [] // Empty array as this data isn't stored yet
       })) || [];
 
       setHistory(formattedHistory);
@@ -129,19 +123,14 @@ const CitationChecker = () => {
   };
 
   const loadMonitoredQueries = async () => {
+    // For now, monitoring queries will be stored in local state
+    // Future enhancement: create citation_monitoring table
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data, error } = await supabase
-        .from('citation_monitoring')
-        .select('query')
-        .eq('user_id', user.id)
-        .eq('is_active', true);
-
-      if (error) throw error;
-      
-      setMonitoredQueries(data?.map(item => item.query) || []);
+      // Load from localStorage for now
+      const stored = localStorage.getItem('monitored_queries');
+      if (stored) {
+        setMonitoredQueries(JSON.parse(stored));
+      }
     } catch (error) {
       console.error('Error loading monitored queries:', error);
     }
@@ -253,22 +242,11 @@ const CitationChecker = () => {
 
   const addToMonitoring = async (queryToMonitor: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { error } = await supabase
-        .from('citation_monitoring')
-        .insert({
-          user_id: user.id,
-          query: queryToMonitor,
-          domain: domain.replace(/^https?:\/\//, ''),
-          is_active: true,
-          check_frequency: 'daily'
-        });
-
-      if (error) throw error;
-
-      setMonitoredQueries(prev => [...prev, queryToMonitor]);
+      // For now, store monitoring queries in localStorage
+      // Future enhancement: create citation_monitoring table
+      const updatedQueries = [...monitoredQueries, queryToMonitor];
+      setMonitoredQueries(updatedQueries);
+      localStorage.setItem('monitored_queries', JSON.stringify(updatedQueries));
       toast.success('Query added to monitoring!');
     } catch (error) {
       console.error('Error adding to monitoring:', error);
