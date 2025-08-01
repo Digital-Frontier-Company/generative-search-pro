@@ -169,7 +169,15 @@ const Resources = () => {
                           {guide.rating}
                         </div>
                       </div>
-                      <Button variant="outline" className="w-full border-matrix-green text-matrix-green hover:bg-matrix-green/10">
+                      <Button 
+                        variant="outline" 
+                        className="w-full border-matrix-green text-matrix-green hover:bg-matrix-green/10"
+                        onClick={() => {
+                          if (index === 0) {
+                            window.location.href = '/aeo-guide';
+                          }
+                        }}
+                      >
                         Read Guide
                         <ExternalLink className="w-4 h-4 ml-2" />
                       </Button>

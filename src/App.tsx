@@ -22,6 +22,7 @@ import DomainAnalysis from "./pages/DomainAnalysis";
 import SchemaAnalysis from "./pages/SchemaAnalysis";
 import CitationChecker from "./pages/CitationChecker";
 import AISitemap from "./pages/AISitemap";
+import AEOGuide from "./pages/AEOGuide";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Upgrade from "./pages/Upgrade";
@@ -45,6 +46,7 @@ function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/aeo-guide" element={<AEOGuide />} />
                 <Route
                   path="/dashboard"
                   element={
