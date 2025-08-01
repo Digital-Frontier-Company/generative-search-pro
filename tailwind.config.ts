@@ -72,10 +72,13 @@ export default {
 				},
 				// Brand colors for GenerativeSearch.pro style
 				'matrix-green': 'hsl(var(--matrix-green))',
-				'success': 'hsl(120 100% 50%)',
+				'matrix-green-neon': 'hsl(var(--matrix-green-neon))',
+				'info-blue': 'hsl(var(--info-blue))',
+				'primary-neon': 'hsl(var(--primary-neon))',
+				'success': 'hsl(120 85% 60%)',
 				'warning': 'hsl(60 100% 50%)',
 				'error': 'hsl(0 100% 50%)',
-				'info': 'hsl(240 100% 70%)'
+				'info': 'hsl(var(--info-blue))'
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

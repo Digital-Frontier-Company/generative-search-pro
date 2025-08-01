@@ -6,40 +6,43 @@
 @layer base {
   :root {
     /* GenerativeSearch.pro inspired dark theme */
-    --background: 220 13% 8%;
+    --background: 0 0% 5%; /* Near-black #0D0D0D */
     --foreground: 0 0% 98%;
 
-    --card: 220 13% 12%;
+    --card: 0 0% 7%; /* Charcoal #111 */
     --card-foreground: 0 0% 98%;
 
-    --popover: 220 13% 12%;
+    --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 120 100% 50%;
-    --primary-foreground: 220 13% 8%;
+    --primary: 120 85% 60%; /* Desaturated green #00D964 */
+    --primary-foreground: 0 0% 5%;
+    --primary-neon: 120 100% 50%; /* Full neon for CTAs */
 
-    --secondary: 220 13% 18%;
+    --secondary: 207 90% 54%; /* Cool blue #2196F3 */
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 13% 18%;
+    --muted: 0 0% 15%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 120 100% 50%;
-    --accent-foreground: 220 13% 8%;
+    --accent: 120 85% 60%; /* Use desaturated green as accent */
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 18%;
-    --input: 220 13% 18%;
-    --ring: 120 100% 50%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 120 85% 60%;
 
     --radius: 0.75rem;
 
     /* Brand colors */
-    --matrix-green: 120 100% 50%;
-    --matrix-green-dark: 120 100% 35%;
-    --matrix-green-light: 120 100% 70%;
+    --matrix-green: 120 85% 60%; /* Desaturated for UI */
+    --matrix-green-neon: 120 100% 50%; /* Full neon for CTAs */
+    --matrix-green-dark: 120 85% 40%;
+    --matrix-green-light: 120 85% 75%;
+    --info-blue: 207 90% 54%; /* Secondary blue */
 
     --sidebar-background: 220 13% 8%;
     --sidebar-foreground: 0 0% 98%;
@@ -60,33 +63,34 @@
 
   .light {
     /* Keep same dark theme for consistency */
-    --background: 220 13% 8%;
+    --background: 0 0% 5%;
     --foreground: 0 0% 98%;
 
-    --card: 220 13% 12%;
+    --card: 0 0% 7%;
     --card-foreground: 0 0% 98%;
 
-    --popover: 220 13% 12%;
+    --popover: 0 0% 7%;
     --popover-foreground: 0 0% 98%;
 
-    --primary: 120 100% 50%;
-    --primary-foreground: 220 13% 8%;
+    --primary: 120 85% 60%;
+    --primary-foreground: 0 0% 5%;
+    --primary-neon: 120 100% 50%;
 
-    --secondary: 220 13% 18%;
+    --secondary: 207 90% 54%;
     --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 13% 18%;
+    --muted: 0 0% 15%;
     --muted-foreground: 0 0% 65%;
 
-    --accent: 120 100% 50%;
-    --accent-foreground: 220 13% 8%;
+    --accent: 120 85% 60%;
+    --accent-foreground: 0 0% 5%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 220 13% 18%;
-    --input: 220 13% 18%;
-    --ring: 120 100% 50%;
+    --border: 0 0% 20%;
+    --input: 0 0% 15%;
+    --ring: 120 85% 60%;
 
     --sidebar-background: 220 13% 8%;
     --sidebar-foreground: 0 0% 98%;
@@ -106,8 +110,8 @@
 
   body {
     @apply bg-background text-foreground;
-    /* Deep indigo → violet → neon lime gradient */
-    background: linear-gradient(135deg, #1d1e5f 0%, #332c80 35%, #5040a3 60%, #6c5cc4 75%, #b6e06b 100%);
+    /* Flat near-black background as requested */
+    background: hsl(var(--background));
     font-size: 1rem; /* 16px base */
     line-height: 1.6; /* 1.6 improves readability */
   }
@@ -145,26 +149,27 @@
   
   .content-card {
     @apply bg-card rounded-lg border border-border/50 transition-all duration-300;
-    /* Subtle glassy card on top of gradient */
-    background: linear-gradient(145deg, rgba(50, 52, 120, 0.7) 0%, rgba(30, 32, 90, 0.7) 100%);
-    backdrop-filter: blur(8px);
-    box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.35);
+    /* Flat charcoal cards with 4px inner shadow */
+    background: hsl(var(--card));
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3), 0 2px 8px -1px rgba(0, 0, 0, 0.2);
+    margin-bottom: 4rem; /* 64px vertical rhythm */
   }
 
   .content-card:hover {
-    @apply border-primary/30 shadow-lg;
-    box-shadow: 0 10px 15px -3px hsl(220 13% 4% / 0.4), 0 4px 6px -2px hsl(220 13% 4% / 0.3), 0 0 0 1px hsl(120 100% 50% / 0.1);
+    @apply border-primary/30;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3), 0 4px 12px -1px rgba(0, 0, 0, 0.3), 0 0 0 1px hsl(var(--primary) / 0.2);
   }
 
   .glow-button {
-    @apply bg-primary text-primary-foreground font-semibold transition-all duration-300;
-    background: linear-gradient(135deg, hsl(120 100% 50%) 0%, hsl(120 100% 45%) 100%);
-    box-shadow: 0 4px 14px 0 hsl(120 100% 50% / 0.3);
+    @apply text-primary-foreground font-semibold transition-all duration-300;
+    /* Use full neon for CTAs only */
+    background: linear-gradient(135deg, hsl(var(--primary-neon)) 0%, hsl(var(--primary-neon) / 0.9) 100%);
+    box-shadow: 0 4px 14px 0 hsl(var(--primary-neon) / 0.3);
   }
 
   .glow-button:hover {
     @apply transform scale-105;
-    box-shadow: 0 6px 20px 0 hsl(120 100% 50% / 0.4);
+    box-shadow: 0 6px 20px 0 hsl(var(--primary-neon) / 0.4);
   }
 
   .matrix-text {
