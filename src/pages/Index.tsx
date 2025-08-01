@@ -24,27 +24,29 @@ const Index = () => {
   const [analysis, setAnalysis] = useState<any>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
-  // Real-time social-proof toast notifications
+  // Real-time user signup notifications
   useEffect(() => {
-    const names = [
-      "John", "Sarah", "Alex", "Emily", "Michael", "Olivia", "Daniel", "Sophia", "David", "Emma"
-    ];
-    const cities = ["NYC", "London", "Berlin", "Toronto", "Sydney", "San Francisco", "Singapore", "Tokyo"];
-    const plans = ["Starter", "Professional", "Enterprise"];
+    const channel = supabase
+      .channel('user-signups')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'auth',
+          table: 'users'
+        },
+        (payload) => {
+          // Show notification for new real user signup
+          toast.success("🎉 New user just joined!", {
+            description: "Someone discovered our platform!",
+            duration: 5000,
+          });
+        }
+      )
+      .subscribe();
 
-    const randomMessage = () => {
-      const name = names[Math.floor(Math.random() * names.length)];
-      const city = cities[Math.floor(Math.random() * cities.length)];
-      const plan = plans[Math.floor(Math.random() * plans.length)];
-      return `${name} from ${city} just signed up for the ${plan} plan!`;
-    };
-
-    // Show first toast after 6 s, then every 35 s
-    const firstTimeout = setTimeout(() => toast.custom((id) => <div key={id}>{randomMessage()}</div>), 6000);
-    const interval = setInterval(() => toast.custom((id) => <div key={id}>{randomMessage()}</div>), 35000);
     return () => {
-      clearTimeout(firstTimeout);
-      clearInterval(interval);
+      supabase.removeChannel(channel);
     };
   }, []);
 
