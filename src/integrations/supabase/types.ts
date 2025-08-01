@@ -56,36 +56,51 @@ export type Database = {
         Row: {
           ai_answer: string | null
           checked_at: string | null
+          citation_position: number | null
           cited_sources: Json | null
+          competitors_found: Json | null
+          confidence_score: number | null
           domain: string
           email: string | null
           id: number
+          improvement_areas: Json | null
           is_cited: boolean | null
           query: string
+          query_complexity: string | null
           recommendations: string | null
           user_id: string | null
         }
         Insert: {
           ai_answer?: string | null
           checked_at?: string | null
+          citation_position?: number | null
           cited_sources?: Json | null
+          competitors_found?: Json | null
+          confidence_score?: number | null
           domain: string
           email?: string | null
           id?: number
+          improvement_areas?: Json | null
           is_cited?: boolean | null
           query: string
+          query_complexity?: string | null
           recommendations?: string | null
           user_id?: string | null
         }
         Update: {
           ai_answer?: string | null
           checked_at?: string | null
+          citation_position?: number | null
           cited_sources?: Json | null
+          competitors_found?: Json | null
+          confidence_score?: number | null
           domain?: string
           email?: string | null
           id?: number
+          improvement_areas?: Json | null
           is_cited?: boolean | null
           query?: string
+          query_complexity?: string | null
           recommendations?: string | null
           user_id?: string | null
         }
