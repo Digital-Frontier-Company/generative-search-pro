@@ -123,3 +123,39 @@ verify_jwt = true
 
 [edge_functions.send-signup-emails]
 verify_jwt = false
+
+[edge_functions.check-sge-citation]
+verify_jwt = true
+
+[edge_functions.analyze-seo]
+verify_jwt = true
+
+[edge_functions.analyze-schema-patch]
+verify_jwt = true
+
+[edge_functions.analyze-domain-keywords]
+verify_jwt = true
+
+[edge_functions.process-citation-stats]
+verify_jwt = true
+
+[edge_functions.automated-citation-monitoring]
+verify_jwt = true
+
+[edge_functions.validate-cited-sources]
+verify_jwt = true
+
+[edge_functions.create-analysis-functions]
+verify_jwt = true
+
+[edge_functions.get-pagespeed-insights]
+verify_jwt = true
+
+[edge_functions.generate-ai-sitemap]
+verify_jwt = true
+
+[edge_functions.generate-content-recommendations]
+verify_jwt = true
+
+[edge_functions.add-credits]
+verify_jwt = true
