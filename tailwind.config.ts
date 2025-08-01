@@ -130,7 +130,7 @@ export default {
 				'slide-up': {
 					'0%': {
 						opacity: '0',
-						transform: 'translateY(20px)'
+						transform: 'translateY(30px)'
 					},
 					'100%': {
 						opacity: '1',
@@ -162,6 +162,22 @@ export default {
 					'100%': {
 						transform: 'rotate(360deg)'
 					}
+				},
+				'progress-fill': {
+					'0%': {
+						'stroke-dasharray': '0 251.2'
+					},
+					'100%': {
+						'stroke-dasharray': 'var(--dash-array) 251.2'
+					}
+				},
+				'skeleton-pulse': {
+					'0%, 100%': {
+						opacity: '0.15'
+					},
+					'50%': {
+						opacity: '0.3'
+					}
 				}
 			},
 			animation: {
@@ -171,7 +187,9 @@ export default {
 				'slide-up': 'slide-up 0.4s ease-out',
 				'scale-in': 'scale-in 0.3s ease-out',
 				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
-				'spin-slow': 'spin-slow 3s linear infinite'
+				'spin-slow': 'spin-slow 3s linear infinite',
+				'progress-fill': 'progress-fill 1s ease-out',
+				'skeleton-pulse': 'skeleton-pulse 1.4s ease-in-out infinite'
 			},
 			boxShadow: {
 				'glow': '0 0 20px hsl(120 100% 50% / 0.3)',
