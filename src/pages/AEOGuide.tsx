@@ -125,7 +125,7 @@ const AEOGuide = () => {
               {/* Main Content */}
               <div className="lg:col-span-3">
                 <Card className="content-card">
-                  <CardContent className="p-8">
+                  <CardContent className="px-4 py-8">
                     {activeSection === "overview" && (
                       <div className="space-y-6">
                         <h2 className="text-2xl font-bold text-matrix-green mb-4">Overview</h2>
