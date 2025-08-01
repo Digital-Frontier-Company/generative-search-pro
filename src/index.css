@@ -109,31 +109,47 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-body;
     /* Flat near-black background as requested */
     background: hsl(var(--background));
-    font-size: 1rem; /* 16px base */
-    line-height: 1.6; /* 1.6 improves readability */
+    font-size: 16px; /* Material spec baseline */
+    line-height: 1.45; /* Material spec 4dp baseline grid */
   }
 
   p {
-    @apply text-base leading-relaxed max-w-prose my-4;
+    @apply text-body leading-relaxed max-w-prose;
+    margin: 16px 0; /* 16px vertical rhythm */
   }
 
   ul, ol {
-    @apply list-inside list-disc pl-6 leading-relaxed max-w-prose my-4;
+    @apply list-inside list-disc pl-6 leading-relaxed max-w-prose font-body;
+    margin: 16px 0;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-bold leading-tight;
+    @apply font-display font-bold leading-tight;
   }
 
-  h1 { @apply text-4xl mb-4; }
-  h2 { @apply text-3xl mb-3; }
-  h3 { @apply text-2xl mb-2; }
-  h4 { @apply text-xl mb-2; }
-  h5 { @apply text-lg mb-1; }
-  h6 { @apply text-base mb-1; }
+  /* Typography hierarchy with macro spacing */
+  h1 { 
+    @apply text-4xl font-bold;
+    margin-bottom: 24px;
+    text-shadow: 0 0 1px rgba(128, 128, 128, 0.5); /* Limited neon bleed */
+  }
+  h2 { 
+    @apply text-3xl font-bold;
+    margin-top: 48px; /* Macro spacing above H2s */
+    margin-bottom: 16px;
+    text-shadow: 0 0 1px rgba(128, 128, 128, 0.3);
+  }
+  h3 { 
+    @apply text-2xl font-medium;
+    margin-top: 24px; /* Macro spacing above H3s */
+    margin-bottom: 12px;
+  }
+  h4 { @apply text-xl font-medium mb-2; }
+  h5 { @apply text-lg font-medium mb-1; }
+  h6 { @apply text-base font-medium mb-1; }
 }
 
 @layer components {
@@ -152,7 +168,6 @@
     /* Flat charcoal cards with 4px inner shadow */
     background: hsl(var(--card));
     box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.3), 0 2px 8px -1px rgba(0, 0, 0, 0.2);
-    margin-bottom: 4rem; /* 64px vertical rhythm */
   }
 
   .content-card:hover {
@@ -226,6 +241,38 @@
   .score-circle.needs-work {
     @apply border-red-500;
     box-shadow: 0 0 20px hsl(0 100% 50% / 0.4);
+  }
+  /* Layout utility classes */
+  .section-spacing {
+    @apply py-section; /* 96px top/bottom padding per section */
+  }
+
+  .hero-layout {
+    @apply h-screen min-h-[80vh] w-full;
+  }
+
+  .dashboard-grid {
+    @apply grid gap-card-gap-x gap-y-card-gap-y;
+    /* Single column ≤1280px, 3-cols ≥1440px */
+    grid-template-columns: 1fr;
+  }
+
+  @screen xl {
+    .dashboard-grid {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  @screen 2xl {
+    .dashboard-grid {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+
+  .pricing-featured {
+    @apply scale-110 relative;
+    outline: 4px solid hsl(var(--matrix-green));
+    outline-offset: 2px;
   }
 }
 

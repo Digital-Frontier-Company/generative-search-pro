@@ -80,6 +80,21 @@ export default {
 				'error': 'hsl(0 100% 50%)',
 				'info': 'hsl(var(--info-blue))'
 			},
+			fontFamily: {
+				'display': ['Space Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'body': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+				'sans': ['Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+			},
+			fontSize: {
+				'body': ['16px', '1.45'],
+			},
+			spacing: {
+				'section': '96px',
+				'h2-top': '48px',
+				'h3-top': '24px',
+				'card-gap-x': '32px',
+				'card-gap-y': '64px',
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
