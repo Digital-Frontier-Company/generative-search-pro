@@ -58,6 +58,7 @@ export type Database = {
           checked_at: string | null
           citation_position: number | null
           cited_sources: Json | null
+          competitor_analysis: Json | null
           competitors_found: Json | null
           confidence_score: number | null
           domain: string
@@ -68,6 +69,7 @@ export type Database = {
           query: string
           query_complexity: string | null
           recommendations: string | null
+          total_sources: number | null
           user_id: string | null
         }
         Insert: {
@@ -75,6 +77,7 @@ export type Database = {
           checked_at?: string | null
           citation_position?: number | null
           cited_sources?: Json | null
+          competitor_analysis?: Json | null
           competitors_found?: Json | null
           confidence_score?: number | null
           domain: string
@@ -85,6 +88,7 @@ export type Database = {
           query: string
           query_complexity?: string | null
           recommendations?: string | null
+          total_sources?: number | null
           user_id?: string | null
         }
         Update: {
@@ -92,6 +96,7 @@ export type Database = {
           checked_at?: string | null
           citation_position?: number | null
           cited_sources?: Json | null
+          competitor_analysis?: Json | null
           competitors_found?: Json | null
           confidence_score?: number | null
           domain?: string
@@ -102,6 +107,7 @@ export type Database = {
           query?: string
           query_complexity?: string | null
           recommendations?: string | null
+          total_sources?: number | null
           user_id?: string | null
         }
         Relationships: [
