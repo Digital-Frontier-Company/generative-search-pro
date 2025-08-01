@@ -78,7 +78,9 @@ export default {
 				'success': 'hsl(120 85% 60%)',
 				'warning': 'hsl(60 100% 50%)',
 				'error': 'hsl(0 100% 50%)',
-				'info': 'hsl(var(--info-blue))'
+				'info': 'hsl(var(--info-blue))',
+				'auth-gradient-start': 'hsl(var(--auth-gradient-start))',
+				'auth-gradient-end': 'hsl(var(--auth-gradient-end))'
 			},
 			fontFamily: {
 				'display': ['Space Grotesk', 'ui-sans-serif', 'system-ui', 'sans-serif'],
