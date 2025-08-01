@@ -159,8 +159,8 @@ const CitationChecker = () => {
           query: checkQuery,
           domain: checkDomain.replace(/^https?:\/\//, ''),
           user_id: user.id,
-          include_competitor_analysis: true,
-          include_improvement_suggestions: true
+          include_competitor_analysis: "true",
+          include_improvement_suggestions: "true"
         })
       });
 
