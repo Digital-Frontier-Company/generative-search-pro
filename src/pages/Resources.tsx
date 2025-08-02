@@ -175,6 +175,8 @@ const Resources = () => {
                         onClick={() => {
                           if (index === 0) {
                             window.location.href = '/aeo-guide';
+                          } else if (index === 1) {
+                            window.location.href = '/schema-markup-guide';
                           }
                         }}
                       >

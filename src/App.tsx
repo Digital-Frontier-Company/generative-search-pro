@@ -23,6 +23,7 @@ import SchemaAnalysis from "./pages/SchemaAnalysis";
 import CitationChecker from "./pages/CitationChecker";
 import AISitemap from "./pages/AISitemap";
 import AEOGuide from "./pages/AEOGuide";
+import SchemaMarkupGuide from "./pages/SchemaMarkupGuide";
 import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Upgrade from "./pages/Upgrade";
@@ -47,6 +48,7 @@ function App() {
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/aeo-guide" element={<AEOGuide />} />
+                <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
                 <Route
                   path="/dashboard"
                   element={
