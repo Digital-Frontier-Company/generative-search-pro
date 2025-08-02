@@ -117,9 +117,20 @@
   }
 
   body {
-    @apply bg-background text-foreground font-body;
-    /* Flat near-black background as requested */
-    background: hsl(var(--background));
+    @apply text-foreground font-body;
+    /* Animated gradient background matching the reference image */
+    background: linear-gradient(
+      -45deg,
+      #1a1b5e,  /* Deep purple/indigo */
+      #2d1b69,  /* Purple */
+      #4338ca,  /* Violet-blue */
+      #3b82f6,  /* Blue */
+      #06b6d4,  /* Cyan */
+      #10b981   /* Teal-green */
+    );
+    background-size: 400% 400%;
+    animation: gradient-animation 15s ease infinite;
+    min-height: 100vh;
     font-size: 16px; /* Material spec baseline */
     line-height: 1.45; /* Material spec 4dp baseline grid */
   }
@@ -296,5 +307,17 @@
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+@keyframes gradient-animation {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
   }
 }
