@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -16,7 +15,6 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeatureComparisonSection from "@/components/landing/FeatureComparisonSection";
 import TrustSection from "@/components/landing/TrustSection";
-
 const Index = () => {
   const navigate = useNavigate();
   const [faqOpen, setFaqOpen] = useState<number | null>(0);
@@ -26,25 +24,17 @@ const Index = () => {
 
   // Real-time user signup notifications
   useEffect(() => {
-    const channel = supabase
-      .channel('user-signups')
-      .on(
-        'postgres_changes',
-        {
-          event: 'INSERT',
-          schema: 'auth',
-          table: 'users'
-        },
-        (payload) => {
-          // Show notification for new real user signup
-          toast.success("🎉 New user just joined!", {
-            description: "Someone discovered our platform!",
-            duration: 5000,
-          });
-        }
-      )
-      .subscribe();
-
+    const channel = supabase.channel('user-signups').on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'auth',
+      table: 'users'
+    }, payload => {
+      // Show notification for new real user signup
+      toast.success("🎉 New user just joined!", {
+        description: "Someone discovered our platform!",
+        duration: 5000
+      });
+    }).subscribe();
     return () => {
       supabase.removeChannel(channel);
     };
@@ -53,37 +43,39 @@ const Index = () => {
   // Enhanced analysis functions using Supabase
   const performAnalysis = async (text: string) => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
+      const {
+        data: {
+          user
+        }
+      } = await supabase.auth.getUser();
       if (!user) {
         // Fallback to basic analysis if not authenticated
         return performBasicAnalysis(text);
       }
 
       // Call enhanced database functions using type assertion
-      const { data: qualityData, error: qualityError } = await supabase
-        .rpc('analyze_content_quality' as any, {
-          content_text: text
-        });
-
+      const {
+        data: qualityData,
+        error: qualityError
+      } = await supabase.rpc('analyze_content_quality' as any, {
+        content_text: text
+      });
       if (qualityError) throw qualityError;
-
-      const { data: aiData, error: aiError } = await supabase
-        .rpc('check_ai_friendliness' as any, {
-          content_text: text
-        });
-
+      const {
+        data: aiData,
+        error: aiError
+      } = await supabase.rpc('check_ai_friendliness' as any, {
+        content_text: text
+      });
       if (aiError) throw aiError;
-
       const qualityResult = qualityData as any;
       const aiResult = aiData as any;
-
       return {
         basicStats: {
           wordCount: qualityResult.word_count,
           sentences: qualityResult.sentence_count,
           readingTime: qualityResult.reading_time_minutes,
-          readabilityScore: Math.min(100, Math.max(0, 100 - (qualityResult.word_count / qualityResult.sentence_count) * 2))
+          readabilityScore: Math.min(100, Math.max(0, 100 - qualityResult.word_count / qualityResult.sentence_count * 2))
         },
         aiOptimization: {
           hasHeadings: aiResult.has_clear_structure,
@@ -108,15 +100,13 @@ const Index = () => {
     const headings = (text.match(/#{1,6}\s/g) || []).length;
     const links = (text.match(/\[.*?\]\(.*?\)/g) || []).length;
     const citations = (text.match(/\(\w+,?\s?\d{4}\)/g) || []).length;
-    
     const readingTimeMinutes = Math.ceil(words / 200);
-    
     return {
       basicStats: {
         wordCount: words,
         sentences: sentences,
         readingTime: readingTimeMinutes,
-        readabilityScore: Math.min(100, Math.max(0, 100 - (words / sentences) * 2))
+        readabilityScore: Math.min(100, Math.max(0, 100 - words / sentences * 2))
       },
       aiOptimization: {
         hasHeadings: headings > 0,
@@ -129,7 +119,6 @@ const Index = () => {
       recommendations: generateRecommendations(headings, citations, links, words, sentences)
     };
   };
-
   const calculateScore = (headings: number, citations: number, links: number, words: number, sentences: number) => {
     let score = 0;
     if (headings > 0) score += 25;
@@ -139,7 +128,6 @@ const Index = () => {
     if (sentences > 5) score += 15;
     return Math.min(100, score);
   };
-
   const generateRecommendations = (headings: number, citations: number, links: number, words: number, sentences: number) => {
     const recs = [];
     if (headings === 0) recs.push("Add clear headings (H2, H3) to structure your content");
@@ -150,7 +138,6 @@ const Index = () => {
     if (recs.length === 0) recs.push("Great job! Your content is well-optimized for AI engines");
     return recs;
   };
-
   const handleAnalyzeContent = async () => {
     if (contentInput.trim()) {
       setIsAnalyzing(true);
@@ -166,73 +153,58 @@ const Index = () => {
       }
     }
   };
-
   const handleStartOptimization = () => {
     navigate('/generator');
   };
-
   const handleWatchDemo = () => {
     navigate('/resources');
   };
-
   const getScoreColor = (score: number) => {
     if (score >= 80) return 'text-[#39FF14]';
     if (score >= 60) return 'text-yellow-500';
     return 'text-red-500';
   };
-
   const getScoreLabel = (score: number) => {
     if (score >= 80) return 'Excellent';
     if (score >= 60) return 'Good';
     return 'Needs Work';
   };
-
-  return (
-    <div className="min-h-screen flex flex-col">
+  return <div className="min-h-screen flex flex-col">
       <JsonLdSchema schema={[...getHomepageSchema(), getHomepageFAQSchema()]} />
       
       {/* Header */}
       <header className="flex items-center justify-between p-4 border-b border-[#1E2329]">
         <div className="flex items-center">
-          <div className="border-2 border-[#39FF14] rounded-lg p-2 mr-3" style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-            <div className="text-[#39FF14] text-4xl" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>?</div>
+          <div className="border-2 border-[#39FF14] rounded-lg p-2 mr-3" style={{
+          boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+        }}>
+            <div className="text-[#39FF14] text-4xl" style={{
+            textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+          }}>?</div>
           </div>
           <div>
-            <h1 className="text-3xl font-bold text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
+            <h1 className="text-3xl font-bold text-[#39FF14]" style={{
+            textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+          }}>
               Generative<span className="text-white">Search.pro</span>
             </h1>
             <p className="text-[#39FF14] text-sm">Generative Engine Optimization</p>
           </div>
         </div>
         <nav className="hidden md:flex space-x-6">
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-[#39FF14] hover:opacity-80 transition-all cursor-pointer"
-          >
+          <button onClick={() => navigate('/dashboard')} className="text-[#39FF14] hover:opacity-80 transition-all cursor-pointer">
             Dashboard
           </button>
-          <button 
-            onClick={() => navigate('/content-analysis')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
+          <button onClick={() => navigate('/content-analysis')} className="text-white hover:text-[#39FF14] transition-all cursor-pointer">
             AI Audit
           </button>
-          <button 
-            onClick={() => navigate('/seo-analysis')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
+          <button onClick={() => navigate('/seo-analysis')} className="text-white hover:text-[#39FF14] transition-all cursor-pointer">
             SEO Tools
           </button>
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
+          <button onClick={() => navigate('/dashboard')} className="text-white hover:text-[#39FF14] transition-all cursor-pointer">
             Analytics
           </button>
-          <button 
-            onClick={() => navigate('/resources')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
+          <button onClick={() => navigate('/resources')} className="text-white hover:text-[#39FF14] transition-all cursor-pointer">
             Resources
           </button>
         </nav>
@@ -253,38 +225,37 @@ const Index = () => {
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
               <h1 className="text-4xl font-bold mb-4">
-                Optimize Your Content for <span className="text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>AI Visibility</span>
+                Optimize Your Content for <span className="text-[#39FF14]" style={{
+                textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+              }}>AI Visibility</span>
               </h1>
               <p className="text-lg mb-6 text-gray-300">
                 Create SEO-friendly content that ranks well in both traditional search engines and new AI-powered answer engines.
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <Button 
-                  size="cta"
-                  onClick={() => navigate('/upgrade')}
-                  className="bg-[#39FF14] text-[#0D1117] hover:bg-[#39FF14]/90"
-                  style={{boxShadow: '0 0 10px #39FF14'}}
-                >
+                <Button size="cta" onClick={() => navigate('/upgrade')} className="bg-[#39FF14] text-[#0D1117] hover:bg-[#39FF14]/90" style={{
+                boxShadow: '0 0 10px #39FF14'
+              }}>
                   Start Free Trial
                 </Button>
-                <LeadCaptureModal 
-                  triggerText="Watch Demo"
-                  title="Book Your Demo"
-                  description="See how GenerativeSearch.pro works for your business"
-                  type="demo"
-                />
+                <LeadCaptureModal triggerText="Watch Demo" title="Book Your Demo" description="See how GenerativeSearch.pro works for your business" type="demo" />
               </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
               <div className="relative w-full max-w-md">
-                <div className="border-2 border-[#39FF14] rounded-lg p-6 bg-[#1E2329]" style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
+                <div className="border-2 border-[#39FF14] rounded-lg p-6 bg-[#1E2329]" style={{
+                boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+              }}>
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-[#39FF14] font-bold">AI Visibility Score</h3>
                     <span className="text-[#39FF14] text-2xl font-bold">78/100</span>
                   </div>
                   <div className="mb-4">
                     <div className="w-full bg-[#0D1117] rounded-full h-2.5">
-                      <div className="bg-[#39FF14] h-2.5 rounded-full" style={{width: '78%', boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}></div>
+                      <div className="bg-[#39FF14] h-2.5 rounded-full" style={{
+                      width: '78%',
+                      boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+                    }}></div>
                     </div>
                   </div>
                   <div className="space-y-4">
@@ -377,18 +348,15 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> AI visibility scoring</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Email support</li>
               </ul>
-              <Button 
-                size="cta"
-                variant="outline"
-                onClick={() => navigate('/upgrade')}
-                className="w-full border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
-              >
+              <Button size="cta" variant="outline" onClick={() => navigate('/upgrade')} className="w-full border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]">
                 Start Free Trial
               </Button>
             </div>
 
             {/* Professional Plan */}
-            <div className="border-2 border-[#39FF14] bg-[#1E2329] rounded-lg p-6 relative" style={{boxShadow: '0 0 10px #39FF14'}}>
+            <div className="border-2 border-[#39FF14] bg-[#1E2329] rounded-lg p-6 relative" style={{
+            boxShadow: '0 0 10px #39FF14'
+          }}>
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <span className="bg-[#39FF14] text-[#0D1117] px-3 py-1 rounded-full text-sm font-bold">Most Popular</span>
               </div>
@@ -404,12 +372,9 @@ const Index = () => {
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Content generator (unlimited)</li>
                 <li className="flex items-center"><CheckCircle className="w-4 h-4 text-[#39FF14] mr-2" /> Priority support</li>
               </ul>
-              <Button 
-                size="cta"
-                onClick={() => navigate('/upgrade')}
-                className="w-full bg-[#39FF14] text-[#0D1117] font-bold hover:bg-[#39FF14]/90" 
-                style={{boxShadow: '0 0 5px #39FF14'}}
-              >
+              <Button size="cta" onClick={() => navigate('/upgrade')} className="w-full bg-[#39FF14] text-[#0D1117] font-bold hover:bg-[#39FF14]/90" style={{
+              boxShadow: '0 0 5px #39FF14'
+            }}>
                 Start Free Trial
               </Button>
             </div>
@@ -452,30 +417,18 @@ const Index = () => {
                 </div>
               </div>
               <div className="p-4">
-                <textarea 
-                  value={contentInput}
-                  onChange={(e) => setContentInput(e.target.value)}
-                  className="w-full h-64 bg-[#0D1117] border border-[#1E2329] rounded-lg p-4 focus:border-[#39FF14] focus:outline-none text-white" 
-                  placeholder="Enter your content here or import from a file/URL..."
-                />
+                <textarea value={contentInput} onChange={e => setContentInput(e.target.value)} className="w-full h-64 bg-[#0D1117] border border-[#1E2329] rounded-lg p-4 focus:border-[#39FF14] focus:outline-none text-white" placeholder="Enter your content here or import from a file/URL..." />
                 <div className="flex justify-between mt-4">
                   <div className="text-sm text-gray-400 flex items-center">
                     <Info className="w-4 h-4 mr-1" /> Recommended: 300+ words for best results
                   </div>
-                  <button 
-                    onClick={handleAnalyzeContent}
-                    disabled={!contentInput.trim() || isAnalyzing}
-                    className="px-4 py-2 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all disabled:opacity-50"
-                    style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}
-                  >
-                    {isAnalyzing ? (
-                      <>
+                  <button onClick={handleAnalyzeContent} disabled={!contentInput.trim() || isAnalyzing} className="px-4 py-2 bg-[#39FF14] text-[#0D1117] font-bold rounded-lg transition-all disabled:opacity-50" style={{
+                  boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'
+                }}>
+                    {isAnalyzing ? <>
                         <div className="animate-spin rounded-full h-4 w-4 border-2 border-[#0D1117] border-t-transparent inline-block mr-2"></div>
                         Analyzing...
-                      </>
-                    ) : (
-                      "Analyze Content"
-                    )}
+                      </> : "Analyze Content"}
                   </button>
                 </div>
               </div>
@@ -484,15 +437,12 @@ const Index = () => {
             <div className="border border-[#1E2329] rounded-lg overflow-hidden">
               <div className="bg-[#1E2329] p-4 flex justify-between items-center">
                 <h3 className="font-bold">AI Analysis Results</h3>
-                {analysis && (
-                  <div className={`text-2xl font-bold ${getScoreColor(analysis.score)}`}>
+                {analysis && <div className={`text-2xl font-bold ${getScoreColor(analysis.score)}`}>
                     {analysis.score}/100
-                  </div>
-                )}
+                  </div>}
               </div>
               <div className="p-4 h-[340px] overflow-y-auto">
-                {analysis ? (
-                  <div className="space-y-4">
+                {analysis ? <div className="space-y-4">
                     {/* Score Display */}
                     <div className="text-center mb-4">
                       <div className={`text-3xl font-bold ${getScoreColor(analysis.score)}`}>
@@ -524,51 +474,31 @@ const Index = () => {
                       <h4 className="font-bold text-[#39FF14] mb-2">AI Optimization Checklist</h4>
                       <div className="space-y-1 text-sm">
                         <div className="flex items-center gap-2">
-                          {analysis.aiOptimization.hasHeadings ? (
-                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
-                          )}
+                          {analysis.aiOptimization.hasHeadings ? <CheckCircle className="w-4 h-4 text-[#39FF14]" /> : <div className="w-4 h-4 rounded-full border border-gray-500"></div>}
                           <span className={analysis.aiOptimization.hasHeadings ? 'text-[#39FF14]' : 'text-gray-400'}>
                             Clear headings structure
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {analysis.aiOptimization.hasCitations ? (
-                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
-                          )}
+                          {analysis.aiOptimization.hasCitations ? <CheckCircle className="w-4 h-4 text-[#39FF14]" /> : <div className="w-4 h-4 rounded-full border border-gray-500"></div>}
                           <span className={analysis.aiOptimization.hasCitations ? 'text-[#39FF14]' : 'text-gray-400'}>
                             Source citations included
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {analysis.aiOptimization.hasLinks ? (
-                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
-                          )}
+                          {analysis.aiOptimization.hasLinks ? <CheckCircle className="w-4 h-4 text-[#39FF14]" /> : <div className="w-4 h-4 rounded-full border border-gray-500"></div>}
                           <span className={analysis.aiOptimization.hasLinks ? 'text-[#39FF14]' : 'text-gray-400'}>
                             External links present
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {analysis.aiOptimization.isWellStructured ? (
-                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
-                          )}
+                          {analysis.aiOptimization.isWellStructured ? <CheckCircle className="w-4 h-4 text-[#39FF14]" /> : <div className="w-4 h-4 rounded-full border border-gray-500"></div>}
                           <span className={analysis.aiOptimization.isWellStructured ? 'text-[#39FF14]' : 'text-gray-400'}>
                             Well-structured content
                           </span>
                         </div>
                         <div className="flex items-center gap-2">
-                          {analysis.aiOptimization.readabilityGood ? (
-                            <CheckCircle className="w-4 h-4 text-[#39FF14]" />
-                          ) : (
-                            <div className="w-4 h-4 rounded-full border border-gray-500"></div>
-                          )}
+                          {analysis.aiOptimization.readabilityGood ? <CheckCircle className="w-4 h-4 text-[#39FF14]" /> : <div className="w-4 h-4 rounded-full border border-gray-500"></div>}
                           <span className={analysis.aiOptimization.readabilityGood ? 'text-[#39FF14]' : 'text-gray-400'}>
                             Good readability
                           </span>
@@ -580,18 +510,13 @@ const Index = () => {
                     <div className="mb-4 p-3 bg-[#1E2329] rounded">
                       <h4 className="font-bold text-[#39FF14] mb-2">Recommendations</h4>
                       <ul className="space-y-1 text-sm text-gray-300">
-                        {analysis.recommendations.map((rec: string, index: number) => (
-                          <li key={index}>• {rec}</li>
-                        ))}
+                        {analysis.recommendations.map((rec: string, index: number) => <li key={index}>• {rec}</li>)}
                       </ul>
                     </div>
-                  </div>
-                ) : (
-                  <div className="text-center text-gray-400 py-12">
+                  </div> : <div className="text-center text-gray-400 py-12">
                     <Bot className="w-16 h-16 mx-auto mb-4 text-gray-500" />
                     <p>Enter your content and click "Analyze Content" to see AI optimization suggestions</p>
-                  </div>
-                )}
+                  </div>}
               </div>
             </div>
           </div>
@@ -607,7 +532,9 @@ const Index = () => {
                 <span className="text-[#39FF14] font-bold">82%</span>
               </div>
               <div className="w-full bg-[#0D1117] rounded-full h-2">
-                <div className="bg-[#39FF14] h-2 rounded-full" style={{width: '82%'}}></div>
+                <div className="bg-[#39FF14] h-2 rounded-full" style={{
+                width: '82%'
+              }}></div>
               </div>
               <p className="text-xs mt-2 text-gray-300">How well your content answers potential user queries</p>
             </div>
@@ -617,7 +544,9 @@ const Index = () => {
                 <span className="text-[#39FF14] font-bold">95%</span>
               </div>
               <div className="w-full bg-[#0D1117] rounded-full h-2">
-                <div className="bg-[#39FF14] h-2 rounded-full" style={{width: '95%'}}></div>
+                <div className="bg-[#39FF14] h-2 rounded-full" style={{
+                width: '95%'
+              }}></div>
               </div>
               <p className="text-xs mt-2 text-gray-300">Precision and reliability of information provided</p>
             </div>
@@ -627,7 +556,9 @@ const Index = () => {
                 <span className="text-[#39FF14] font-bold">65%</span>
               </div>
               <div className="w-full bg-[#0D1117] rounded-full h-2">
-                <div className="bg-[#39FF14] h-2 rounded-full" style={{width: '65%'}}></div>
+                <div className="bg-[#39FF14] h-2 rounded-full" style={{
+                width: '65%'
+              }}></div>
               </div>
               <p className="text-xs mt-2 text-gray-300">Organization and formatting for AI readability</p>
             </div>
@@ -637,7 +568,9 @@ const Index = () => {
                 <span className="text-[#39FF14] font-bold">71%</span>
               </div>
               <div className="w-full bg-[#0D1117] rounded-full h-2">
-                <div className="bg-[#39FF14] h-2 rounded-full" style={{width: '71%'}}></div>
+                <div className="bg-[#39FF14] h-2 rounded-full" style={{
+                width: '71%'
+              }}></div>
               </div>
               <p className="text-xs mt-2 text-gray-300">Likelihood of being cited as a source by AI engines</p>
             </div>
@@ -710,26 +643,19 @@ const Index = () => {
         {/* Final CTA Section */}
         <section className="mb-12">
           <div className="neon-border rounded-lg p-8 text-center">
-            <h2 className="text-3xl font-bold mb-4 gradient-text">Ready to Dominate AI Search Results?</h2>
-            <p className="text-lg mb-6 max-w-2xl mx-auto text-muted-foreground">
+            <h2 className="text-3xl mb-4 gradient-text font-extrabold text-lime-300">Ready to Dominate AI Search Results?</h2>
+            <p className="text-lg mb-6 max-w-2xl mx-auto text-slate-50">
               Join 1000+ businesses already winning with AI-optimized content. Start your free trial today.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
-              <Button 
-                onClick={() => navigate('/upgrade')}
-                className="px-8 py-3 bg-[#39FF14] text-[#0D1117] font-semibold rounded-lg hover:bg-[#39FF14]/90 transition-all"
-                style={{boxShadow: '0 0 10px #39FF14'}}
-              >
+              <Button onClick={() => navigate('/upgrade')} className="px-8 py-3 bg-[#39FF14] text-[#0D1117] font-semibold rounded-lg hover:bg-[#39FF14]/90 transition-all" style={{
+              boxShadow: '0 0 10px #39FF14'
+            }}>
                 Start Free Trial
               </Button>
-              <LeadCaptureModal 
-                triggerText="Schedule Demo"
-                title="Book Your Demo"
-                description="See how GenerativeSearch.pro works for your business"
-                type="demo"
-              />
+              <LeadCaptureModal triggerText="Schedule Demo" title="Book Your Demo" description="See how GenerativeSearch.pro works for your business" type="demo" />
             </div>
-            <p className="text-sm text-muted-foreground mt-4">
+            <p className="text-sm mt-4 text-slate-50">
               Free trial • No credit card required • Setup in minutes
             </p>
           </div>
@@ -737,8 +663,6 @@ const Index = () => {
       </main>
       
       <Footer />
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
