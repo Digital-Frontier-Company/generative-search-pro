@@ -14,6 +14,51 @@ export type Database = {
   }
   public: {
     Tables: {
+      ai_platform_citations: {
+        Row: {
+          citation_found: boolean | null
+          citation_position: number | null
+          citation_snippet: string | null
+          created_at: string
+          domain: string
+          id: string
+          platforms: Json | null
+          query: string
+          search_method: string | null
+          total_results: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          citation_found?: boolean | null
+          citation_position?: number | null
+          citation_snippet?: string | null
+          created_at?: string
+          domain: string
+          id?: string
+          platforms?: Json | null
+          query: string
+          search_method?: string | null
+          total_results?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          citation_found?: boolean | null
+          citation_position?: number | null
+          citation_snippet?: string | null
+          created_at?: string
+          domain?: string
+          id?: string
+          platforms?: Json | null
+          query?: string
+          search_method?: string | null
+          total_results?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       ai_sitemaps: {
         Row: {
           domain: string
@@ -119,6 +164,57 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      competitor_analyses: {
+        Row: {
+          analysis_queries: Json | null
+          backlink_gaps: Json | null
+          competitor_analyses: Json | null
+          competitor_domains: Json | null
+          content_gaps: Json | null
+          created_at: string
+          gap_opportunities: Json | null
+          id: string
+          keyword_gaps: Json | null
+          performance_comparison: Json | null
+          recommendations: Json | null
+          updated_at: string
+          user_domain: string
+          user_id: string
+        }
+        Insert: {
+          analysis_queries?: Json | null
+          backlink_gaps?: Json | null
+          competitor_analyses?: Json | null
+          competitor_domains?: Json | null
+          content_gaps?: Json | null
+          created_at?: string
+          gap_opportunities?: Json | null
+          id?: string
+          keyword_gaps?: Json | null
+          performance_comparison?: Json | null
+          recommendations?: Json | null
+          updated_at?: string
+          user_domain: string
+          user_id: string
+        }
+        Update: {
+          analysis_queries?: Json | null
+          backlink_gaps?: Json | null
+          competitor_analyses?: Json | null
+          competitor_domains?: Json | null
+          content_gaps?: Json | null
+          created_at?: string
+          gap_opportunities?: Json | null
+          id?: string
+          keyword_gaps?: Json | null
+          performance_comparison?: Json | null
+          recommendations?: Json | null
+          updated_at?: string
+          user_domain?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       compliance_checks: {
         Row: {
@@ -318,6 +414,48 @@ export type Database = {
           },
         ]
       }
+      opportunity_scans: {
+        Row: {
+          created_at: string
+          domain: string
+          high_potential_count: number | null
+          id: string
+          low_potential_count: number | null
+          medium_potential_count: number | null
+          opportunities: Json | null
+          scan_type: string | null
+          total_opportunities: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          domain: string
+          high_potential_count?: number | null
+          id?: string
+          low_potential_count?: number | null
+          medium_potential_count?: number | null
+          opportunities?: Json | null
+          scan_type?: string | null
+          total_opportunities?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          domain?: string
+          high_potential_count?: number | null
+          id?: string
+          low_potential_count?: number | null
+          medium_potential_count?: number | null
+          opportunities?: Json | null
+          scan_type?: string | null
+          total_opportunities?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -408,15 +546,22 @@ export type Database = {
       }
       seo_analyses: {
         Row: {
+          accessibility_score: number | null
+          ai_optimization_score: number | null
           analysis_data: Json | null
           backlink_score: number | null
           cache_key: string | null
+          competitor_comparison: Json | null
           created_at: string | null
           dashboard_content: string | null
           dashboard_generated_at: string | null
           domain: string
+          heading_structure: Json | null
           id: string
+          meta_description: Json | null
           performance_score: number | null
+          recommendations: Json | null
+          schema_count: number | null
           status: string | null
           technical_score: number | null
           total_score: number | null
@@ -424,15 +569,22 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          accessibility_score?: number | null
+          ai_optimization_score?: number | null
           analysis_data?: Json | null
           backlink_score?: number | null
           cache_key?: string | null
+          competitor_comparison?: Json | null
           created_at?: string | null
           dashboard_content?: string | null
           dashboard_generated_at?: string | null
           domain: string
+          heading_structure?: Json | null
           id?: string
+          meta_description?: Json | null
           performance_score?: number | null
+          recommendations?: Json | null
+          schema_count?: number | null
           status?: string | null
           technical_score?: number | null
           total_score?: number | null
@@ -440,15 +592,22 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          accessibility_score?: number | null
+          ai_optimization_score?: number | null
           analysis_data?: Json | null
           backlink_score?: number | null
           cache_key?: string | null
+          competitor_comparison?: Json | null
           created_at?: string | null
           dashboard_content?: string | null
           dashboard_generated_at?: string | null
           domain?: string
+          heading_structure?: Json | null
           id?: string
+          meta_description?: Json | null
           performance_score?: number | null
+          recommendations?: Json | null
+          schema_count?: number | null
           status?: string | null
           technical_score?: number | null
           total_score?: number | null
@@ -655,6 +814,51 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
+      }
+      voice_citations: {
+        Row: {
+          assistant_platform: string
+          citation_context: string | null
+          citation_position: number | null
+          confidence_score: number | null
+          created_at: string
+          domain: string
+          id: string
+          is_cited: boolean | null
+          query: string
+          response_text: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assistant_platform: string
+          citation_context?: string | null
+          citation_position?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          domain: string
+          id?: string
+          is_cited?: boolean | null
+          query: string
+          response_text?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assistant_platform?: string
+          citation_context?: string | null
+          citation_position?: number | null
+          confidence_score?: number | null
+          created_at?: string
+          domain?: string
+          id?: string
+          is_cited?: boolean | null
+          query?: string
+          response_text?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
     }
     Views: {
