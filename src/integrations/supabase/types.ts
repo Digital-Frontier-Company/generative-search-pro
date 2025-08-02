@@ -56,56 +56,59 @@ export type Database = {
         Row: {
           ai_answer: string | null
           checked_at: string | null
+          citation_position: number | null
           cited_sources: Json | null
+          competitor_analysis: Json | null
+          competitors_found: Json | null
+          confidence_score: number | null
           domain: string
           email: string | null
           id: number
+          improvement_areas: Json | null
           is_cited: boolean | null
           query: string
-          recommendations: string | null
-          user_id: string | null
-          confidence_score: number | null
-          competitor_analysis: Json | null
-          citation_position: number | null
-          total_sources: number | null
           query_complexity: string | null
-          improvement_areas: string[] | null
+          recommendations: string | null
+          total_sources: number | null
+          user_id: string | null
         }
         Insert: {
           ai_answer?: string | null
           checked_at?: string | null
+          citation_position?: number | null
           cited_sources?: Json | null
+          competitor_analysis?: Json | null
+          competitors_found?: Json | null
+          confidence_score?: number | null
           domain: string
           email?: string | null
           id?: number
+          improvement_areas?: Json | null
           is_cited?: boolean | null
           query: string
-          recommendations?: string | null
-          user_id?: string | null
-          confidence_score?: number | null
-          competitor_analysis?: Json | null
-          citation_position?: number | null
-          total_sources?: number | null
           query_complexity?: string | null
-          improvement_areas?: string[] | null
+          recommendations?: string | null
+          total_sources?: number | null
+          user_id?: string | null
         }
         Update: {
           ai_answer?: string | null
           checked_at?: string | null
+          citation_position?: number | null
           cited_sources?: Json | null
+          competitor_analysis?: Json | null
+          competitors_found?: Json | null
+          confidence_score?: number | null
           domain?: string
           email?: string | null
           id?: number
+          improvement_areas?: Json | null
           is_cited?: boolean | null
           query?: string
-          recommendations?: string | null
-          user_id?: string | null
-          confidence_score?: number | null
-          competitor_analysis?: Json | null
-          citation_position?: number | null
-          total_sources?: number | null
           query_complexity?: string | null
-          improvement_areas?: string[] | null
+          recommendations?: string | null
+          total_sources?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -114,56 +117,6 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "admin_user_credits"
             referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      citation_monitoring: {
-        Row: {
-          id: string
-          user_id: string | null
-          query: string
-          domain: string
-          is_active: boolean | null
-          check_frequency: string | null
-          last_checked_at: string | null
-          last_citation_status: boolean | null
-          alert_on_change: boolean | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id?: string | null
-          query: string
-          domain: string
-          is_active?: boolean | null
-          check_frequency?: string | null
-          last_checked_at?: string | null
-          last_citation_status?: boolean | null
-          alert_on_change?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string | null
-          query?: string
-          domain?: string
-          is_active?: boolean | null
-          check_frequency?: string | null
-          last_checked_at?: string | null
-          last_citation_status?: boolean | null
-          alert_on_change?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "citation_monitoring_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "users"
-            referencedColumns: ["id"]
           },
         ]
       }
@@ -214,7 +167,6 @@ export type Database = {
       content_blocks: {
         Row: {
           content: string | null
-          content_embedding: string | null
           created_at: string | null
           generated_at: string | null
           hero_answer: string | null
@@ -225,7 +177,6 @@ export type Database = {
         }
         Insert: {
           content?: string | null
-          content_embedding?: string | null
           created_at?: string | null
           generated_at?: string | null
           hero_answer?: string | null
@@ -236,7 +187,6 @@ export type Database = {
         }
         Update: {
           content?: string | null
-          content_embedding?: string | null
           created_at?: string | null
           generated_at?: string | null
           hero_answer?: string | null
@@ -259,7 +209,6 @@ export type Database = {
         Row: {
           content: string | null
           email: string | null
-          embedding: string | null
           id: number
           metadata: Json | null
           user_id: string | null
@@ -267,7 +216,6 @@ export type Database = {
         Insert: {
           content?: string | null
           email?: string | null
-          embedding?: string | null
           id?: number
           metadata?: Json | null
           user_id?: string | null
@@ -275,7 +223,6 @@ export type Database = {
         Update: {
           content?: string | null
           email?: string | null
-          embedding?: string | null
           id?: number
           metadata?: Json | null
           user_id?: string | null
@@ -329,30 +276,30 @@ export type Database = {
       nods_page_section: {
         Row: {
           content: string | null
-          embedding: string | null
           heading: string | null
           id: number
           page_id: number
           slug: string | null
           token_count: number | null
+          user_id: string | null
         }
         Insert: {
           content?: string | null
-          embedding?: string | null
           heading?: string | null
           id?: number
           page_id: number
           slug?: string | null
           token_count?: number | null
+          user_id?: string | null
         }
         Update: {
           content?: string | null
-          embedding?: string | null
           heading?: string | null
           id?: number
           page_id?: number
           slug?: string | null
           token_count?: number | null
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -361,6 +308,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "nods_page"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "nods_page_section_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_credits"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -729,17 +683,9 @@ export type Database = {
         Args: { content_text: string; target_keyword: string }
         Returns: Json
       }
-      binary_quantize: {
-        Args: { "": string } | { "": unknown }
-        Returns: unknown
-      }
       check_ai_friendliness: {
         Args: { content_text: string }
         Returns: Json
-      }
-      get_openai_embedding: {
-        Args: { query_text: string }
-        Returns: string
       }
       get_page_parents: {
         Args: { page_id: number }
@@ -750,61 +696,9 @@ export type Database = {
           meta: Json
         }[]
       }
-      halfvec_avg: {
-        Args: { "": number[] }
-        Returns: unknown
-      }
-      halfvec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      halfvec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      halfvec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      hnsw_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnsw_sparsevec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      hnswhandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
       increment_credits: {
         Args: Record<PropertyKey, never> | { user_id: number; amount: number }
         Returns: undefined
-      }
-      ivfflat_bit_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflat_halfvec_support: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      ivfflathandler: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      l2_norm: {
-        Args: { "": unknown } | { "": unknown }
-        Returns: number
-      }
-      l2_normalize: {
-        Args: { "": string } | { "": unknown } | { "": unknown }
-        Returns: unknown
       }
       match_content_by_query: {
         Args: {
@@ -820,31 +714,6 @@ export type Database = {
           created_at: string
           generated_at: string
           user_id: string
-          similarity: number
-        }[]
-      }
-      match_documents: {
-        Args: { query_embedding: string; match_count?: number; filter?: Json }
-        Returns: {
-          id: number
-          content: string
-          metadata: Json
-          similarity: number
-        }[]
-      }
-      match_page_sections: {
-        Args: {
-          embedding: string
-          match_threshold: number
-          match_count: number
-          min_content_length: number
-        }
-        Returns: {
-          id: number
-          page_id: number
-          slug: string
-          heading: string
-          content: string
           similarity: number
         }[]
       }
@@ -867,42 +736,6 @@ export type Database = {
       set_openai_key: {
         Args: { api_key: string }
         Returns: undefined
-      }
-      sparsevec_out: {
-        Args: { "": unknown }
-        Returns: unknown
-      }
-      sparsevec_send: {
-        Args: { "": unknown }
-        Returns: string
-      }
-      sparsevec_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
-      }
-      vector_avg: {
-        Args: { "": number[] }
-        Returns: string
-      }
-      vector_dims: {
-        Args: { "": string } | { "": unknown }
-        Returns: number
-      }
-      vector_norm: {
-        Args: { "": string }
-        Returns: number
-      }
-      vector_out: {
-        Args: { "": string }
-        Returns: unknown
-      }
-      vector_send: {
-        Args: { "": string }
-        Returns: string
-      }
-      vector_typmod_in: {
-        Args: { "": unknown[] }
-        Returns: number
       }
     }
     Enums: {
