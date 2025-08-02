@@ -13,7 +13,7 @@ export interface SecurityConfig {
 
 export interface ValidationRule {
   required?: boolean;
-  type?: 'string' | 'number' | 'email' | 'url' | 'uuid';
+  type?: 'string' | 'number' | 'boolean' | 'email' | 'url' | 'uuid';
   minLength?: number;
   maxLength?: number;
   pattern?: RegExp;
@@ -130,6 +130,22 @@ export function validateInput(data: any, schema: ValidationSchema): Record<strin
           validated[field] = num;
           break;
         
+        case 'boolean':
+          if (typeof value === 'boolean') {
+            validated[field] = value;
+          } else if (typeof value === 'string') {
+            // Accept "true"/"false" strings
+            if (value.toLowerCase() === 'true') validated[field] = true;
+            else if (value.toLowerCase() === 'false') validated[field] = false;
+            else {
+              errors.push(`${field} must be a boolean`);
+              continue;
+            }
+          } else {
+            errors.push(`${field} must be a boolean`);
+            continue;
+          }
+          break;
         case 'email':
           try {
             validated[field] = sanitizeEmail(value);

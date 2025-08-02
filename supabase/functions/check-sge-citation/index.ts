@@ -2,6 +2,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createSecureHandler, validateInput, commonSchemas, validateEnvVars } from "../_shared/security.ts";
 import { getCached, setCached, generateCacheKey, withPerformanceMonitoring, retryWithBackoff } from "../_shared/performance.ts";
+import { extractGoogle } from "../_shared/citation.ts";
 
 // Validate required environment variables on startup
 validateEnvVars(['SUPABASE_URL', 'SUPABASE_SERVICE_ROLE_KEY']);
@@ -14,8 +15,8 @@ const secureHandler = createSecureHandler(
       query: { ...commonSchemas.query, maxLength: 500 },
       domain: commonSchemas.domain,
       user_id: commonSchemas.userId,
-      include_competitor_analysis: { type: 'string' as const, required: false },
-      include_improvement_suggestions: { type: 'string' as const, required: false }
+      include_competitor_analysis: { type: 'boolean' as const, required: false },
+      include_improvement_suggestions: { type: 'boolean' as const, required: false }
     });
 
     const { 
@@ -59,40 +60,21 @@ const secureHandler = createSecureHandler(
         return response.json();
       }, 3, 1000, 5000);
 
-      // Initialize result variables
-      let isCited = false;
-      let aiAnswer = '';
-      let citedSources: any[] = [];
+      // Use shared extractor to normalize SERP data
+      const {
+        isCited,
+        citationPosition,
+        aiAnswer,
+        citedSources,
+        totalSources,
+      } = extractGoogle(serpData, domain);
+
+      // Additional processing variables
       let recommendations = '';
       let confidenceScore = 0;
       let competitorAnalysis: any[] = [];
-      let citationPosition: number | null = null;
-      let totalSources = 0;
       let queryComplexity = 'medium';
       let improvementAreas: string[] = [];
-
-      // Process AI overview if available
-      if (serpData.ai_overview) {
-        aiAnswer = serpData.ai_overview.overview || '';
-        citedSources = serpData.ai_overview.sources || [];
-        totalSources = citedSources.length;
-
-        // Check if domain is cited
-        citedSources.forEach((source: any, index: number) => {
-          if (source.link && source.link.includes(domain)) {
-            isCited = true;
-            if (citationPosition === null) {
-              citationPosition = index + 1;
-            }
-          }
-        });
-
-        // Also check if domain is mentioned in the AI answer text
-        if (!isCited && aiAnswer.toLowerCase().includes(domain.toLowerCase())) {
-          isCited = true;
-          citationPosition = citedSources.length + 1;
-        }
-      }
 
       // Calculate confidence score
       confidenceScore = calculateConfidenceScore({
@@ -116,16 +98,19 @@ const secureHandler = createSecureHandler(
         const openaiKey = Deno.env.get('OPENAI_API_KEY');
         if (openaiKey) {
           try {
-            recommendations = await generateRecommendations(query, domain, isCited, queryComplexity, totalSources, openaiKey);
-            improvementAreas = extractImprovementAreas(recommendations);
+            const structuredRecs = await generateRecommendations(query, domain, isCited, queryComplexity, totalSources, openaiKey);
+            recommendations = structuredRecs.recommendations.join('\n');
+            improvementAreas = structuredRecs.improvementAreas;
           } catch (error) {
             console.error('OpenAI API error:', error);
-            recommendations = generateFallbackRecommendations(isCited, queryComplexity);
-            improvementAreas = ['content-optimization', 'technical-seo'];
+            const fallback = generateFallbackRecommendations(isCited, queryComplexity);
+            recommendations = fallback.recommendations.join('\n');
+            improvementAreas = fallback.improvementAreas;
           }
         } else {
-          recommendations = generateFallbackRecommendations(isCited, queryComplexity);
-          improvementAreas = ['content-optimization', 'technical-seo'];
+          const fallback = generateFallbackRecommendations(isCited, queryComplexity);
+          recommendations = fallback.recommendations.join('\n');
+          improvementAreas = fallback.improvementAreas;
         }
       }
 
@@ -164,6 +149,7 @@ const secureHandler = createSecureHandler(
         total_sources: result.totalSources,
         query_complexity: result.queryComplexity,
         improvement_areas: result.improvementAreas,
+        engine: 'google',
         checked_at: new Date().toISOString()
       };
 
@@ -276,7 +262,7 @@ function extractDomainFromUrl(url: string): string | null {
   }
 }
 
-async function generateRecommendations(query: string, domain: string, isCited: boolean, queryComplexity: string, totalSources: number, openaiKey: string): Promise<string> {
+async function generateRecommendations(query: string, domain: string, isCited: boolean, queryComplexity: string, totalSources: number, openaiKey: string): Promise<{recommendations: string[], improvementAreas: string[]}> {
   const prompt = `As an SEO expert, analyze this search query and provide specific recommendations for improving citation chances in AI search results.
 
 Query: "${query}"
@@ -287,14 +273,11 @@ Total Sources: ${totalSources}
 
 Provide 3-5 specific, actionable recommendations to improve the chances of being cited in AI search results. Focus on content optimization, technical SEO, and authority building.
 
-Format your response as:
-RECOMMENDATIONS:
-1. [Recommendation]
-2. [Recommendation]
-...
-
-IMPROVEMENT_AREAS:
-keyword1, keyword2, keyword3`;
+Respond with ONLY a JSON object in this exact format:
+{
+  "recommendations": ["recommendation 1", "recommendation 2", "recommendation 3"],
+  "improvementAreas": ["area1", "area2", "area3"]
+}`;
 
   const response = await fetch('https://api.openai.com/v1/chat/completions', {
     method: 'POST',
@@ -315,7 +298,17 @@ keyword1, keyword2, keyword3`;
   }
 
   const data = await response.json();
-  return data.choices[0]?.message?.content || '';
+  const content = data.choices[0]?.message?.content || '';
+  
+  try {
+    return JSON.parse(content);
+  } catch (error) {
+    // Fallback if JSON parsing fails
+    return {
+      recommendations: ["Improve content quality and depth", "Build authoritative backlinks", "Optimize for featured snippets"],
+      improvementAreas: ["content", "authority", "technical-seo"]
+    };
+  }
 }
 
 function extractImprovementAreas(recommendations: string): string[] {
@@ -326,7 +319,7 @@ function extractImprovementAreas(recommendations: string): string[] {
   return ['content-optimization', 'technical-seo'];
 }
 
-function generateFallbackRecommendations(isCited: boolean, queryComplexity: string): string {
+function generateFallbackRecommendations(isCited: boolean, queryComplexity: string): {recommendations: string[], improvementAreas: string[]} {
   const baseRecommendations = [
     "Optimize content structure with clear headings and bullet points",
     "Add relevant schema markup to help AI understand your content",
@@ -343,7 +336,10 @@ function generateFallbackRecommendations(isCited: boolean, queryComplexity: stri
     baseRecommendations.push("Break down complex topics into digestible sections with clear explanations");
   }
 
-  return "RECOMMENDATIONS:\n" + baseRecommendations.map((rec, i) => `${i + 1}. ${rec}`).join('\n');
+  return {
+    recommendations: baseRecommendations,
+    improvementAreas: ["content-optimization", "technical-seo", "authority-building"]
+  };
 }
 
 serve(secureHandler);

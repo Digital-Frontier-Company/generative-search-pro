@@ -27,6 +27,7 @@ interface CitationResult {
   totalSources?: number;
   queryComplexity?: 'simple' | 'medium' | 'complex';
   improvementAreas?: string[];
+  engine?: 'google' | 'bing';
 }
 
 interface CitationSource {
@@ -60,6 +61,7 @@ const CitationChecker = () => {
   const [result, setResult] = useState<CitationResult | null>(null);
   const [history, setHistory] = useState<CitationResult[]>([]);
   const [activeTab, setActiveTab] = useState('single');
+  const [engine, setEngine] = useState<'google' | 'bing'>('google');
   
   // Bulk checking state
   const [bulkQueries, setBulkQueries] = useState<BulkCheckQuery[]>([]);
@@ -101,17 +103,17 @@ const CitationChecker = () => {
         domain: item.domain,
         isCited: item.is_cited || false,
         aiAnswer: item.ai_answer || '',
-        citedSources: Array.isArray(item.cited_sources) ? item.cited_sources.map((source: any) => ({
+        citedSources: Array.isArray(item.cited_sources) ? (item.cited_sources as unknown as CitationSource[]).map((source: CitationSource) => ({
           ...source,
           isYourDomain: source.link && source.link.includes(item.domain)
         })) : [],
         recommendations: item.recommendations || '',
         checkedAt: item.checked_at,
         confidenceScore: item.confidence_score,
-        competitorAnalysis: item.competitor_analysis || [],
+        competitorAnalysis: Array.isArray(item.competitor_analysis) ? (item.competitor_analysis as unknown as CompetitorCitation[]) : [],
         citationPosition: item.citation_position,
         totalSources: item.total_sources,
-        queryComplexity: item.query_complexity || 'medium',
+        queryComplexity: (['simple','medium','complex'].includes(item.query_complexity) ? item.query_complexity : 'medium') as 'simple' | 'medium' | 'complex',
         improvementAreas: item.improvement_areas || []
       })) || [];
 
@@ -158,7 +160,8 @@ const CitationChecker = () => {
         return null;
       }
 
-      const { data, error } = await supabase.functions.invoke('check-sge-citation', {
+      const functionName = engine === 'google' ? 'check-sge-citation' : 'check-bing-citation';
+      const { data, error } = await supabase.functions.invoke(functionName, {
         body: JSON.stringify({
           query: checkQuery,
           domain: checkDomain.replace(/^https?:\/\//, ''),
@@ -170,33 +173,33 @@ const CitationChecker = () => {
 
       if (error) throw error;
 
-      if (data?.result) {
-        const enhancedResult = {
-          ...data.result,
-          citedSources: data.result.citedSources?.map((source: any) => ({
+      if (data) {
+        const serverResult = data as CitationResult;
+        const enhancedResult: CitationResult = {
+          ...serverResult,
+          citedSources: serverResult.citedSources?.map((source) => ({
             ...source,
-            isYourDomain: source.link && source.link.includes(checkDomain.replace(/^https?:\/\//, ''))
-          })) || []
+            isYourDomain: source.link?.includes(checkDomain.replace(/^https?:\/\//, '')) ?? false,
+          })) ?? [],
         };
-        
+
         if (!queryToCheck) {
           setResult(enhancedResult);
           loadHistory(); // Refresh history
         }
-        
+
         if (enhancedResult.isCited) {
           toast.success(`Great! Your domain is cited in position ${enhancedResult.citationPosition || 'unknown'}!`);
         } else {
           toast.error('Your domain was not found in the AI answer');
         }
-        
-        return enhancedResult;
-      } else if (data?.error) {
-        throw new Error(data.error);
+
+                return enhancedResult;
       }
-    } catch (error: any) {
+            } catch (error: unknown) {
       console.error('Citation check error:', error);
-      toast.error(error?.message || 'Failed to check citation. Please ensure you have SerpApi configured.');
+      const errMessage = error instanceof Error ? error.message : 'Failed to check citation.';
+      toast.error(errMessage + ' Please ensure you have SerpApi configured.');
       return null;
     } finally {
       setLoading(false);
@@ -353,6 +356,19 @@ const CitationChecker = () => {
                   />
                 </div>
               </div>
+
+              <div>
+                <label className="block text-sm font-medium mb-2">Search Engine</label>
+                <select
+                  className="w-full border border-gray-300 rounded-md p-2"
+                  value={engine}
+                  onChange={(e) => setEngine(e.target.value as 'google' | 'bing')}
+                >
+                  <option value="google">Google (SGE)</option>
+                  <option value="bing">Bing</option>
+                </select>
+              </div>
+
               <div className="flex gap-2">
                 <Button 
                   onClick={() => checkCitation()} 

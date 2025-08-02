@@ -39,8 +39,21 @@ serve(async (req) => {
         
         if (!shouldCheck) continue
         
-        // Perform citation check
-        const citationResult = await performCitationCheck(entry.query, entry.domain, entry.user_id)
+        // Perform citation checks for both engines
+        const engines = ['google', 'bing']
+        let citationResult = null
+        
+        for (const engine of engines) {
+          const result = await performCitationCheck(entry.query, entry.domain, entry.user_id, engine)
+          if (result) {
+            citationResult = result
+            // Store the first successful result for status comparison
+            if (!citationResult) citationResult = result
+          }
+          
+          // Add delay between engine checks
+          await new Promise(resolve => setTimeout(resolve, 1000))
+        }
         
         if (citationResult) {
           checkedCount++
@@ -131,72 +144,42 @@ function shouldCheckEntry(entry) {
   }
 }
 
-async function performCitationCheck(query, domain, userId) {
+async function performCitationCheck(query, domain, userId, engine = 'google') {
   try {
-    const serpApiKey = Deno.env.get('SERPAPI_KEY')
-    
-    if (!serpApiKey) {
-      console.log('SerpApi key not configured, skipping check')
-      return null
-    }
-    
-    const serpApiUrl = `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(query)}&api_key=${serpApiKey}&gl=us&hl=en`
-    
-    const serpResponse = await fetch(serpApiUrl)
-    const serpData = await serpResponse.json()
-    
-    let isCited = false
-    let aiAnswer = ''
-    let citedSources = []
-    let citationPosition = null
-    
-    if (serpData.ai_overview) {
-      aiAnswer = serpData.ai_overview.overview || ''
-      citedSources = serpData.ai_overview.sources || []
-      
-      citedSources.forEach((source, index) => {
-        if (source.link && source.link.includes(domain)) {
-          isCited = true
-          citationPosition = index + 1
-        }
-      })
-      
-      if (!isCited && aiAnswer.toLowerCase().includes(domain.toLowerCase())) {
-        isCited = true
-        citationPosition = citedSources.length + 1
-      }
-    }
-    
-    // Store the check result
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
-    await fetch(`${supabaseUrl}/rest/v1/citation_checks`, {
+    // Call the appropriate Edge Function instead of duplicating logic
+    const functionName = engine === 'google' ? 'check-sge-citation' : 'check-bing-citation'
+    
+    const response = await fetch(`${supabaseUrl}/functions/v1/${functionName}`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${supabaseKey}`,
         'Content-Type': 'application/json',
-        'apikey': supabaseKey,
       },
       body: JSON.stringify({
-        user_id: userId,
         query,
         domain,
-        is_cited: isCited,
-        ai_answer: aiAnswer,
-        cited_sources: citedSources,
-        citation_position: citationPosition,
-        total_sources: citedSources.length,
-        confidence_score: isCited ? 75 : 25, // Simplified scoring for monitoring
-        query_complexity: 'medium' // Default for monitoring
+        user_id: userId,
+        include_competitor_analysis: false,
+        include_improvement_suggestions: false
       }),
     })
     
+    if (!response.ok) {
+      console.error(`${functionName} failed: ${response.status}`)
+      return null
+    }
+    
+    const result = await response.json()
+    
     return {
-      isCited,
-      citationPosition,
-      aiAnswer,
-      citedSources
+      isCited: result.isCited || result.is_cited,
+      citationPosition: result.citationPosition || result.citation_position,
+      aiAnswer: result.aiAnswer || result.ai_answer,
+      citedSources: result.citedSources || result.cited_sources || [],
+      engine: result.engine || engine
     }
     
   } catch (error) {
