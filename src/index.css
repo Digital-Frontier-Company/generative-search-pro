@@ -118,15 +118,17 @@
 
   body {
     @apply text-foreground font-body;
-    /* Animated gradient background with 3 specific colors */
+    /* Aggressive animated gradient showing all colors simultaneously */
     background: linear-gradient(
       -45deg,
-      #4338ca,  /* Violet-blue */
-      #3b82f6,  /* Blue */
-      #39ff14   /* Neon yellow/green */
+      #4338ca 0%,     /* Violet-blue */
+      #3b82f6 25%,    /* Blue */ 
+      #39ff14 50%,    /* Neon yellow/green */
+      #4338ca 75%,    /* Violet-blue */
+      #3b82f6 100%    /* Blue */
     );
-    background-size: 400% 400%;
-    animation: gradient-animation 15s ease infinite;
+    background-size: 300% 300%;
+    animation: gradient-animation 8s ease infinite;
     min-height: 100vh;
     font-size: 16px; /* Material spec baseline */
     line-height: 1.45; /* Material spec 4dp baseline grid */
