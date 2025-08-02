@@ -124,7 +124,7 @@
       #5b21b6 0%,     /* Deep purple */
       #3730a3 30%,    /* Purple-blue */
       #1e40af 70%,    /* Blue */
-      #0ea5e9 100%    /* Light blue */
+      #ffff00 100%    /* Neon yellow corner */
     );
     min-height: 100vh;
     font-size: 16px; /* Material spec baseline */
