@@ -188,7 +188,7 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0D1117]">
+    <div className="min-h-screen flex flex-col">
       <JsonLdSchema schema={[...getHomepageSchema(), getHomepageFAQSchema()]} />
       
       {/* Header */}
