@@ -84,11 +84,31 @@ const CompetitorGapAnalysis = () => {
         .from('competitor_analyses')
         .select('*')
         .eq('user_id', user.id)
-        .order('analyzed_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(5);
 
       if (error) throw error;
-      setHistory(data || []);
+      
+      // Map database columns to expected interface
+      const mappedData = (data || []).map(item => ({
+        userDomain: item.user_domain,
+        competitorDomains: Array.isArray(item.competitor_domains) ? item.competitor_domains.map(d => String(d)) : [],
+        analysisQueries: Array.isArray(item.analysis_queries) ? item.analysis_queries.map(q => String(q)) : [],
+        competitorAnalyses: [], // Empty array as we'll load this separately
+        overallGaps: {
+          contentGaps: Array.isArray(item.content_gaps) ? item.content_gaps.map(g => String(g)) : [],
+          authorityGaps: [],
+          technicalGaps: [],
+          strategyGaps: []
+        },
+        actionableRecommendations: Array.isArray(item.recommendations) ? item.recommendations.map(r => String(r)) : [],
+        priorityOpportunities: Array.isArray(item.gap_opportunities) ? item.gap_opportunities.map(o => String(o)) : [],
+        timeToCompete: '3-6 months', // Default value
+        difficultyScore: 50, // Default value
+        analyzedAt: item.created_at
+      }));
+      
+      setHistory(mappedData);
     } catch (error) {
       console.error('Error loading analysis history:', error);
     }

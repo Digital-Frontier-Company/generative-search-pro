@@ -101,23 +101,20 @@ allow_insert = true
 allow_update = true
 allow_delete = true
 
-[edge_functions]
-enabled = true
-
-[edge_functions.generate-content]
+[functions.generate-content]
 verify_jwt = true
 
-[edge_functions.set-openai-key]
+[functions.set-openai-key]
 verify_jwt = true
 
-[edge_functions.create-checkout]
+[functions.create-checkout]
 verify_jwt = true
 
-[edge_functions.check-subscription]
+[functions.check-subscription]
 verify_jwt = true
 
-[edge_functions.customer-portal]
+[functions.customer-portal]
 verify_jwt = true
 
-[edge_functions.send-signup-emails]
+[functions.send-signup-emails]
 verify_jwt = false

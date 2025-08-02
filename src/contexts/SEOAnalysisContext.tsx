@@ -18,6 +18,13 @@ interface SEOAnalysis {
   performance_score?: number;
   analysis_data?: any;
   technical_findings?: any[];
+  schema_count?: number;
+  meta_description?: any;
+  heading_structure?: any;
+  ai_optimization_score?: number;
+  accessibility_score?: number;
+  competitor_comparison?: any;
+  recommendations?: any;
 }
 
 interface SEOAnalysisContextType {

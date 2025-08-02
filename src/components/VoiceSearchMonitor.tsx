@@ -72,11 +72,32 @@ const VoiceSearchMonitor = () => {
         .from('voice_citations')
         .select('*')
         .eq('user_id', user.id)
-        .order('checked_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(10);
 
       if (error) throw error;
-      setHistory(data || []);
+      
+      // Map database columns to expected interface
+      const mappedData = (data || []).map(item => ({
+        query: item.query,
+        domain: item.domain,
+        platforms: [item.assistant_platform], // Convert single platform to array
+        results: [{
+          platform: (item.assistant_platform === 'google_assistant' || item.assistant_platform === 'alexa' || item.assistant_platform === 'siri') 
+            ? item.assistant_platform as 'google_assistant' | 'alexa' | 'siri'
+            : 'google_assistant',
+          query: item.query,
+          response: item.response_text || '',
+          cited: item.is_cited,
+          citationScore: (item.confidence_score || 0) * 100,
+          responseLength: (item.response_text || '').length
+        }],
+        totalCitations: item.is_cited ? 1 : 0,
+        averageScore: (item.confidence_score || 0) * 100,
+        checkedAt: item.created_at
+      }));
+      
+      setHistory(mappedData);
     } catch (error) {
       console.error('Error loading voice search history:', error);
     }
