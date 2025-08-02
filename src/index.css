@@ -120,7 +120,7 @@
     @apply text-foreground font-body;
     /* Static gradient background with all 3 colors visible */
     background: linear-gradient(
-      -45deg,
+      135deg,
       #4338ca 0%,     /* Violet-blue */
       #3b82f6 50%,    /* Blue */ 
       #39ff14 100%    /* Neon yellow/green */
