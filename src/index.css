@@ -118,15 +118,12 @@
 
   body {
     @apply text-foreground font-body;
-    /* Animated gradient background matching the reference image */
+    /* Animated gradient background with 3 specific colors */
     background: linear-gradient(
       -45deg,
-      #1a1b5e,  /* Deep purple/indigo */
-      #2d1b69,  /* Purple */
       #4338ca,  /* Violet-blue */
       #3b82f6,  /* Blue */
-      #06b6d4,  /* Cyan */
-      #10b981   /* Teal-green */
+      #39ff14   /* Neon yellow/green */
     );
     background-size: 400% 400%;
     animation: gradient-animation 15s ease infinite;
