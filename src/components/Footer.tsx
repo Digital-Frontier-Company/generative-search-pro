@@ -6,7 +6,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <OptimizedImage src="/lovable-uploads/96aa1ceb-6858-443c-8bc7-1f9af19024d5.png" alt="GenerativeSearch" style={{ background: 'transparent' }} className="h-20 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
+              <OptimizedImage src="/lovable-uploads/5956606a-b890-48ed-b55b-942cdc323a09.png" alt="GenerativeSearch" style={{ background: 'transparent' }} className="h-20 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
             </div>
             <p className="text-matrix-green/70 text-sm max-w-xs">
               Generate optimized content for search engines and AI answer boxes with just a few clicks.
