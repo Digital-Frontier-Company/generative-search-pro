@@ -323,7 +323,18 @@ const Index = () => {
 
         {/* Pricing Section */}
         <section id="pricing" className="mb-12">
-          <h2 className="text-3xl font-bold mb-8 text-center text-[#39FF14]">Choose Your Plan</h2>
+          <h2 
+            className="text-3xl font-bold mb-8 text-center font-orbitron transform-gpu transition-all duration-300 hover:scale-105 bg-gradient-to-r from-lime-400 via-green-400 to-emerald-400 bg-clip-text text-transparent"
+            style={{
+              textShadow: '0 0 20px #39FF14, 0 0 40px #66FF14, 0 0 60px #00FF88, 0 8px 16px rgba(0, 0, 0, 0.5)',
+              transform: 'translateZ(15px)',
+              transformStyle: 'preserve-3d',
+              filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.4)) drop-shadow(0 5px 10px rgba(102, 255, 20, 0.3))',
+              WebkitTextStroke: '1px rgba(57, 255, 20, 0.3)'
+            }}
+          >
+            Choose Your Plan
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Starter Plan */}
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
