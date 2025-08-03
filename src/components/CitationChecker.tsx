@@ -131,8 +131,7 @@ const CitationChecker = () => {
       const { data, error } = await supabase
         .from('citation_checks')
         .select('query')
-        .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('user_id', user.id);
 
       if (error) throw error;
       

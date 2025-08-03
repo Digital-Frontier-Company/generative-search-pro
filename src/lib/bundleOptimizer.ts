@@ -267,8 +267,8 @@ export function loadImage(
 
     const img = new Image();
     
-    if (crossOrigin) {
-      img.crossOrigin = options.crossOrigin!;
+    if (options.crossOrigin) {
+      img.crossOrigin = options.crossOrigin;
     }
     
     if (sizes) {
@@ -575,7 +575,7 @@ export function optimizeCache(): void {
 }
 
 // Memory usage monitoring
-export function getMemoryUsage(): MemoryInfo | null {
+export function getMemoryUsage(): any | null {
   if ('memory' in performance) {
     return (performance as any).memory;
   }

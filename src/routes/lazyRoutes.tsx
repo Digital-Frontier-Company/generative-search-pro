@@ -143,7 +143,7 @@ export function preloadCriticalRoutes(): void {
 
 // Preload routes based on current route
 export function preloadRelatedRoutes(currentPath: string): void {
-  const preloadMap: Record<string, () => Promise<any>[]> = {
+  const preloadMap: Record<string, (() => Promise<any>)[]> = {
     '/': [
       () => import('@/pages/Dashboard'),
       () => import('@/pages/SEOAnalysis')
