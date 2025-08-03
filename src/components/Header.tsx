@@ -49,7 +49,7 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
             <img 
-              src="/gsp-logo.png" 
+              src="/lovable-uploads/508a5912-5d22-4a7d-a109-5bf20817d152.png"
               alt="GenerativeSearch.pro" 
               className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain"
               onError={(e) => {
