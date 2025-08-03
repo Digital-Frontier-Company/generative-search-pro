@@ -9,6 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { AnalyticsCTA, defaultCTAVariants } from "@/components/optimized/AnalyticsCTA";
 const Header = () => {
+  console.log('Header component rendered, checking logo path');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
     user,
@@ -47,7 +48,16 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
-            <OptimizedImage src="/gsp-logo.png" alt="GenerativeSearch.pro" className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
+            <img 
+              src="/gsp-logo.png" 
+              alt="GenerativeSearch.pro" 
+              className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain"
+              onError={(e) => {
+                console.error('Logo failed to load:', e.currentTarget.src);
+                e.currentTarget.style.border = '2px solid red';
+              }}
+              onLoad={() => console.log('Logo loaded successfully')}
+            />
           </Link>
         </div>
 
