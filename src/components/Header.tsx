@@ -51,7 +51,7 @@ const Header = () => {
             <img 
               src="/lovable-uploads/508a5912-5d22-4a7d-a109-5bf20817d152.png"
               alt="GenerativeSearch.pro" 
-              className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain"
+              className="h-40 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain"
               onError={(e) => {
                 console.error('Logo failed to load:', e.currentTarget.src);
                 e.currentTarget.style.border = '2px solid red';
