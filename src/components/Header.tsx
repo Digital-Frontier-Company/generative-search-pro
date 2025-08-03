@@ -46,7 +46,7 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
-            <OptimizedImage src="/gsp-logo.png" alt="GenerativeSearch.pro" className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
+            <OptimizedImage src="/lovable-uploads/73fc5954-f4f5-4377-a141-9c397dffd383.png" alt="GenerativeSearch.pro" className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
           </Link>
         </div>
 
