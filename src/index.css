@@ -58,8 +58,8 @@
     --chart-5: 30 100% 60%;
     
     /* Auth gradient colors */
-    --auth-gradient-start: 260 60% 50%;
-    --auth-gradient-end: 220 70% 60%;
+    --auth-gradient-start: 220 100% 20%;
+    --auth-gradient-end: 120 100% 50%;
   }
 
   .light {
@@ -102,8 +102,8 @@
     --sidebar-ring: 120 100% 50%;
     
     /* Auth gradient colors */
-    --auth-gradient-start: 260 60% 50%;
-    --auth-gradient-end: 220 70% 60%;
+    --auth-gradient-start: 220 100% 20%;
+    --auth-gradient-end: 120 100% 50%;
   }
 }
 
