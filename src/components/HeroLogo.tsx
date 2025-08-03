@@ -10,7 +10,7 @@ const HeroLogo = () => {
       setIsProcessing(true);
       try {
         // Fetch the original logo
-        const response = await fetch('/lovable-uploads/1cffbb21-d094-480e-ab18-b3bd75479589.png');
+        const response = await fetch('/lovable-uploads/931d267a-b24c-481f-955b-8c230a3a2d4b.png');
         const blob = await response.blob();
         
         // Load as image element
@@ -25,7 +25,7 @@ const HeroLogo = () => {
       } catch (error) {
         console.error('Error processing logo:', error);
         // Fallback to original image
-        setProcessedLogoUrl('/lovable-uploads/1cffbb21-d094-480e-ab18-b3bd75479589.png');
+        setProcessedLogoUrl('/lovable-uploads/931d267a-b24c-481f-955b-8c230a3a2d4b.png');
       } finally {
         setIsProcessing(false);
       }
