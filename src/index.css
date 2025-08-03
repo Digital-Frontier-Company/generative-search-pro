@@ -57,9 +57,9 @@
     --chart-4: 300 100% 70%;
     --chart-5: 30 100% 60%;
     
-    /* Auth gradient colors - 70% blue, 30% lime */
-    --auth-gradient-start: 220 100% 15%;
-    --auth-gradient-end: 120 100% 45%;
+    /* Auth gradient colors - more blue influence */
+    --auth-gradient-start: 220 100% 25%;
+    --auth-gradient-end: 150 100% 55%;
   }
 
   .light {
@@ -101,9 +101,9 @@
     --sidebar-border: 220 13% 18%;
     --sidebar-ring: 120 100% 50%;
     
-    /* Auth gradient colors - 70% blue, 30% lime */
-    --auth-gradient-start: 220 100% 15%;
-    --auth-gradient-end: 120 100% 45%;
+    /* Auth gradient colors - more blue influence */
+    --auth-gradient-start: 220 100% 25%;
+    --auth-gradient-end: 150 100% 55%;
   }
 }
 
@@ -113,8 +113,7 @@
   }
 
   body {
-    @apply text-foreground;
-    background: linear-gradient(135deg, hsl(220 100% 15%) 70%, hsl(120 100% 45%) 30%);
+    @apply bg-gradient-to-br from-auth-gradient-start to-auth-gradient-end text-foreground;
     min-height: 100vh;
     font-size: 1rem; /* 16px base */
     line-height: 1.6; /* 1.6 improves readability */
