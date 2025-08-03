@@ -113,9 +113,8 @@
   }
 
   body {
-    @apply bg-background text-foreground;
-    /* Deep indigo → violet → neon lime gradient */
-    background: linear-gradient(135deg, #1d1e5f 0%, #332c80 35%, #5040a3 60%, #6c5cc4 75%, #b6e06b 100%);
+    @apply bg-gradient-to-br from-auth-gradient-start to-auth-gradient-end text-foreground;
+    min-height: 100vh;
     font-size: 1rem; /* 16px base */
     line-height: 1.6; /* 1.6 improves readability */
   }
