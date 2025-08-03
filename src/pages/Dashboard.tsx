@@ -60,26 +60,10 @@ const Dashboard = () => {
 
   const analysisTools = [
     {
-      title: "SEO Analysis",
-      description: "Comprehensive SEO performance analysis",
+      title: "SEO Analysis Hub",
+      description: "Comprehensive SEO analysis and optimization tools",
       icon: <BarChart3 className="w-6 h-6" />,
-      path: "/seo-analysis",
-      tier: "basic",
-      usesDomain: true
-    },
-    {
-      title: "Domain Analysis", 
-      description: "Domain keywords and performance metrics",
-      icon: <Globe className="w-6 h-6" />,
-      path: "/domain-analysis",
-      tier: "basic",
-      usesDomain: true
-    },
-    {
-      title: "AI Visibility Score",
-      description: "Schema optimization and AI search visibility",
-      icon: <Target className="w-6 h-6" />,
-      path: "/schema-analysis", 
+      path: "/analysis",
       tier: "basic",
       usesDomain: true
     },

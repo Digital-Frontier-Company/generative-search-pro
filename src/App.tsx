@@ -27,6 +27,7 @@ import Admin from "./pages/Admin";
 import Upgrade from "./pages/Upgrade";
 import NotFound from "./pages/NotFound";
 import SchemaMarkupGuide from "./pages/SchemaMarkupGuide";
+import Analysis from "./pages/Analysis";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +48,14 @@ function App() {
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route path="/resources" element={<Resources />} />
                 <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
+                <Route
+                  path="/analysis"
+                  element={
+                    <ProtectedRoute>
+                      <Analysis />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/dashboard"
                   element={
