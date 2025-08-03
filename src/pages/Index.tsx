@@ -16,7 +16,7 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeatureComparisonSection from "@/components/landing/FeatureComparisonSection";
 import TrustSection from "@/components/landing/TrustSection";
-import HeroLogo from "@/components/HeroLogo";
+import AnimatedGSPLogo from "@/components/AnimatedGSPLogo";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -199,9 +199,9 @@ const Index = () => {
         <section className="mb-12">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
-              {/* Logo positioned above the title */}
+              {/* Animated GSP Logo positioned above the title */}
               <div className="mb-6">
-                <HeroLogo />
+                <AnimatedGSPLogo />
               </div>
               <h1 className="text-4xl font-bold mb-4">
                 Optimize Your Content for <span className="text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>AI Visibility</span>
