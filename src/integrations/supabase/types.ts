@@ -16,44 +16,44 @@ export type Database = {
     Tables: {
       ai_platform_citations: {
         Row: {
-          citation_found: boolean | null
-          citation_position: number | null
-          citation_snippet: string | null
+          average_confidence: number | null
+          average_score: number | null
           created_at: string
           domain: string
           id: string
           platforms: Json | null
           query: string
+          results: Json | null
           search_method: string | null
-          total_results: number | null
+          total_citations: number | null
           updated_at: string
           user_id: string
         }
         Insert: {
-          citation_found?: boolean | null
-          citation_position?: number | null
-          citation_snippet?: string | null
+          average_confidence?: number | null
+          average_score?: number | null
           created_at?: string
           domain: string
           id?: string
           platforms?: Json | null
           query: string
+          results?: Json | null
           search_method?: string | null
-          total_results?: number | null
+          total_citations?: number | null
           updated_at?: string
           user_id: string
         }
         Update: {
-          citation_found?: boolean | null
-          citation_position?: number | null
-          citation_snippet?: string | null
+          average_confidence?: number | null
+          average_score?: number | null
           created_at?: string
           domain?: string
           id?: string
           platforms?: Json | null
           query?: string
+          results?: Json | null
           search_method?: string | null
-          total_results?: number | null
+          total_citations?: number | null
           updated_at?: string
           user_id?: string
         }
