@@ -79,6 +79,10 @@ export default {
 				'error': 'hsl(0 100% 50%)',
 				'info': 'hsl(240 100% 70%)'
 			},
+			fontFamily: {
+				sans: ["Inter", "sans-serif"],
+				orbitron: ["Orbitron", "monospace"],
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

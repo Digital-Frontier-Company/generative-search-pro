@@ -13,7 +13,7 @@ const AnimatedGSPLogo = () => {
         {/* GSP Text */}
         <div className="flex space-x-1">
           <span 
-            className={`text-6xl font-bold bg-gradient-to-r from-blue-600 to-lime-400 bg-clip-text text-transparent transition-all duration-500 ${
+            className={`text-6xl font-black font-orbitron bg-gradient-to-r from-blue-600 to-lime-400 bg-clip-text text-transparent transition-all duration-500 ${
               isHovered ? 'animate-pulse scale-110' : ''
             }`}
             style={{ 
@@ -23,7 +23,7 @@ const AnimatedGSPLogo = () => {
             G
           </span>
           <span 
-            className={`text-6xl font-bold bg-gradient-to-r from-blue-600 to-lime-400 bg-clip-text text-transparent transition-all duration-500 ${
+            className={`text-6xl font-black font-orbitron bg-gradient-to-r from-blue-600 to-lime-400 bg-clip-text text-transparent transition-all duration-500 ${
               isHovered ? 'animate-pulse scale-110' : ''
             }`}
             style={{ 
@@ -33,7 +33,7 @@ const AnimatedGSPLogo = () => {
             S
           </span>
           <span 
-            className={`text-6xl font-bold bg-gradient-to-r from-blue-600 to-lime-400 bg-clip-text text-transparent transition-all duration-500 ${
+            className={`text-6xl font-black font-orbitron bg-gradient-to-r from-blue-600 to-lime-400 bg-clip-text text-transparent transition-all duration-500 ${
               isHovered ? 'animate-pulse scale-110' : ''
             }`}
             style={{ 
@@ -77,10 +77,10 @@ const AnimatedGSPLogo = () => {
 
       {/* Subtitle */}
       <div className="mt-4 text-center">
-        <p className="text-sm text-muted-foreground/80 font-medium">
+        <p className="text-sm text-muted-foreground/80 font-medium font-orbitron">
           Generative Search Pro
         </p>
-        <p className="text-xs text-lime-400/70 mt-1">
+        <p className="text-xs text-lime-400/70 mt-1 font-orbitron">
           Engine Optimization
         </p>
       </div>
