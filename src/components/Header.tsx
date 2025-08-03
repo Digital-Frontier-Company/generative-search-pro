@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, Settings, LogOut, ChevronDown } from "lucide-react";
 import OptimizedImage from "@/components/ui/OptimizedImage";
-import gspLogo from "@/assets/gsp-logo.png";
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
@@ -47,7 +47,7 @@ const Header = () => {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
-            <OptimizedImage src={gspLogo} alt="GenerativeSearch.pro" className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
+            <OptimizedImage src="/gsp-logo.png" alt="GenerativeSearch.pro" className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
           </Link>
         </div>
 
