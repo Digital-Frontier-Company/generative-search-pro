@@ -108,6 +108,7 @@ export type Database = {
           confidence_score: number | null
           domain: string
           email: string | null
+          engine: string | null
           id: number
           improvement_areas: Json | null
           is_cited: boolean | null
@@ -127,6 +128,7 @@ export type Database = {
           confidence_score?: number | null
           domain: string
           email?: string | null
+          engine?: string | null
           id?: number
           improvement_areas?: Json | null
           is_cited?: boolean | null
@@ -146,6 +148,7 @@ export type Database = {
           confidence_score?: number | null
           domain?: string
           email?: string | null
+          engine?: string | null
           id?: number
           improvement_areas?: Json | null
           is_cited?: boolean | null
