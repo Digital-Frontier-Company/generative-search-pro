@@ -70,6 +70,8 @@ export default {
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
 				},
+				'auth-gradient-start': 'hsl(var(--auth-gradient-start))',
+				'auth-gradient-end': 'hsl(var(--auth-gradient-end))',
 				// Brand colors for GenerativeSearch.pro style
 				'matrix-green': 'hsl(var(--matrix-green))',
 				'success': 'hsl(120 100% 50%)',
