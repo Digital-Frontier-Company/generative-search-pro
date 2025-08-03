@@ -1,5 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { getJson } from "npm:serpapi@latest";
 import { createSecureHandler, validateInput, commonSchemas, validateEnvVars } from "../_shared/security.ts";
 import { getCached, setCached, generateCacheKey, withPerformanceMonitoring, retryWithBackoff } from "../_shared/performance.ts";
 import { extractGoogle } from "../_shared/citation.ts";
@@ -49,15 +50,23 @@ const secureHandler = createSecureHandler(
         throw new Error('SerpApi key not configured. Please add SERPAPI_KEY to your environment variables.');
       }
 
-      const serpApiUrl = `https://serpapi.com/search.json?engine=google&q=${encodeURIComponent(query)}&api_key=${serpApiKey}&gl=us&hl=en`;
-      
       // Use retry with exponential backoff for external API calls
       const serpData = await retryWithBackoff(async () => {
-        const response = await fetch(serpApiUrl);
-        if (!response.ok) {
-          throw new Error(`SerpApi request failed: ${response.status}`);
-        }
-        return response.json();
+        return new Promise((resolve, reject) => {
+          getJson({
+            api_key: serpApiKey,
+            engine: "google",
+            q: query,
+            gl: "us",
+            hl: "en"
+          }, (json: any) => {
+            if (json.error) {
+              reject(new Error(`SerpApi request failed: ${json.error}`));
+            } else {
+              resolve(json);
+            }
+          });
+        });
       }, 3, 1000, 5000);
 
       // Use shared extractor to normalize SERP data
