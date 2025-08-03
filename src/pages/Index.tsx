@@ -186,63 +186,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0D1117]">
+    <div className="min-h-screen flex flex-col">
       <JsonLdSchema schema={[...getHomepageSchema(), getHomepageFAQSchema()]} />
       
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-[#1E2329]">
-        <div className="flex items-center">
-          <div className="border-2 border-[#39FF14] rounded-lg p-2 mr-3" style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-            <div className="text-[#39FF14] text-4xl" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>?</div>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-              Generative<span className="text-white">Search.pro</span>
-            </h1>
-            <p className="text-[#39FF14] text-sm">Generative Engine Optimization</p>
-          </div>
-        </div>
-        <nav className="hidden md:flex space-x-6">
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-[#39FF14] hover:opacity-80 transition-all cursor-pointer"
-          >
-            Dashboard
-          </button>
-          <button 
-            onClick={() => navigate('/content-analysis')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            AI Audit
-          </button>
-          <button 
-            onClick={() => navigate('/seo-analysis')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            SEO Tools
-          </button>
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            Analytics
-          </button>
-          <button 
-            onClick={() => navigate('/resources')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            Resources
-          </button>
-        </nav>
-        <div className="flex items-center">
-          <button className="mr-4 text-white hover:text-[#39FF14]">
-            <Bell className="w-5 h-5" />
-          </button>
-          <div className="w-10 h-10 rounded-full bg-[#1E2329] flex items-center justify-center">
-            <User className="w-5 h-5" />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="container mx-auto p-6">
