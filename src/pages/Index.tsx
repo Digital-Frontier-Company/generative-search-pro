@@ -330,7 +330,7 @@ const Index = () => {
               transform: 'translateZ(15px)',
               transformStyle: 'preserve-3d',
               filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.4)) drop-shadow(0 5px 10px rgba(102, 255, 20, 0.3))',
-              WebkitTextStroke: '2px #1e3a8a'
+              WebkitTextStroke: '1px #1e3a8a'
             }}
           >
             Choose Your Plan
