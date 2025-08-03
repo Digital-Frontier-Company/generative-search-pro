@@ -47,7 +47,7 @@ const Header = () => {
     name: 'About',
     href: '/about'
   }];
-  return <header className="sticky top-0 z-50 w-full border-b border-matrix-green/20 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60">
+  return <header className="sticky top-0 z-50 w-full border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
@@ -136,7 +136,7 @@ const Header = () => {
       </div>
 
       {/* Mobile Navigation */}
-      {isMenuOpen && <div className="md:hidden border-t border-matrix-green/20 bg-black/95 backdrop-blur">
+      {isMenuOpen && <div className="md:hidden border-t border-matrix-green/20 bg-background/95 backdrop-blur">
           <div className="px-4 py-6 space-y-4">
             {navigation.map(item => (
               <Link key={item.name} to={item.href} className="block text-matrix-green hover:text-matrix-lime transition-colors" onClick={() => setIsMenuOpen(false)}>

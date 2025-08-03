@@ -6,10 +6,10 @@ import ContentQualityAnalyzer from "@/components/ContentQualityAnalyzer";
 
 const ContentAnalysis = () => {
   return (
-    <div className="min-h-screen flex flex-col bg-black">
+    <div className="min-h-screen flex flex-col">
       <Header />
       <Breadcrumbs />
-      <main className="flex-1 bg-black">
+      <main className="flex-1">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
