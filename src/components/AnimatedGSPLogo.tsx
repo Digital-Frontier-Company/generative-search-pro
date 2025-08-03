@@ -5,7 +5,7 @@ const AnimatedGSPLogo = () => {
 
   return (
     <div 
-      className="w-full max-w-md border-2 border-lime-400/30 rounded-lg p-6 bg-gradient-to-br from-black/20 to-lime-400/5 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:border-lime-400/60 hover:shadow-lg hover:shadow-lime-400/20"
+      className="w-full max-w-md rounded-lg p-6 bg-gradient-to-br from-black/20 to-lime-400/5 backdrop-blur-sm cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-lime-400/20"
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
