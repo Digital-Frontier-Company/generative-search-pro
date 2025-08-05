@@ -22,7 +22,7 @@ export const BrandSERPanalysis = lazy(() => import('@/pages/BrandSERPanalysis'))
 export const CitationChecker = lazy(() => import('@/pages/CitationChecker'));
 export const AISitemap = lazy(() => import('@/pages/AISitemap'));
 
-// TSO Dashboard and Components
+// TSO Dashboard and Components - Build Fix
 export const TSODashboard = lazy(() => import('@/pages/TSODashboard'));
 export const TSOOnboarding = lazy(() => import('@/pages/TSOOnboarding'));
 export const AIVisibilityTracker = lazy(() => import('@/components/TSO/AIVisibilityTracker'));
