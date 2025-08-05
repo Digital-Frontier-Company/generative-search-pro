@@ -195,7 +195,7 @@ For the most current information, please visit our website directly.
   };
 
   return (
-    <div className="min-h-screen bg-black">
+    <div className="min-h-screen">
       <div className="container max-w-7xl mx-auto py-8">
         <div className="flex justify-between items-center mb-6">
           <div>

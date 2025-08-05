@@ -1,6 +1,4 @@
 
-# A string used to distinguish different Supabase projects on the same host. Defaults to the
-# working directory name when running `supabase init`.
 project_id = "yyrjtiuvxhdwsjjrlxtm"
 
 [api]
@@ -95,31 +93,21 @@ message_service_sid = ""
 # DO NOT commit your Twilio auth token to git. Use environment variable substitution instead:
 auth_token = "env(SUPABASE_AUTH_SMS_TWILIO_AUTH_TOKEN)"
 
-# Define access rules for the Storage API.
-[[storage.rules]]
-name = "public"
-allow_select = true
-allow_insert = true
-allow_update = true
-allow_delete = true
 
-[edge_functions]
-enabled = true
-
-[edge_functions.generate-content]
+[functions.generate-content]
 verify_jwt = true
 
-[edge_functions.set-openai-key]
+[functions.set-openai-key]
 verify_jwt = true
 
-[edge_functions.create-checkout]
+[functions.create-checkout]
 verify_jwt = true
 
-[edge_functions.check-subscription]
+[functions.check-subscription]
 verify_jwt = true
 
-[edge_functions.customer-portal]
+[functions.customer-portal]
 verify_jwt = true
 
-[edge_functions.send-signup-emails]
+[functions.send-signup-emails]
 verify_jwt = false

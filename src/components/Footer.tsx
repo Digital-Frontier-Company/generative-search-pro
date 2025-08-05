@@ -1,12 +1,12 @@
 import { Github, Twitter, Mail } from "lucide-react";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+
 const Footer = () => {
-  return <footer className="bg-black border-t border-matrix-green/30">
+  return <footer className="bg-background/50 border-t border-matrix-green/30">
       <div className="container mx-auto py-12 px-4">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
-              <OptimizedImage src="/lovable-uploads/96aa1ceb-6858-443c-8bc7-1f9af19024d5.png" alt="GenerativeSearch" style={{ background: 'transparent' }} className="h-20 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
+              <img src="/lovable-uploads/508a5912-5d22-4a7d-a109-5bf20817d152.png" alt="GenerativeSearch" style={{ background: 'transparent' }} className="h-20 filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
             </div>
             <p className="text-matrix-green/70 text-sm max-w-xs">
               Generate optimized content for search engines and AI answer boxes with just a few clicks.
@@ -62,7 +62,7 @@ const Footer = () => {
               Website created by
             </p>
             <a href="https://digitalfrontier.app" target="_blank" rel="noopener noreferrer" className="inline-block hover:opacity-80 transition-opacity">
-              <OptimizedImage src="/lovable-uploads/0fe6567b-9ca7-43bd-92f5-76dc6e40c9aa.png" alt="Digital Frontier" className="h-4 filter drop-shadow-[0_0_8px_rgba(0,255,65,0.6)]" style={{ background: 'transparent' }} />
+              <img src="/lovable-uploads/0fe6567b-9ca7-43bd-92f5-76dc6e40c9aa.png" alt="Digital Frontier" className="h-4 filter drop-shadow-[0_0_8px_rgba(0,255,65,0.6)]" style={{ background: 'transparent' }} />
             </a>
             <p className="text-matrix-green/70 text-xs">
               © {new Date().getFullYear()} All rights reserved.

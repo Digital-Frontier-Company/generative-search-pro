@@ -80,11 +80,25 @@ const AIPlatformMonitor = () => {
         .from('ai_platform_citations')
         .select('*')
         .eq('user_id', user.id)
-        .order('checked_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(10);
 
       if (error) throw error;
-      setHistory(data || []);
+      
+      // Map database columns to expected interface
+      const mappedData = (data || []).map(item => ({
+        query: item.query,
+        domain: item.domain,
+        platforms: Array.isArray(item.platforms) ? item.platforms.map(p => String(p)) : [],
+        search_method: item.search_method,
+        results: [],
+        totalCitations: item.total_results || 0,
+        averageScore: 0,
+        averageConfidence: 0,
+        checkedAt: item.created_at
+      }));
+      
+      setHistory(mappedData);
     } catch (error) {
       console.error('Error loading AI platform history:', error);
     }

@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+
 import { Star } from "lucide-react";
 import { Helmet } from "react-helmet-async";
 
@@ -77,7 +77,7 @@ const TestimonialSection = () => {
                 
                 <div className="flex items-center">
                   <Avatar className="h-10 w-10 mr-3 overflow-hidden">
-                    <OptimizedImage src={testimonial.avatar} alt={testimonial.name} className="h-10 w-10 object-cover" />
+                    <img src={testimonial.avatar} alt={testimonial.name} className="h-10 w-10 object-cover" />
                     <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                   </Avatar>
                   <div>

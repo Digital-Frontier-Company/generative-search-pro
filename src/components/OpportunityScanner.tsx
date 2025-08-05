@@ -73,11 +73,23 @@ const OpportunityScanner = () => {
         .from('opportunity_scans')
         .select('*')
         .eq('user_id', user.id)
-        .order('scanned_at', { ascending: false })
+        .order('created_at', { ascending: false })
         .limit(5);
 
       if (error) throw error;
-      setHistory(data || []);
+      
+      // Map database columns to expected interface
+      const mappedData = (data || []).map(item => ({
+        domain: item.domain,
+        opportunities: [], // Empty array as we'll load this separately
+        totalOpportunities: item.total_opportunities,
+        highPotentialCount: item.high_potential_count,
+        averageDifficulty: Math.round((item.high_potential_count + item.medium_potential_count + item.low_potential_count) / 3 * 30), // Estimated
+        estimatedTimeToResults: '2-4 weeks', // Default value
+        scannedAt: item.created_at
+      }));
+      
+      setHistory(mappedData);
     } catch (error) {
       console.error('Error loading scan history:', error);
     }

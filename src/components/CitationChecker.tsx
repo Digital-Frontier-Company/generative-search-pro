@@ -114,7 +114,7 @@ const CitationChecker = () => {
         citationPosition: item.citation_position,
         totalSources: item.total_sources,
         queryComplexity: (['simple','medium','complex'].includes(item.query_complexity) ? item.query_complexity : 'medium') as 'simple' | 'medium' | 'complex',
-        improvementAreas: item.improvement_areas || []
+        improvementAreas: Array.isArray(item.improvement_areas) ? item.improvement_areas.map(area => String(area)) : []
       })) || [];
 
       setHistory(formattedHistory);
@@ -129,10 +129,9 @@ const CitationChecker = () => {
       if (!user) return;
 
       const { data, error } = await supabase
-        .from('citation_monitoring')
+        .from('citation_checks')
         .select('query')
-        .eq('user_id', user.id)
-        .eq('is_active', true);
+        .eq('user_id', user.id);
 
       if (error) throw error;
       
@@ -253,7 +252,7 @@ const CitationChecker = () => {
       if (!user) return;
 
       const { error } = await supabase
-        .from('citation_monitoring')
+        .from('citation_checks')
         .insert({
           user_id: user.id,
           query: queryToMonitor,

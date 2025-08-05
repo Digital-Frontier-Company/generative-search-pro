@@ -70,12 +70,18 @@ export default {
 					'4': 'hsl(var(--chart-4))',
 					'5': 'hsl(var(--chart-5))'
 				},
+				'auth-gradient-start': 'hsl(var(--auth-gradient-start))',
+				'auth-gradient-end': 'hsl(var(--auth-gradient-end))',
 				// Brand colors for GenerativeSearch.pro style
 				'matrix-green': 'hsl(var(--matrix-green))',
 				'success': 'hsl(120 100% 50%)',
 				'warning': 'hsl(60 100% 50%)',
 				'error': 'hsl(0 100% 50%)',
 				'info': 'hsl(240 100% 70%)'
+			},
+			fontFamily: {
+				sans: ["Inter", "sans-serif"],
+				orbitron: ["Orbitron", "monospace"],
 			},
 			borderRadius: {
 				lg: 'var(--radius)',

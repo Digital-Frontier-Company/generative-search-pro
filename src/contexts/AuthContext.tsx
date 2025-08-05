@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -154,9 +153,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   // Enhanced sign in with security measures
   const signIn = useCallback(async (email: string, password: string): Promise<{ error?: AuthError }> => {
     if (checkLockout()) {
-      const error = new Error(`Account locked due to too many failed attempts. Try again in ${Math.ceil(LOCKOUT_DURATION / 60000)} minutes.`) as AuthError;
-      error.__isAuthError = true;
-      return { error };
+      const error = new Error(`Account locked due to too many failed attempts. Try again in ${Math.ceil(LOCKOUT_DURATION / 60000)} minutes.`);
+      return { error: error as AuthError };
     }
 
     try {
@@ -181,7 +179,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         }
 
         const enhancedError = new Error(errorMessage) as AuthError;
-        enhancedError.__isAuthError = true;
         return { error: enhancedError };
       }
 
@@ -214,7 +211,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Sign in error:', error);
       const authError = new Error('An unexpected error occurred. Please try again.') as AuthError;
-      authError.__isAuthError = true;
       return { error: authError };
     } finally {
       setLoading(false);
@@ -229,13 +225,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Client-side password validation
       if (password.length < 8) {
         const error = new Error('Password must be at least 8 characters long.') as AuthError;
-        error.__isAuthError = true;
         return { error };
       }
       
       if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(password)) {
         const error = new Error('Password must contain at least one uppercase letter, one lowercase letter, and one number.') as AuthError;
-        error.__isAuthError = true;
         return { error };
       }
 
@@ -253,7 +247,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           errorMessage = 'An account with this email already exists. Please sign in instead.';
         }
         const enhancedError = new Error(errorMessage) as AuthError;
-        enhancedError.__isAuthError = true;
         return { error: enhancedError };
       }
 
@@ -265,7 +258,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Sign up error:', error);
       const authError = new Error('An unexpected error occurred. Please try again.') as AuthError;
-      authError.__isAuthError = true;
       return { error: authError };
     } finally {
       setLoading(false);
@@ -323,7 +315,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Password reset error:', error);
       const authError = new Error('Failed to send password reset email. Please try again.') as AuthError;
-      authError.__isAuthError = true;
       return { error: authError };
     }
   }, []);
@@ -334,7 +325,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Client-side validation
       if (password.length < 8) {
         const error = new Error('Password must be at least 8 characters long.') as AuthError;
-        error.__isAuthError = true;
         return { error };
       }
 
@@ -349,7 +339,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     } catch (error) {
       console.error('Password update error:', error);
       const authError = new Error('Failed to update password. Please try again.') as AuthError;
-      authError.__isAuthError = true;
       return { error: authError };
     }
   }, []);

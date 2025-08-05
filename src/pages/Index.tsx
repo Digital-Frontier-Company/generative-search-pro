@@ -16,6 +16,7 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeatureComparisonSection from "@/components/landing/FeatureComparisonSection";
 import TrustSection from "@/components/landing/TrustSection";
+import AnimatedGSPLogo from "@/components/AnimatedGSPLogo";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -46,8 +47,13 @@ const Index = () => {
     };
 
     // Show first toast after 6 s, then every 35 s
+<<<<<<< HEAD
     const firstTimeout = setTimeout(() => toast.custom(getRotatingMessage()), 6000);
     const interval = setInterval(() => toast.custom(getRotatingMessage()), 35000);
+=======
+    const firstTimeout = setTimeout(() => toast(randomMessage()), 6000);
+    const interval = setInterval(() => toast(randomMessage()), 35000);
+>>>>>>> 83f40d9b4ed8664ef089e49bac614051491426c0
     return () => {
       clearTimeout(firstTimeout);
       clearInterval(interval);
@@ -192,63 +198,11 @@ const Index = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#0D1117]">
+    <div className="min-h-screen flex flex-col">
       <JsonLdSchema schema={[...getHomepageSchema(), getHomepageFAQSchema()]} />
       
       {/* Header */}
-      <header className="flex items-center justify-between p-4 border-b border-[#1E2329]">
-        <div className="flex items-center">
-          <div className="border-2 border-[#39FF14] rounded-lg p-2 mr-3" style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-            <div className="text-[#39FF14] text-4xl" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>?</div>
-          </div>
-          <div>
-            <h1 className="text-3xl font-bold text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>
-              Generative<span className="text-white">Search.pro</span>
-            </h1>
-            <p className="text-[#39FF14] text-sm">Generative Engine Optimization</p>
-          </div>
-        </div>
-        <nav className="hidden md:flex space-x-6">
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-[#39FF14] hover:opacity-80 transition-all cursor-pointer"
-          >
-            Dashboard
-          </button>
-          <button 
-            onClick={() => navigate('/content-analysis')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            AI Audit
-          </button>
-          <button 
-            onClick={() => navigate('/seo-analysis')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            SEO Tools
-          </button>
-          <button 
-            onClick={() => navigate('/dashboard')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            Analytics
-          </button>
-          <button 
-            onClick={() => navigate('/resources')}
-            className="text-white hover:text-[#39FF14] transition-all cursor-pointer"
-          >
-            Resources
-          </button>
-        </nav>
-        <div className="flex items-center">
-          <button className="mr-4 text-white hover:text-[#39FF14]">
-            <Bell className="w-5 h-5" />
-          </button>
-          <div className="w-10 h-10 rounded-full bg-[#1E2329] flex items-center justify-center">
-            <User className="w-5 h-5" />
-          </div>
-        </div>
-      </header>
+      <Header />
 
       {/* Main Content */}
       <main className="container mx-auto p-6">
@@ -256,8 +210,20 @@ const Index = () => {
         <section className="mb-12">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
-              <h1 className="text-4xl font-bold mb-4">
-                Optimize Your Content for <span className="text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>AI Visibility</span>
+              {/* Animated GSP Logo positioned above the title */}
+              <div className="mb-6">
+                <AnimatedGSPLogo />
+              </div>
+              <h1 
+                className="text-4xl font-bold mb-4 font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(15px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                Optimize Your Content for <span className="text-[#39FF14]">AI Visibility</span>
               </h1>
               <p className="text-lg mb-6 text-gray-300">
                 Create SEO-friendly content that ranks well in both traditional search engines and new AI-powered answer engines.
@@ -317,48 +283,118 @@ const Index = () => {
 
         {/* Features Section */}
         <section id="features" className="mb-12">
-          <h2 className="text-3xl font-bold mb-8 text-center text-[#39FF14]">Powerful Features for AI-Ready Content</h2>
+          <h2 
+            className="text-3xl font-bold mb-8 text-center text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+            style={{
+              textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+              transform: 'translateZ(15px)',
+              transformStyle: 'preserve-3d',
+              filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+            }}
+          >
+            Powerful Features for AI-Ready Content
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-[#39FF14] text-3xl mb-4">
                 <Search className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Advanced SEO Analysis</h3>
+              <h3 
+                className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(10px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                Advanced SEO Analysis
+              </h3>
               <p className="text-gray-300">Get comprehensive insights into your website's performance with our advanced SEO analysis tools. Track rankings, identify issues, and optimize for both traditional and AI search engines.</p>
             </div>
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-[#39FF14] text-3xl mb-4">
                 <Bot className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">AI Visibility Scoring</h3>
+              <h3 
+                className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(10px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                AI Visibility Scoring
+              </h3>
               <p className="text-gray-300">Evaluate how well your content performs with AI-powered answer engines like ChatGPT, Claude, and Perplexity. Get actionable suggestions to improve your AI search rankings.</p>
             </div>
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-[#39FF14] text-3xl mb-4">
                 <Lightbulb className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Smart Content Generator</h3>
+              <h3 
+                className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(10px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                Smart Content Generator
+              </h3>
               <p className="text-gray-300">Create AEO-optimized content that ranks well in both traditional search and AI answer engines. Our AI generates fact-based, well-structured content with proper citations.</p>
             </div>
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-[#39FF14] text-3xl mb-4">
                 <CheckSquare className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Citation Monitoring</h3>
+              <h3 
+                className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(10px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                Citation Monitoring
+              </h3>
               <p className="text-gray-300">Track how often your content is cited by AI engines. Monitor your brand mentions and see which competitors are being referenced more frequently.</p>
             </div>
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-[#39FF14] text-3xl mb-4">
                 <Globe className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Domain Analytics</h3>
+              <h3 
+                className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(10px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                Domain Analytics
+              </h3>
               <p className="text-gray-300">Comprehensive domain analysis including keyword tracking, backlink analysis, and competitive intelligence specifically designed for the AI search era.</p>
             </div>
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-[#39FF14] text-3xl mb-4">
                 <Target className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold mb-2">Schema Optimization</h3>
+              <h3 
+                className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                style={{
+                  textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                  transform: 'translateZ(10px)',
+                  transformStyle: 'preserve-3d',
+                  filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                }}
+              >
+                Schema Optimization
+              </h3>
               <p className="text-gray-300">Automatically generate and optimize structured data markup to help AI engines better understand and index your content for improved visibility.</p>
             </div>
           </div>
@@ -366,12 +402,32 @@ const Index = () => {
 
         {/* Pricing Section */}
         <section id="pricing" className="mb-12">
-          <h2 className="text-3xl font-bold mb-8 text-center text-[#39FF14]">Choose Your Plan</h2>
+          <h2 
+            className="text-3xl font-bold mb-8 text-center text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+            style={{
+              textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+              transform: 'translateZ(15px)',
+              transformStyle: 'preserve-3d',
+              filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+            }}
+          >
+            Choose Your Plan
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {/* Starter Plan */}
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold mb-2">Starter</h3>
+                <h3 
+                  className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(10px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Starter
+                </h3>
                 <div className="text-3xl font-bold text-[#39FF14] mb-2">$29<span className="text-lg text-gray-400">/month</span></div>
                 <p className="text-gray-400">Perfect for small businesses</p>
               </div>
@@ -397,7 +453,17 @@ const Index = () => {
                 <span className="bg-[#39FF14] text-[#0D1117] px-3 py-1 rounded-full text-sm font-bold">Most Popular</span>
               </div>
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold mb-2">Professional</h3>
+                <h3 
+                  className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(10px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Professional
+                </h3>
                 <div className="text-3xl font-bold text-[#39FF14] mb-2">$79<span className="text-lg text-gray-400">/month</span></div>
                 <p className="text-gray-400">For growing businesses</p>
               </div>
@@ -421,7 +487,17 @@ const Index = () => {
             {/* Enterprise Plan */}
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-6 hover:border-[#39FF14] transition-all">
               <div className="text-center mb-6">
-                <h3 className="text-xl font-bold mb-2">Enterprise</h3>
+                <h3 
+                  className="text-xl font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 15px #39FF14, 0 0 30px #39FF14, 0 6px 12px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(10px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 8px 15px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Enterprise
+                </h3>
                 <div className="text-3xl font-bold text-[#39FF14] mb-2">$199<span className="text-lg text-gray-400">/month</span></div>
                 <p className="text-gray-400">For large organizations</p>
               </div>
@@ -441,7 +517,17 @@ const Index = () => {
 
         {/* Content Optimizer Tool */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">Content Optimizer</h2>
+          <h2 
+            className="text-2xl font-bold mb-6 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+            style={{
+              textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+              transform: 'translateZ(15px)',
+              transformStyle: 'preserve-3d',
+              filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+            }}
+          >
+            Content Optimizer
+          </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="border border-[#1E2329] rounded-lg overflow-hidden">
               <div className="bg-[#1E2329] p-4 flex justify-between items-center">
@@ -603,7 +689,17 @@ const Index = () => {
 
         {/* AI Visibility Metrics */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">AI Visibility Metrics</h2>
+          <h2 
+            className="text-2xl font-bold mb-6 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+            style={{
+              textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+              transform: 'translateZ(15px)',
+              transformStyle: 'preserve-3d',
+              filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+            }}
+          >
+            AI Visibility Metrics
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             <div className="border border-[#1E2329] bg-[#1E2329] rounded-lg p-4">
               <div className="flex justify-between items-center mb-2">
@@ -650,14 +746,34 @@ const Index = () => {
 
         {/* Best Practices */}
         <section className="mb-12">
-          <h2 className="text-2xl font-bold mb-6">AI Visibility Best Practices</h2>
+          <h2 
+            className="text-2xl font-bold mb-6 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+            style={{
+              textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+              transform: 'translateZ(15px)',
+              transformStyle: 'preserve-3d',
+              filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+            }}
+          >
+            AI Visibility Best Practices
+          </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="flex">
               <div className="text-[#39FF14] text-2xl mr-4">
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">Structure Content with Clear Headings</h3>
+                <h3 
+                  className="text-lg font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 10px #39FF14, 0 0 20px #39FF14, 0 4px 8px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(8px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 6px 12px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Structure Content with Clear Headings
+                </h3>
                 <p className="text-gray-300">Use descriptive H2 and H3 headings that directly address user questions. AI systems use headings to understand content hierarchy and identify key information.</p>
               </div>
             </div>
@@ -666,7 +782,17 @@ const Index = () => {
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">Include Concise Definitions</h3>
+                <h3 
+                  className="text-lg font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 10px #39FF14, 0 0 20px #39FF14, 0 4px 8px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(8px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 6px 12px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Include Concise Definitions
+                </h3>
                 <p className="text-gray-300">Provide clear, direct definitions of key terms and concepts. AI engines often extract these definitions to answer "what is" type queries.</p>
               </div>
             </div>
@@ -675,7 +801,17 @@ const Index = () => {
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">Implement FAQ Schema Markup</h3>
+                <h3 
+                  className="text-lg font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 10px #39FF14, 0 0 20px #39FF14, 0 4px 8px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(8px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 6px 12px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Implement FAQ Schema Markup
+                </h3>
                 <p className="text-gray-300">Add structured data to your content using FAQ schema. This helps AI systems identify and extract questions and answers from your content.</p>
               </div>
             </div>
@@ -684,7 +820,17 @@ const Index = () => {
                 <CheckCircle className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="text-lg font-bold mb-2">Provide Factual, Verifiable Information</h3>
+                <h3 
+                  className="text-lg font-bold mb-2 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+                  style={{
+                    textShadow: '0 0 10px #39FF14, 0 0 20px #39FF14, 0 4px 8px rgba(0, 0, 0, 0.5)',
+                    transform: 'translateZ(8px)',
+                    transformStyle: 'preserve-3d',
+                    filter: 'drop-shadow(0 6px 12px rgba(57, 255, 20, 0.3))'
+                  }}
+                >
+                  Provide Factual, Verifiable Information
+                </h3>
                 <p className="text-gray-300">AI systems prioritize factual content with verifiable data. Include statistics, research findings, and citations to increase your content's authority.</p>
               </div>
             </div>
@@ -714,7 +860,17 @@ const Index = () => {
         {/* Final CTA Section */}
         <section className="mb-12">
           <div className="neon-border rounded-lg p-8 text-center">
-            <h2 className="text-3xl font-bold mb-4 gradient-text">Ready to Dominate AI Search Results?</h2>
+            <h2 
+              className="text-3xl font-bold mb-4 text-[#39FF14] font-orbitron transform-gpu transition-all duration-300 hover:scale-105"
+              style={{
+                textShadow: '0 0 20px #39FF14, 0 0 40px #39FF14, 0 8px 16px rgba(0, 0, 0, 0.5)',
+                transform: 'translateZ(15px)',
+                transformStyle: 'preserve-3d',
+                filter: 'drop-shadow(0 10px 20px rgba(57, 255, 20, 0.3))'
+              }}
+            >
+              Ready to Dominate AI Search Results?
+            </h2>
             <p className="text-lg mb-6 max-w-2xl mx-auto text-muted-foreground">
               Join 1000+ businesses already winning with AI-optimized content. Start your free trial today.
             </p>

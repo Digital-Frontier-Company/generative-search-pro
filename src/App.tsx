@@ -26,6 +26,8 @@ import Settings from "./pages/Settings";
 import Admin from "./pages/Admin";
 import Upgrade from "./pages/Upgrade";
 import NotFound from "./pages/NotFound";
+import SchemaMarkupGuide from "./pages/SchemaMarkupGuide";
+import Analysis from "./pages/Analysis";
 
 // TSO Dashboard and Components
 import TSODashboard from "./pages/TSODashboard";
@@ -58,6 +60,15 @@ function App() {
                 <Route path="/about" element={<About />} />
                 <Route path="/upgrade" element={<Upgrade />} />
                 <Route path="/resources" element={<Resources />} />
+                <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
+                <Route
+                  path="/analysis"
+                  element={
+                    <ProtectedRoute>
+                      <Analysis />
+                    </ProtectedRoute>
+                  }
+                />
                 <Route
                   path="/dashboard"
                   element={

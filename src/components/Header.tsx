@@ -2,12 +2,14 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X, User, Settings, LogOut, ChevronDown } from "lucide-react";
-import OptimizedImage from "@/components/ui/OptimizedImage";
+
+
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { AnalyticsCTA, defaultCTAVariants } from "@/components/optimized/AnalyticsCTA";
 const Header = () => {
+  console.log('Header component rendered, checking logo path');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {
     user,
@@ -36,17 +38,29 @@ const Header = () => {
     name: 'Home',
     href: '/'
   }, {
+    name: 'Analysis',
+    href: '/analysis'
+  }, {
     name: 'Resources',
     href: '/resources'
   }, {
     name: 'About',
     href: '/about'
   }];
-  return <header className="sticky top-0 z-50 w-full border-b border-matrix-green/20 bg-black/95 backdrop-blur supports-[backdrop-filter]:bg-black/60">
+  return <header className="sticky top-0 z-50 w-full border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
-            <OptimizedImage src="/lovable-uploads/116d8223-82d2-48be-a0fa-567653c8f956.png" alt="GenerativeSearch.pro" className="h-10 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain" />
+            <img 
+              src="/lovable-uploads/508a5912-5d22-4a7d-a109-5bf20817d152.png"
+              alt="GenerativeSearch.pro" 
+              className="h-40 w-auto filter drop-shadow-[0_0_10px_rgba(0,255,65,0.8)] object-contain"
+              onError={(e) => {
+                console.error('Logo failed to load:', e.currentTarget.src);
+                e.currentTarget.style.border = '2px solid red';
+              }}
+              onLoad={() => console.log('Logo loaded successfully')}
+            />
           </Link>
         </div>
 
@@ -130,7 +144,7 @@ const Header = () => {
       </div>
 
       {/* Mobile Navigation */}
-      {isMenuOpen && <div className="md:hidden border-t border-matrix-green/20 bg-black/95 backdrop-blur">
+      {isMenuOpen && <div className="md:hidden border-t border-matrix-green/20 bg-background/95 backdrop-blur">
           <div className="px-4 py-6 space-y-4">
             {navigation.map(item => (
               <Link key={item.name} to={item.href} className="block text-matrix-green hover:text-matrix-lime transition-colors" onClick={() => setIsMenuOpen(false)}>
