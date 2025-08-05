@@ -6,15 +6,14 @@ import App from "./App.tsx";
 import "./index.css";
 import { setupGlobalErrorHandlers } from "./lib/errorHandler";
 import { setupCSP } from "./lib/security";
-import { preloadCriticalRoutes } from "./routes/lazyRoutes";
+// Performance optimizations removed for simplicity
 import { bundleOptimizer } from "./lib/bundleOptimizer";
 
 // Initialize security features
 setupGlobalErrorHandlers();
 setupCSP();
 
-// Initialize performance optimizations
-preloadCriticalRoutes();
+// Performance optimizations - lazy loading handled by React.lazy
 
 // Preconnect to external domains
 bundleOptimizer.preconnectDomains([
