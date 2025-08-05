@@ -47,13 +47,8 @@ const Index = () => {
     };
 
     // Show first toast after 6 s, then every 35 s
-<<<<<<< HEAD
     const firstTimeout = setTimeout(() => toast.custom(getRotatingMessage()), 6000);
     const interval = setInterval(() => toast.custom(getRotatingMessage()), 35000);
-=======
-    const firstTimeout = setTimeout(() => toast(randomMessage()), 6000);
-    const interval = setInterval(() => toast(randomMessage()), 35000);
->>>>>>> 83f40d9b4ed8664ef089e49bac614051491426c0
     return () => {
       clearTimeout(firstTimeout);
       clearInterval(interval);
