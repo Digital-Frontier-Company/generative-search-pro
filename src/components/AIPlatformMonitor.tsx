@@ -92,7 +92,7 @@ const AIPlatformMonitor = () => {
         platforms: Array.isArray(item.platforms) ? item.platforms.map(p => String(p)) : [],
         search_method: item.search_method,
         results: [],
-        totalCitations: item.total_results || 0,
+        totalCitations: item.total_citations || 0,
         averageScore: 0,
         averageConfidence: 0,
         checkedAt: item.created_at

@@ -496,7 +496,7 @@ const AIVisibilityScore = () => {
                           <div className="text-blue-600">Voice Search</div>
                         </div>
                         <div className="text-center">
-                          <div className="font-medium text-blue-900">{Math.round(visibilityScore * 0.3)}%</div>
+                          <div className="font-medium text-blue-900">{Math.round(overallScore * 0.3)}%</div>
                           <div className="text-blue-600">Market Share</div>
                         </div>
                       </div>
@@ -565,13 +565,13 @@ const AIVisibilityScore = () => {
                       </div>
                       <div className="text-center p-4 bg-blue-50 rounded-lg">
                         <div className="text-2xl font-bold text-blue-600">
-                          +{Math.max(1, Math.floor(visibilityScore / 10))}
+                          +{Math.max(1, Math.floor(overallScore / 10))}
                         </div>
                         <div className="text-sm text-gray-600">Points This Month</div>
                       </div>
                       <div className="text-center p-4 bg-purple-50 rounded-lg">
                         <div className="text-2xl font-bold text-purple-600">
-                          #{Math.max(1, Math.floor(visibilityScore / 15))}
+                          #{Math.max(1, Math.floor(overallScore / 15))}
                         </div>
                         <div className="text-sm text-gray-600">Industry Ranking</div>
                       </div>

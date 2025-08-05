@@ -633,10 +633,10 @@ const CitationAttributionTracker = () => {
                               <div className="flex items-center gap-3">
                                 <Badge variant="outline">#{sentence.position}</Badge>
                                 <div className="flex items-center gap-2">
-                                  {sentence.hasStatistic && <Hash className="w-4 h-4 text-blue-500" title="Contains Statistics" />}
-                                  {sentence.hasQuote && <Quote className="w-4 h-4 text-purple-500" title="Contains Quote" />}
-                                  {sentence.hasFactualClaim && <CheckCircle className="w-4 h-4 text-green-500" title="Factual Claim" />}
-                                  {sentence.hasDefinition && <FileText className="w-4 h-4 text-orange-500" title="Contains Definition" />}
+                                   {sentence.hasStatistic && <Hash className="w-4 h-4 text-blue-500" />}
+                                   {sentence.hasQuote && <Quote className="w-4 h-4 text-purple-500" />}
+                                   {sentence.hasFactualClaim && <CheckCircle className="w-4 h-4 text-green-500" />}
+                                   {sentence.hasDefinition && <FileText className="w-4 h-4 text-orange-500" />}
                                 </div>
                               </div>
                               <div className="flex items-center gap-2">

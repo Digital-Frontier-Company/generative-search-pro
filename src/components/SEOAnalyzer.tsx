@@ -326,7 +326,7 @@ const SEOAnalyzer = () => {
       if (!data.openGraphTags || data.openGraphTags < 3) {
         issues.push({
           type: 'warning',
-          category: 'social',
+          category: 'content',
           title: 'Incomplete Open Graph Tags',
           description: `Only ${data.openGraphTags || 0} out of 3 basic Open Graph tags found`,
           impact: 'low',

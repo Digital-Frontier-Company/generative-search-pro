@@ -41,6 +41,10 @@ const ContentHistory = () => {
     queryFn: getUserContentHistory
   });
   
+  // Derived state
+  const displayedContent = searchResults || contentBlocks;
+  const isSearchMode = searchResults !== null;
+  
   const handleViewContent = (content: ContentBlock) => {
     setSelectedContent(content);
     // In a full implementation, this would navigate to a content view page
@@ -60,7 +64,7 @@ const ContentHistory = () => {
 
   const generateLLMTxt = async () => {
     try {
-      const contentToProcess = displayedContent;
+      const contentToProcess = searchResults || contentBlocks;
       if (contentToProcess.length === 0) {
         toast.error("No content available to generate LLM.txt file");
         return;

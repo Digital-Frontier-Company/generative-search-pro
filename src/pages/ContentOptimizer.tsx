@@ -69,7 +69,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
     setLoading(true);
     try {
       // Use real AI-powered content analysis
-      const { data, error } = await supabase.functions.invoke('ai-answer-optimizer', {
+      const { data, error } = await (await import('@/integrations/supabase/client')).supabase.functions.invoke('ai-answer-optimizer', {
         body: JSON.stringify({
           content,
           targetQuery: targetKeyword,
