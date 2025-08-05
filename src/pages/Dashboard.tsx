@@ -6,12 +6,20 @@ import { Button } from "@/components/ui/button";
 import { FileText, Search, BarChart3, CheckSquare, Map, BookOpen, Microscope, Settings, Bell, Download, ArrowUp, Quote, TrendingUp, Target, AlertTriangle, Wrench, Users, PieChart, Code, Gem } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useState, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import AIVisibilityScore from "@/components/AIVisibilityScore";
+import AIPlatformMonitor from "@/components/AIPlatformMonitor";
+import CitationChecker from "@/components/CitationChecker";
 
 const Dashboard = () => {
   const { user } = useAuth();
   const { subscribed, isTrialActive } = useSubscription();
   const { defaultDomain } = useDomain();
   const navigate = useNavigate();
+  const [aiVisibilityData, setAIVisibilityData] = useState(null);
+  const [citationStats, setCitationStats] = useState(null);
+  const [recentAnalyses, setRecentAnalyses] = useState([]);
 
   const handleToolClick = (path: string, usesDomain: boolean = false) => {
     if (usesDomain && !defaultDomain) {
@@ -19,6 +27,51 @@ const Dashboard = () => {
       return;
     }
     navigate(path, { state: { domain: defaultDomain } });
+  };
+
+  // Load real data from Supabase
+  useEffect(() => {
+    if (user && defaultDomain) {
+      loadDashboardData();
+    }
+  }, [user, defaultDomain]);
+
+  const loadDashboardData = async () => {
+    try {
+      // Load recent AI visibility analyses
+      const { data: visibilityData } = await supabase
+        .from('ai_platform_citations')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1);
+
+      if (visibilityData && visibilityData.length > 0) {
+        setAIVisibilityData(visibilityData[0]);
+      }
+
+      // Load citation statistics
+      const { data: citationData } = await supabase
+        .from('citation_checks')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('checked_at', { ascending: false })
+        .limit(5);
+
+      setCitationStats(citationData);
+
+      // Load recent SEO analyses
+      const { data: seoData } = await supabase
+        .from('seo_analyses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(3);
+
+      setRecentAnalyses(seoData || []);
+    } catch (error) {
+      console.error('Error loading dashboard data:', error);
+    }
   };
 
   return (
@@ -32,8 +85,8 @@ const Dashboard = () => {
                 <div className="text-[#00E047] text-4xl font-bold relative">
                   <div className="absolute -inset-1 bg-[#00E047] opacity-20 rounded-lg blur-xl"></div>
                   <div className="relative flex items-center">
-                    <div className="bg-[#00E047]/10 border-2 border-[#00E047] rounded-lg w-12 h-12 flex items-center justify-center mr-2">
-                      <span className="text-[#00E047] text-2xl">G</span>
+                    <div className="bg-[#00E047] rounded-lg w-12 h-12 flex items-center justify-center mr-2 shadow-lg">
+                      <span className="text-black text-2xl font-bold">?</span>
                     </div>
                     <div>
                       <div className="text-[#00E047] text-xl leading-none">Generative</div>
@@ -166,59 +219,82 @@ const Dashboard = () => {
                     <p className="text-gray-400">Track your presence across AI-powered search platforms</p>
                   </div>
                   <div className="text-right">
-                    <div className="text-4xl font-bold text-[#00E047] mb-1">86<span className="text-2xl text-gray-400">/100</span></div>
+                    <div className="text-4xl font-bold text-[#00E047] mb-1">
+                      {aiVisibilityData?.average_score || 0}
+                      <span className="text-2xl text-gray-400">/100</span>
+                    </div>
                     <div className="text-[#00C853] text-sm flex items-center justify-end">
                       <ArrowUp className="w-4 h-4 mr-1" />
-                      12% improvement this month
+                      {aiVisibilityData?.total_citations || 0} citations found
                     </div>
                   </div>
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4">
+                  <div 
+                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
+                    onClick={() => handleToolClick('/analysis', true)}
+                  >
                     <div className="flex items-center mb-2">
                       <div className="bg-[#00E047]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#00E047]" />
                       </div>
                       <div>
                         <div className="text-sm text-gray-400">ChatGPT</div>
-                        <div className="font-semibold">92%</div>
+                        <div className="font-semibold">
+                          {aiVisibilityData?.platforms?.find(p => p.name === 'chatgpt')?.score || '0'}%
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4">
+                  <div 
+                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
+                    onClick={() => handleToolClick('/analysis', true)}
+                  >
                     <div className="flex items-center mb-2">
                       <div className="bg-[#2196F3]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#2196F3]" />
                       </div>
                       <div>
                         <div className="text-sm text-gray-400">Perplexity</div>
-                        <div className="font-semibold">85%</div>
+                        <div className="font-semibold">
+                          {aiVisibilityData?.platforms?.find(p => p.name === 'perplexity')?.score || '0'}%
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4">
+                  <div 
+                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
+                    onClick={() => handleToolClick('/analysis', true)}
+                  >
                     <div className="flex items-center mb-2">
                       <div className="bg-[#FFB300]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#FFB300]" />
                       </div>
                       <div>
                         <div className="text-sm text-gray-400">Google AI</div>
-                        <div className="font-semibold">78%</div>
+                        <div className="font-semibold">
+                          {aiVisibilityData?.platforms?.find(p => p.name === 'bard')?.score || '0'}%
+                        </div>
                       </div>
                     </div>
                   </div>
                   
-                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4">
+                  <div 
+                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
+                    onClick={() => handleToolClick('/analysis', true)}
+                  >
                     <div className="flex items-center mb-2">
                       <div className="bg-[#FF3D00]/10 p-2 rounded-lg mr-3">
                         <Gem className="w-4 h-4 text-[#FF3D00]" />
                       </div>
                       <div>
                         <div className="text-sm text-gray-400">Gemini</div>
-                        <div className="font-semibold">81%</div>
+                        <div className="font-semibold">
+                          {aiVisibilityData?.platforms?.find(p => p.name === 'gemini')?.score || '0'}%
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -240,50 +316,41 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="space-y-4">
-                  <div className="flex items-start p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10">
-                    <div className="bg-[#00C853]/10 p-2 rounded-lg mr-3">
-                      <Quote className="w-4 h-4 text-[#00C853]" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">Latest Citation</h4>
-                      <p className="text-xs text-gray-400 mb-1">Mentioned in ChatGPT response about "AI SEO strategies"</p>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <span>2 hours ago</span>
-                        <span className="mx-2">•</span>
-                        <span className="text-[#00C853]">High relevance</span>
+                  {citationStats && citationStats.length > 0 ? (
+                    citationStats.slice(0, 3).map((citation, index) => (
+                      <div key={index} className="flex items-start p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10">
+                        <div className={`p-2 rounded-lg mr-3 ${citation.is_cited ? 'bg-[#00C853]/10' : 'bg-[#FF3D00]/10'}`}>
+                          <Quote className={`w-4 h-4 ${citation.is_cited ? 'text-[#00C853]' : 'text-[#FF3D00]'}`} />
+                        </div>
+                        <div className="flex-1">
+                          <h4 className="font-medium text-sm">
+                            {citation.is_cited ? 'Citation Found' : 'No Citation'}
+                          </h4>
+                          <p className="text-xs text-gray-400 mb-1">
+                            "{citation.query}" on {citation.domain}
+                          </p>
+                          <div className="flex items-center text-xs text-gray-500">
+                            <span>{new Date(citation.checked_at).toLocaleDateString()}</span>
+                            <span className="mx-2">•</span>
+                            <span className={citation.is_cited ? 'text-[#00C853]' : 'text-[#FF3D00]'}>
+                              {citation.confidence_score ? `${citation.confidence_score}% confidence` : 'Checked'}
+                            </span>
+                          </div>
+                        </div>
                       </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-8">
+                      <p className="text-gray-400 mb-2">No recent citation checks</p>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => handleToolClick('/citation-checker', true)}
+                      >
+                        Run First Check
+                      </Button>
                     </div>
-                  </div>
-                  
-                  <div className="flex items-start p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10">
-                    <div className="bg-[#2196F3]/10 p-2 rounded-lg mr-3">
-                      <Quote className="w-4 h-4 text-[#2196F3]" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">Source Attribution</h4>
-                      <p className="text-xs text-gray-400 mb-1">Referenced in Perplexity for "zero-click optimization"</p>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <span>5 hours ago</span>
-                        <span className="mx-2">•</span>
-                        <span className="text-[#2196F3]">Medium relevance</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10">
-                    <div className="bg-[#FFB300]/10 p-2 rounded-lg mr-3">
-                      <Quote className="w-4 h-4 text-[#FFB300]" />
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-medium text-sm">Brand Mention</h4>
-                      <p className="text-xs text-gray-400 mb-1">Featured in Google AI Overview for "GEO tools"</p>
-                      <div className="flex items-center text-xs text-gray-500">
-                        <span>1 day ago</span>
-                        <span className="mx-2">•</span>
-                        <span className="text-[#FFB300]">High impact</span>
-                      </div>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </div>
               
@@ -300,11 +367,13 @@ const Dashboard = () => {
                         <BarChart3 className="w-4 h-4 text-[#00E047]" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-sm">SEO Analysis Hub</h4>
-                        <p className="text-xs text-gray-400">AI visibility tracking platform</p>
+                        <h4 className="font-medium text-sm">AI Visibility Tracker</h4>
+                        <p className="text-xs text-gray-400">Track AI platform citations</p>
                       </div>
                     </div>
-                    <Button className="bg-[#00E047] hover:bg-[#00E047]/80 text-black px-3 py-1 rounded-lg text-xs font-medium">Connect</Button>
+                    <Button className="bg-[#00E047] hover:bg-[#00E047]/80 text-black px-3 py-1 rounded-lg text-xs font-medium">
+                      Analyze
+                    </Button>
                   </div>
                   
                   <div 
@@ -316,27 +385,31 @@ const Dashboard = () => {
                         <CheckSquare className="w-4 h-4 text-[#2196F3]" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-sm">Citation Checker</h4>
-                        <p className="text-xs text-gray-400">Competitive analysis tool</p>
+                        <h4 className="font-medium text-sm">Citation Monitor</h4>
+                        <p className="text-xs text-gray-400">Check AI citations</p>
                       </div>
                     </div>
-                    <Button className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-xs">Setup</Button>
+                    <Button className="bg-[#2196F3] hover:bg-[#2196F3]/80 text-white px-3 py-1 rounded-lg text-xs">
+                      Check Now
+                    </Button>
                   </div>
                   
                   <div 
                     className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40"
-                    onClick={() => handleToolClick('/generator')}
+                    onClick={() => handleToolClick('/seo-analysis', true)}
                   >
                     <div className="flex items-center">
                       <div className="bg-[#FFB300]/10 p-2 rounded-lg mr-3">
-                        <FileText className="w-4 h-4 text-[#FFB300]" />
+                        <Search className="w-4 h-4 text-[#FFB300]" />
                       </div>
                       <div>
-                        <h4 className="font-medium text-sm">Content Generator</h4>
-                        <p className="text-xs text-gray-400">DIY content creation</p>
+                        <h4 className="font-medium text-sm">SEO Analysis</h4>
+                        <p className="text-xs text-gray-400">Complete SEO audit</p>
                       </div>
                     </div>
-                    <Button className="bg-gray-700 hover:bg-gray-600 text-white px-3 py-1 rounded-lg text-xs">Configure</Button>
+                    <Button className="bg-[#FFB300] hover:bg-[#FFB300]/80 text-black px-3 py-1 rounded-lg text-xs">
+                      Analyze
+                    </Button>
                   </div>
                 </div>
               </div>
