@@ -237,9 +237,9 @@ const CitationChecker = () => {
         ));
       }
 
-      // Add delay to avoid rate limiting
+      // Add delay to avoid rate limiting (reduced from fake 2000ms)
       if (i < queries.length - 1) {
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 500));
       }
     }
 

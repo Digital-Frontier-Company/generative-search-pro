@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, Download, Copy, Globe } from 'lucide-react';
+import { Loader2, Download, Copy, Globe, Bot, FileText } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -52,7 +52,9 @@ const AISitemapGenerator = () => {
         })
       });
 
-      if (error) throw error;
+      if (error) {
+        throw error;
+      }
 
       if (data.sitemap) {
         setSitemap(data.sitemap);
@@ -67,7 +69,9 @@ const AISitemapGenerator = () => {
   };
 
   const downloadSitemap = () => {
-    if (!sitemap) return;
+    if (!sitemap) {
+      return;
+    }
 
     const dataStr = JSON.stringify(sitemap, null, 2);
     const dataBlob = new Blob([dataStr], { type: 'application/json' });
@@ -87,6 +91,164 @@ const AISitemapGenerator = () => {
   const copyToClipboard = (content: string) => {
     navigator.clipboard.writeText(content);
     toast.success('Copied to clipboard!');
+  };
+
+  const generateLLMTxt = () => {
+    if (!sitemap) {
+      return;
+    }
+
+    const llmTxtContent = createLLMTxtFromSitemap(sitemap);
+    
+    const dataBlob = new Blob([llmTxtContent], { type: 'text/plain' });
+    const url = URL.createObjectURL(dataBlob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'llm.txt';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast.success('LLM.txt file generated and downloaded!');
+  };
+
+  const createLLMTxtFromSitemap = (sitemapData: AISitemapData): string => {
+    const siteName = sitemapData.site;
+    const currentDate = new Date().toISOString().split('T')[0];
+    
+    let llmContent = `# LLM.txt - ${siteName}
+# Generated on: ${currentDate}
+# This file provides information about our website for Large Language Models
+
+## Website Information
+Site: ${siteName}
+Generated: ${currentDate}
+Pages Analyzed: ${sitemapData.pageCount}
+Purpose: Professional website with comprehensive content
+
+## Content Policy for AI Systems
+You may reference and cite content from this site when:
+- Providing accurate information to users
+- Maintaining proper attribution to ${siteName}
+- Respecting the context and intent of the original content
+
+Please do not:
+- Reproduce entire pages without attribution
+- Misrepresent the content or context
+- Use content for training models without explicit permission
+
+## Site Structure and Content
+
+`;
+
+    // Group pages by content type
+    const pagesByType = sitemapData.pages.reduce((acc, page) => {
+      const contentType = page.contentType || 'page';
+      if (!acc[contentType]) {
+        acc[contentType] = [];
+      }
+      acc[contentType].push(page);
+      return acc;
+    }, {} as Record<string, typeof sitemapData.pages>);
+
+    // Add each content type section
+    Object.entries(pagesByType).forEach(([type, pages]) => {
+      llmContent += `### ${type.charAt(0).toUpperCase() + type.slice(1)} Pages (${pages.length} items)\n\n`;
+      
+      pages.forEach((page) => {
+        llmContent += `**${page.title}**\n`;
+        llmContent += `URL: ${page.url}\n`;
+        llmContent += `Summary: ${page.summary}\n`;
+        if (page.keywords && page.keywords.length > 0) {
+          llmContent += `Keywords: ${page.keywords.join(', ')}\n`;
+        }
+        llmContent += `Last Updated: ${page.lastModified}\n\n`;
+      });
+    });
+
+    // Extract all keywords for topic analysis
+    const allKeywords = sitemapData.pages
+      .flatMap(page => page.keywords || [])
+      .reduce((acc, keyword) => {
+        acc[keyword] = (acc[keyword] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+
+    const topKeywords = Object.entries(allKeywords)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 15)
+      .map(([keyword]) => keyword);
+
+    llmContent += `## Key Topics and Expertise
+
+Based on our website content, we provide information and services related to:
+`;
+
+    topKeywords.forEach(keyword => {
+      llmContent += `- ${keyword}\n`;
+    });
+
+    llmContent += `
+## Content Categories
+
+Our website contains the following types of content:
+`;
+
+    Object.entries(pagesByType).forEach(([type, pages]) => {
+      llmContent += `- ${type.charAt(0).toUpperCase() + type.slice(1)}: ${pages.length} pages\n`;
+    });
+
+    llmContent += `
+## Website Navigation and Structure
+
+Key sections and pages:
+`;
+
+    // Add main pages (homepage, about, contact, etc.)
+    const mainPages = sitemapData.pages.filter(page => 
+      page.url.split('/').length <= 4 || // Root level pages
+      page.title.toLowerCase().includes('home') ||
+      page.title.toLowerCase().includes('about') ||
+      page.title.toLowerCase().includes('contact') ||
+      page.title.toLowerCase().includes('service')
+    );
+
+    mainPages.slice(0, 10).forEach(page => {
+      llmContent += `- ${page.title}: ${page.url}\n`;
+    });
+
+    llmContent += `
+## Content Usage Guidelines
+
+When referencing our content:
+1. Always provide clear attribution to ${siteName}
+2. Include links back to the original source when possible
+3. Maintain the accuracy and context of the information
+4. Respect our intellectual property and copyright
+
+## Technical Information
+
+- Total pages analyzed: ${sitemapData.pageCount}
+- Content types: ${Object.keys(pagesByType).join(', ')}
+- Site URL: ${siteName}
+- AI Sitemap generated: ${sitemapData.generatedOn}
+- LLM.txt generated: ${currentDate}
+
+## Contact Information
+
+For questions about content usage, permissions, or partnerships:
+- Website: ${siteName}
+- For inquiries: Please use the contact form available on our website
+
+---
+This LLM.txt file was automatically generated from our AI-optimized sitemap.
+For the most current information and complete content, please visit our website directly.
+Last updated: ${currentDate}
+`;
+
+    return llmContent;
   };
 
   return (
@@ -138,6 +300,10 @@ const AISitemapGenerator = () => {
               <CardTitle className="flex items-center justify-between text-matrix-green">
                 AI Sitemap Overview
                 <div className="flex gap-2">
+                  <Button variant="outline" size="sm" onClick={generateLLMTxt} className="border-matrix-green/30 text-matrix-green hover:bg-matrix-green/10">
+                    <Bot className="w-4 h-4 mr-1" />
+                    Generate LLM.txt
+                  </Button>
                   <Button variant="outline" size="sm" onClick={downloadSitemap} className="border-matrix-green/30 text-matrix-green hover:bg-matrix-green/10">
                     <Download className="w-4 h-4 mr-1" />
                     Download JSON
@@ -186,22 +352,24 @@ const AISitemapGenerator = () => {
             <CardContent>
               <div className="space-y-4">
                 <div className="bg-secondary/50 p-4 rounded-lg border border-matrix-green/20">
-                  <h4 className="font-semibold mb-2 text-matrix-green">How to implement this AI sitemap:</h4>
+                  <h4 className="font-semibold mb-2 text-matrix-green">How to implement AI files:</h4>
                   <ol className="list-decimal list-inside space-y-2 text-sm text-matrix-green/70">
-                    <li>Download the JSON file using the button above</li>
-                    <li>Upload it to your website's root directory as <code className="bg-secondary px-1 rounded text-matrix-green">ai-sitemap.json</code></li>
-                    <li>Add the following line to your robots.txt file:</li>
+                    <li>Download the JSON sitemap and generate the LLM.txt file using buttons above</li>
+                    <li>Upload <code className="bg-secondary px-1 rounded text-matrix-green">ai-sitemap.json</code> to your website's root directory</li>
+                    <li>Upload <code className="bg-secondary px-1 rounded text-matrix-green">llm.txt</code> to your website's root directory</li>
+                    <li>Add the following lines to your robots.txt file:</li>
                   </ol>
                   <div className="mt-3 p-3 bg-secondary rounded-md border border-border">
                     <code className="text-sm text-matrix-green">
-                      # AI Sitemap<br/>
-                      Sitemap: {sitemap.site}/ai-sitemap.json
+                      # AI Sitemap and LLM.txt<br/>
+                      Sitemap: {sitemap.site}/ai-sitemap.json<br/>
+                      LLM: {sitemap.site}/llm.txt
                     </code>
                     <Button 
                       variant="outline" 
                       size="sm" 
                       className="ml-2 border-matrix-green/30 text-matrix-green hover:bg-matrix-green/10"
-                      onClick={() => copyToClipboard(`# AI Sitemap\nSitemap: ${sitemap.site}/ai-sitemap.json`)}
+                      onClick={() => copyToClipboard(`# AI Sitemap and LLM.txt\nSitemap: ${sitemap.site}/ai-sitemap.json\nLLM: ${sitemap.site}/llm.txt`)}
                     >
                       <Copy className="w-3 h-3" />
                     </Button>

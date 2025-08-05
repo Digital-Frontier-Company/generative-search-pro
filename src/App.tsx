@@ -27,6 +27,19 @@ import Admin from "./pages/Admin";
 import Upgrade from "./pages/Upgrade";
 import NotFound from "./pages/NotFound";
 
+// TSO Dashboard and Components
+import TSODashboard from "./pages/TSODashboard";
+import AIVisibilityTracker from "./components/TSO/AIVisibilityTracker";
+import ZeroClickOptimizer from "./components/TSO/ZeroClickOptimizer";
+import TechnicalAIReadiness from "./components/TSO/TechnicalAIReadiness";
+import IntentDrivenResearch from "./components/TSO/IntentDrivenResearch";
+import SemanticAnalyzer from "./components/TSO/SemanticAnalyzer";
+import VoiceSearchOptimizer from "./components/TSO/VoiceSearchOptimizer";
+import AuthorityTracker from "./components/TSO/AuthorityTracker";
+import CompetitiveAIAnalysis from "./components/TSO/CompetitiveAIAnalysis";
+import BusinessTypeTemplates from "./components/TSO/BusinessTypeTemplates";
+import TSOOnboarding from "./pages/TSOOnboarding";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -133,6 +146,97 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
+                
+                {/* TSO Dashboard and Tools */}
+                <Route
+                  path="/tso-onboarding"
+                  element={
+                    <ProtectedRoute>
+                      <TSOOnboarding />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/tso-dashboard"
+                  element={
+                    <ProtectedRoute>
+                      <TSODashboard />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/ai-visibility-tracker"
+                  element={
+                    <ProtectedRoute>
+                      <AIVisibilityTracker />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/zero-click-optimizer"
+                  element={
+                    <ProtectedRoute>
+                      <ZeroClickOptimizer />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/technical-ai-readiness"
+                  element={
+                    <ProtectedRoute>
+                      <TechnicalAIReadiness />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/intent-driven-research"
+                  element={
+                    <ProtectedRoute>
+                      <IntentDrivenResearch />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/semantic-analyzer"
+                  element={
+                    <ProtectedRoute>
+                      <SemanticAnalyzer />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/voice-search-optimizer"
+                  element={
+                    <ProtectedRoute>
+                      <VoiceSearchOptimizer />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/authority-tracker"
+                  element={
+                    <ProtectedRoute>
+                      <AuthorityTracker />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/competitive-ai-analysis"
+                  element={
+                    <ProtectedRoute>
+                      <CompetitiveAIAnalysis />
+                    </ProtectedRoute>
+                  }
+                />
+                <Route
+                  path="/business-type-templates"
+                  element={
+                    <ProtectedRoute>
+                      <BusinessTypeTemplates />
+                    </ProtectedRoute>
+                  }
+                />
+                
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>

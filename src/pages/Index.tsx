@@ -32,16 +32,22 @@ const Index = () => {
     const cities = ["NYC", "London", "Berlin", "Toronto", "Sydney", "San Francisco", "Singapore", "Tokyo"];
     const plans = ["Starter", "Professional", "Enterprise"];
 
-    const randomMessage = () => {
-      const name = names[Math.floor(Math.random() * names.length)];
-      const city = cities[Math.floor(Math.random() * cities.length)];
-      const plan = plans[Math.floor(Math.random() * plans.length)];
+    const getRotatingMessage = () => {
+      // Rotate testimonials based on time to ensure variety but not pure randomness
+      const messageIndex = Math.floor(Date.now() / (1000 * 60 * 10)) % (names.length * cities.length);
+      const nameIndex = messageIndex % names.length;
+      const cityIndex = Math.floor(messageIndex / names.length) % cities.length;
+      const planIndex = Math.floor(messageIndex / (names.length * cities.length)) % plans.length;
+      
+      const name = names[nameIndex];
+      const city = cities[cityIndex];
+      const plan = plans[planIndex];
       return `${name} from ${city} just signed up for the ${plan} plan!`;
     };
 
     // Show first toast after 6 s, then every 35 s
-    const firstTimeout = setTimeout(() => toast.custom(randomMessage()), 6000);
-    const interval = setInterval(() => toast.custom(randomMessage()), 35000);
+    const firstTimeout = setTimeout(() => toast.custom(getRotatingMessage()), 6000);
+    const interval = setInterval(() => toast.custom(getRotatingMessage()), 35000);
     return () => {
       clearTimeout(firstTimeout);
       clearInterval(interval);

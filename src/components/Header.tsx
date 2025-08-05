@@ -90,6 +90,14 @@ const Header = () => {
                       <User className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
                     </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/tso-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
+                      <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+                        <path d="M2 17L12 22L22 17" />
+                        <path d="M2 12L12 17L22 12" />
+                      </svg>
+                      <span>TSO Dashboard</span>
+                    </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/settings')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
                       <Settings className="mr-2 h-4 w-4" />
                       <span>Settings</span>

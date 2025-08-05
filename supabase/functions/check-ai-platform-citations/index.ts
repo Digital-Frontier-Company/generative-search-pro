@@ -320,8 +320,15 @@ async function checkPerplexity(query: string, domain: string, searchMethod: stri
 async function simulateAIPlatform(platform: string, query: string, domain: string): Promise<AIPlatformResult | null> {
   const response = `Simulated ${platform} response for: ${query}. This would typically include information about the topic with potential references to authoritative sources.`;
   
-  const cited = Math.random() > 0.6; // 40% chance of citation
-  const citationScore = cited ? Math.floor(Math.random() * 40) + 60 : Math.floor(Math.random() * 30);
+  // More realistic citation probability based on domain characteristics and query type
+  const domainAuthority = domain.includes('gov') ? 0.8 : domain.includes('edu') ? 0.7 : domain.includes('org') ? 0.5 : 0.3;
+  const queryComplexity = query.split(' ').length > 5 ? 0.6 : 0.4; // Complex queries more likely to need citations
+  const citationProbability = Math.min(0.9, domainAuthority + queryComplexity * 0.3);
+  
+  const cited = Math.random() < citationProbability;
+  const citationScore = cited ? 
+    Math.floor((domainAuthority * 40) + (queryComplexity * 30) + 30) : 
+    Math.floor(Math.random() * 30);
 
   return {
     platform: platform as any,
@@ -331,7 +338,7 @@ async function simulateAIPlatform(platform: string, query: string, domain: strin
     citationScore,
     sources: cited ? [`https://${domain}`, 'https://example.com'] : [],
     responseLength: response.length,
-    confidence: 50
+    confidence: Math.floor(citationScore * 0.8) // Confidence correlates with citation score
   };
 }
 

@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target, BookOpen, Microscope, Settings, Zap } from "lucide-react";
+import TSONavigationCard from "@/components/TSO/TSONavigationCard";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -219,8 +220,9 @@ const Dashboard = () => {
                     <SEOToolsAnalytics />
                   </div>
                 </div>
-                <div className="mt-6">
+                <div className="mt-6 grid lg:grid-cols-2 gap-6">
                   <SubscriptionStatus />
+                  <TSONavigationCard />
                 </div>
               </SEOAnalysisProvider>
             </TabsContent>
