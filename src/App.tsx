@@ -42,6 +42,15 @@ import CompetitiveAIAnalysis from "./components/TSO/CompetitiveAIAnalysis";
 import BusinessTypeTemplates from "./components/TSO/BusinessTypeTemplates";
 import TSOOnboarding from "./pages/TSOOnboarding";
 
+// Category Dashboards
+import AIVisibilityDashboard from "./pages/AIVisibilityDashboard";
+import ContentDashboard from "./pages/ContentDashboard";
+import SEOTSODashboard from "./pages/SEOTSODashboard";
+import CompetitiveDashboard from "./pages/CompetitiveDashboard";
+import ToolsDashboard from "./pages/ToolsDashboard";
+import ZeroClickDashboard from "./pages/ZeroClickDashboard";
+import AnalyticsDashboard from "./pages/AnalyticsDashboard";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -239,16 +248,74 @@ function App() {
                     </ProtectedRoute>
                   }
                 />
-                <Route
-                  path="/business-type-templates"
-                  element={
-                    <ProtectedRoute>
-                      <BusinessTypeTemplates />
-                    </ProtectedRoute>
-                  }
-                />
-                
-                <Route path="*" element={<NotFound />} />
+                 <Route
+                   path="/business-type-templates"
+                   element={
+                     <ProtectedRoute>
+                       <BusinessTypeTemplates />
+                     </ProtectedRoute>
+                   }
+                 />
+
+                 {/* Category Dashboards */}
+                 <Route
+                   path="/ai-visibility-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <AIVisibilityDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/content-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <ContentDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/seo-tso-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <SEOTSODashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/competitive-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <CompetitiveDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/tools-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <ToolsDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/zero-click-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <ZeroClickDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 <Route
+                   path="/analytics-dashboard"
+                   element={
+                     <ProtectedRoute>
+                       <AnalyticsDashboard />
+                     </ProtectedRoute>
+                   }
+                 />
+                 
+                 <Route path="*" element={<NotFound />} />
               </Routes>
             </BrowserRouter>
             </TooltipProvider>
