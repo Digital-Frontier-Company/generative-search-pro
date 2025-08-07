@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useDomain } from "@/contexts/DomainContext";
 import Header from "@/components/Header";
-import SubscriptionStatus from "@/components/SubscriptionStatus";
+
 import AIVisibilityScore from "@/components/AIVisibilityScore";
 import CitationMonitoringDashboard from "@/components/CitationMonitoringDashboard";
 import AIAudit from "@/components/AIAudit";
@@ -204,8 +204,7 @@ const Dashboard = () => {
                     <SEOToolsAnalytics />
                   </div>
                 </div>
-                <div className="mt-6 grid lg:grid-cols-2 gap-6">
-                  <SubscriptionStatus />
+                <div className="mt-6">
                   <TSONavigationCard />
                 </div>
               </SEOAnalysisProvider>
@@ -300,24 +299,6 @@ const Dashboard = () => {
             </TabsContent>
           </Tabs>
 
-          {(!subscribed && !isTrialActive) && (
-            <Card className="content-card border-matrix-green/50">
-              <CardHeader>
-                <CardTitle className="text-center text-matrix-green">Unlock Premium Features</CardTitle>
-                <CardDescription className="text-center text-matrix-green/70">
-                  Start your 7-day free trial to access all advanced tools and features.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button 
-                  onClick={() => navigate('/upgrade')}
-                  className="glow-button text-black font-semibold"
-                >
-                  Start Free Trial
-                </Button>
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     </>

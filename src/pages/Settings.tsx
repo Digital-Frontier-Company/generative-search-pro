@@ -8,6 +8,7 @@ import ProfileSettings from '@/components/ProfileSettings';
 import DocumentUpload from '@/components/DocumentUpload';
 import DomainConfiguration from '@/components/DomainConfiguration';
 import Header from '@/components/Header';
+import SubscriptionStatus from '@/components/SubscriptionStatus';
 
 const Settings = () => {
   const { signOut } = useAuth();
@@ -30,6 +31,7 @@ const Settings = () => {
         </div>
 
         <div className="space-y-6">
+          <SubscriptionStatus />
           <DomainConfiguration />
           
           <ProfileSettings />
