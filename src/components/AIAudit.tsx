@@ -199,7 +199,7 @@ const AIAudit = () => {
         return <Lightbulb className="w-5 h-5 text-blue-600" />;
     }
   };
-  return <div className="max-w-6xl mx-auto p-6 space-y-6">
+  return <div className="w-full p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
           <Bot className="w-8 h-8 text-blue-600" />

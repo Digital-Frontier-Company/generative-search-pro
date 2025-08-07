@@ -192,13 +192,13 @@ const Dashboard = () => {
 
             <TabsContent value="overview">
               <SEOAnalysisProvider>
-                <div className="grid lg:grid-cols-4 gap-6">
+                <div className="grid lg:grid-cols-3 gap-6">
                   <div className="lg:col-span-2">
                     <h2 className="text-2xl font-semibold mb-4 text-matrix-green">AI Visibility Overview</h2>
                     <AIVisibilityScore />
-                  </div>
-                  <div className="lg:col-span-1">
-                    <AIAudit />
+                    <div className="mt-6">
+                      <AIAudit />
+                    </div>
                   </div>
                   <div className="lg:col-span-1">
                     <SEOToolsAnalytics />
