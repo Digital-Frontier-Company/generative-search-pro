@@ -199,7 +199,7 @@ const AIAudit = () => {
         return <Lightbulb className="w-5 h-5 text-blue-600" />;
     }
   };
-  return <div className="w-full p-6 space-y-6">
+  return <div className="max-w-6xl mx-auto p-6 space-y-6">
       <div className="text-center">
         <h1 className="text-3xl font-bold text-gray-900 mb-2 flex items-center justify-center gap-2">
           <Bot className="w-8 h-8 text-blue-600" />
@@ -221,7 +221,7 @@ const AIAudit = () => {
         <CardContent className="space-y-4">
           <div className="flex gap-4 px-0 mx-[3px]">
             <Input placeholder="Enter domain (e.g., example.com)" value={domain} onChange={e => setDomain(e.target.value)} onKeyPress={e => e.key === 'Enter' && runAudit()} className="flex-1 rounded-xl px-[66px] mx-0" />
-            <Button onClick={runAudit} disabled={loading} className="px-0 text-center rounded py-[7px] my-[7px] mx-0">
+            <Button onClick={runAudit} disabled={loading} className="text-center my-0 py-0 rounded-lg mx-0 px-[50px] font-extrabold text-sm">
               {loading ? <>
                   <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
                   Analyzing...
