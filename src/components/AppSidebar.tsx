@@ -126,7 +126,7 @@ function NavSection({
               isActive
             }) => cn("flex items-center gap-2", isActive ? "bg-sidebar-accent text-sidebar-accent-foreground" : "hover:bg-sidebar-accent/50")}>
                   <item.icon className="h-4 w-4" />
-                  <span className="link-gradient font-medium">{item.title}</span>
+                  <span className="link-gradient font-bold">{item.title}</span>
                 </NavLink>
               </SidebarMenuButton>
             </SidebarMenuItem>)}
