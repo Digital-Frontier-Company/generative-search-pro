@@ -51,6 +51,9 @@ import ToolsDashboard from "./pages/ToolsDashboard";
 import ZeroClickDashboard from "./pages/ZeroClickDashboard";
 import AnalyticsDashboard from "./pages/AnalyticsDashboard";
 
+import { SidebarProvider } from "@/components/ui/sidebar";
+import { AppSidebar } from "@/components/AppSidebar";
+
 const queryClient = new QueryClient();
 
 function App() {
@@ -63,260 +66,264 @@ function App() {
             <TooltipProvider>
             <Toaster />
             <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Index />} />
-                <Route path="/auth" element={<Auth />} />
-                <Route path="/about" element={<About />} />
-                <Route path="/upgrade" element={<Upgrade />} />
-                <Route path="/resources" element={<Resources />} />
-                <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
-                <Route
-                  path="/analysis"
-                  element={
-                    <ProtectedRoute>
-                      <Analysis />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <Dashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/generator"
-                  element={
-                    <ProtectedRoute>
-                      <ContentGenerator />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/history"
-                  element={
-                    <ProtectedRoute>
-                      <ContentHistory />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/content-analysis"
-                  element={
-                    <ProtectedRoute>
-                      <ContentAnalysis />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/seo-analysis"
-                  element={
-                    <ProtectedRoute>
-                      <SEOAnalysisSimple />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/domain-analysis"
-                  element={
-                    <ProtectedRoute>
-                      <DomainAnalysis />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/schema-analysis"
-                  element={
-                    <ProtectedRoute>
-                      <SchemaAnalysis />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/citation-checker"
-                  element={
-                    <ProtectedRoute>
-                      <CitationChecker />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/ai-sitemap"
-                  element={
-                    <ProtectedRoute>
-                      <AISitemap />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/settings"
-                  element={
-                    <ProtectedRoute>
-                      <Settings />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/admin"
-                  element={
-                    <ProtectedRoute>
-                      <Admin />
-                    </ProtectedRoute>
-                  }
-                />
-                
-                {/* TSO Dashboard and Tools */}
-                <Route
-                  path="/tso-onboarding"
-                  element={
-                    <ProtectedRoute>
-                      <TSOOnboarding />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/tso-dashboard"
-                  element={
-                    <ProtectedRoute>
-                      <TSODashboard />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/ai-visibility-tracker"
-                  element={
-                    <ProtectedRoute>
-                      <AIVisibilityTracker />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/zero-click-optimizer"
-                  element={
-                    <ProtectedRoute>
-                      <ZeroClickOptimizer />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/technical-ai-readiness"
-                  element={
-                    <ProtectedRoute>
-                      <TechnicalAIReadiness />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/intent-driven-research"
-                  element={
-                    <ProtectedRoute>
-                      <IntentDrivenResearch />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/semantic-analyzer"
-                  element={
-                    <ProtectedRoute>
-                      <SemanticAnalyzer />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/voice-search-optimizer"
-                  element={
-                    <ProtectedRoute>
-                      <VoiceSearchOptimizer />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/authority-tracker"
-                  element={
-                    <ProtectedRoute>
-                      <AuthorityTracker />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/competitive-ai-analysis"
-                  element={
-                    <ProtectedRoute>
-                      <CompetitiveAIAnalysis />
-                    </ProtectedRoute>
-                  }
-                />
-                 <Route
-                   path="/business-type-templates"
-                   element={
-                     <ProtectedRoute>
-                       <BusinessTypeTemplates />
-                     </ProtectedRoute>
-                   }
-                 />
-
-                 {/* Category Dashboards */}
-                 <Route
-                   path="/ai-visibility-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <AIVisibilityDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 <Route
-                   path="/content-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <ContentDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 <Route
-                   path="/seo-tso-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <SEOTSODashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 <Route
-                   path="/competitive-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <CompetitiveDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 <Route
-                   path="/tools-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <ToolsDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 <Route
-                   path="/zero-click-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <ZeroClickDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 <Route
-                   path="/analytics-dashboard"
-                   element={
-                     <ProtectedRoute>
-                       <AnalyticsDashboard />
-                     </ProtectedRoute>
-                   }
-                 />
-                 
-                 <Route path="*" element={<NotFound />} />
-              </Routes>
+              <SidebarProvider>
+                <div className="min-h-screen flex w-full">
+                  <AppSidebar />
+                  <main className="flex-1">
+                    <Routes>
+                      <Route path="/" element={<Index />} />
+                      <Route path="/auth" element={<Auth />} />
+                      <Route path="/about" element={<About />} />
+                      <Route path="/upgrade" element={<Upgrade />} />
+                      <Route path="/resources" element={<Resources />} />
+                      <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
+                      <Route
+                        path="/analysis"
+                        element={
+                          <ProtectedRoute>
+                            <Analysis />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <Dashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/generator"
+                        element={
+                          <ProtectedRoute>
+                            <ContentGenerator />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/history"
+                        element={
+                          <ProtectedRoute>
+                            <ContentHistory />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/content-analysis"
+                        element={
+                          <ProtectedRoute>
+                            <ContentAnalysis />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/seo-analysis"
+                        element={
+                          <ProtectedRoute>
+                            <SEOAnalysisSimple />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/domain-analysis"
+                        element={
+                          <ProtectedRoute>
+                            <DomainAnalysis />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/schema-analysis"
+                        element={
+                          <ProtectedRoute>
+                            <SchemaAnalysis />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/citation-checker"
+                        element={
+                          <ProtectedRoute>
+                            <CitationChecker />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/ai-sitemap"
+                        element={
+                          <ProtectedRoute>
+                            <AISitemap />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/settings"
+                        element={
+                          <ProtectedRoute>
+                            <Settings />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/admin"
+                        element={
+                          <ProtectedRoute>
+                            <Admin />
+                          </ProtectedRoute>
+                        }
+                      />
+                      {/* TSO Dashboard and Tools */}
+                      <Route
+                        path="/tso-onboarding"
+                        element={
+                          <ProtectedRoute>
+                            <TSOOnboarding />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/tso-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <TSODashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/ai-visibility-tracker"
+                        element={
+                          <ProtectedRoute>
+                            <AIVisibilityTracker />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/zero-click-optimizer"
+                        element={
+                          <ProtectedRoute>
+                            <ZeroClickOptimizer />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/technical-ai-readiness"
+                        element={
+                          <ProtectedRoute>
+                            <TechnicalAIReadiness />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/intent-driven-research"
+                        element={
+                          <ProtectedRoute>
+                            <IntentDrivenResearch />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/semantic-analyzer"
+                        element={
+                          <ProtectedRoute>
+                            <SemanticAnalyzer />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/voice-search-optimizer"
+                        element={
+                          <ProtectedRoute>
+                            <VoiceSearchOptimizer />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/authority-tracker"
+                        element={
+                          <ProtectedRoute>
+                            <AuthorityTracker />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/competitive-ai-analysis"
+                        element={
+                          <ProtectedRoute>
+                            <CompetitiveAIAnalysis />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/business-type-templates"
+                        element={
+                          <ProtectedRoute>
+                            <BusinessTypeTemplates />
+                          </ProtectedRoute>
+                        }
+                      />
+                      {/* Category Dashboards */}
+                      <Route
+                        path="/ai-visibility-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <AIVisibilityDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/content-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <ContentDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/seo-tso-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <SEOTSODashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/competitive-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <CompetitiveDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/tools-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <ToolsDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/zero-click-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <ZeroClickDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route
+                        path="/analytics-dashboard"
+                        element={
+                          <ProtectedRoute>
+                            <AnalyticsDashboard />
+                          </ProtectedRoute>
+                        }
+                      />
+                      <Route path="*" element={<NotFound />} />
+                    </Routes>
+                  </main>
+                </div>
+              </SidebarProvider>
             </BrowserRouter>
             </TooltipProvider>
           </DomainProvider>
