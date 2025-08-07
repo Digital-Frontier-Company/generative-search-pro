@@ -11,22 +11,31 @@ import { supabase } from "@/integrations/supabase/client";
 import AIVisibilityScore from "@/components/AIVisibilityScore";
 import AIPlatformMonitor from "@/components/AIPlatformMonitor";
 import CitationChecker from "@/components/CitationChecker";
-
 const Dashboard = () => {
-  const { user } = useAuth();
-  const { subscribed, isTrialActive } = useSubscription();
-  const { defaultDomain } = useDomain();
+  const {
+    user
+  } = useAuth();
+  const {
+    subscribed,
+    isTrialActive
+  } = useSubscription();
+  const {
+    defaultDomain
+  } = useDomain();
   const navigate = useNavigate();
   const [aiVisibilityData, setAIVisibilityData] = useState(null);
   const [citationStats, setCitationStats] = useState(null);
   const [recentAnalyses, setRecentAnalyses] = useState([]);
-
   const handleToolClick = (path: string, usesDomain: boolean = false) => {
     if (usesDomain && !defaultDomain) {
       toast.error('Please set a default domain first to use this tool!');
       return;
     }
-    navigate(path, { state: { domain: defaultDomain } });
+    navigate(path, {
+      state: {
+        domain: defaultDomain
+      }
+    });
   };
 
   // Load real data from Supabase
@@ -35,47 +44,38 @@ const Dashboard = () => {
       loadDashboardData();
     }
   }, [user, defaultDomain]);
-
   const loadDashboardData = async () => {
     try {
       // Load recent AI visibility analyses
-      const { data: visibilityData } = await supabase
-        .from('ai_platform_citations')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1);
-
+      const {
+        data: visibilityData
+      } = await supabase.from('ai_platform_citations').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      }).limit(1);
       if (visibilityData && visibilityData.length > 0) {
         setAIVisibilityData(visibilityData[0]);
       }
 
       // Load citation statistics
-      const { data: citationData } = await supabase
-        .from('citation_checks')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('checked_at', { ascending: false })
-        .limit(5);
-
+      const {
+        data: citationData
+      } = await supabase.from('citation_checks').select('*').eq('user_id', user.id).order('checked_at', {
+        ascending: false
+      }).limit(5);
       setCitationStats(citationData);
 
       // Load recent SEO analyses
-      const { data: seoData } = await supabase
-        .from('seo_analyses')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
+      const {
+        data: seoData
+      } = await supabase.from('seo_analyses').select('*').eq('user_id', user.id).order('created_at', {
+        ascending: false
+      }).limit(3);
       setRecentAnalyses(seoData || []);
     } catch (error) {
       console.error('Error loading dashboard data:', error);
     }
   };
-
-  return (
-    <div className="bg-gradient-to-br from-[#0F1B3A] via-[#1E2A4A] to-[#2A4A3A] text-white font-sans min-h-screen">
+  return <div className="bg-gradient-to-br from-[#0F1B3A] via-[#1E2A4A] to-[#2A4A3A] text-white font-sans min-h-screen">
       <div className="flex h-screen overflow-hidden">
         {/* Sidebar */}
         <div className="w-64 bg-gradient-to-b from-black/30 to-black/20 backdrop-blur-lg border-r border-white/10 flex flex-col">
@@ -99,73 +99,7 @@ const Dashboard = () => {
             <div className="text-xs text-center text-gray-400 mt-1">Generative Engine Optimization</div>
           </div>
           
-          <nav className="flex-1 py-4 overflow-y-auto">
-            <div className="px-4 mb-3 text-xs font-semibold text-gray-400 uppercase">Main</div>
-            <div className="flex items-center px-4 py-2.5 text-sm bg-[#00E047]/10 text-[#00E047] border-l-4 border-[#00E047] cursor-pointer">
-              <BarChart3 className="w-5 h-5 mr-3" />
-              <span>Dashboard</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/analysis', true)}
-            >
-              <Search className="w-5 h-5 mr-3" />
-              <span>AI Visibility</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/tso-dashboard')}
-            >
-              <Target className="w-5 h-5 mr-3" />
-              <span>Zero-Click Strategy</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/tso-dashboard')}
-            >
-              <Code className="w-5 h-5 mr-3" />
-              <span>Technical Optimization</span>
-            </div>
-            
-            <div className="px-4 my-3 text-xs font-semibold text-gray-400 uppercase">Analytics</div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/analysis', true)}
-            >
-              <PieChart className="w-5 h-5 mr-3" />
-              <span>Performance Metrics</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/analysis', true)}
-            >
-              <Users className="w-5 h-5 mr-3" />
-              <span>Engagement Analytics</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/analysis', true)}
-            >
-              <TrendingUp className="w-5 h-5 mr-3" />
-              <span>Competitive Analysis</span>
-            </div>
-            
-            <div className="px-4 my-3 text-xs font-semibold text-gray-400 uppercase">Tools</div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/generator')}
-            >
-              <Wrench className="w-5 h-5 mr-3" />
-              <span>Implementation Tools</span>
-            </div>
-            <div 
-              className="flex items-center px-4 py-2.5 text-sm text-gray-300 hover:bg-gray-800 cursor-pointer"
-              onClick={() => handleToolClick('/settings')}
-            >
-              <Settings className="w-5 h-5 mr-3" />
-              <span>Settings</span>
-            </div>
-          </nav>
+          
           
           <div className="p-4 border-t border-gray-800">
             <div className="flex items-center">
@@ -231,10 +165,7 @@ const Dashboard = () => {
                 </div>
                 
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                  <div 
-                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
-                    onClick={() => handleToolClick('/analysis', true)}
-                  >
+                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40" onClick={() => handleToolClick('/analysis', true)}>
                     <div className="flex items-center mb-2">
                       <div className="bg-[#00E047]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#00E047]" />
@@ -248,10 +179,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div 
-                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
-                    onClick={() => handleToolClick('/analysis', true)}
-                  >
+                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40" onClick={() => handleToolClick('/analysis', true)}>
                     <div className="flex items-center mb-2">
                       <div className="bg-[#2196F3]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#2196F3]" />
@@ -265,10 +193,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div 
-                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
-                    onClick={() => handleToolClick('/analysis', true)}
-                  >
+                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40" onClick={() => handleToolClick('/analysis', true)}>
                     <div className="flex items-center mb-2">
                       <div className="bg-[#FFB300]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#FFB300]" />
@@ -282,10 +207,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div 
-                    className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40"
-                    onClick={() => handleToolClick('/analysis', true)}
-                  >
+                  <div className="bg-gradient-to-br from-black/50 via-black/40 to-black/30 backdrop-blur-sm border border-white/10 rounded-lg p-4 cursor-pointer hover:bg-gradient-to-br hover:from-black/60 hover:via-black/50 hover:to-black/40" onClick={() => handleToolClick('/analysis', true)}>
                     <div className="flex items-center mb-2">
                       <div className="bg-[#FF3D00]/10 p-2 rounded-lg mr-3">
                         <Gem className="w-4 h-4 text-[#FF3D00]" />
@@ -307,18 +229,13 @@ const Dashboard = () => {
               <div className="bg-gradient-to-br from-black/40 via-black/30 to-black/20 backdrop-blur-sm border border-white/10 rounded-xl p-5">
                 <div className="flex items-center justify-between mb-4">
                   <h3 className="font-semibold text-lg">Citation Monitoring</h3>
-                  <Button 
-                    className="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-lg text-xs"
-                    onClick={() => handleToolClick('/citation-checker', true)}
-                  >
+                  <Button className="bg-gray-800 hover:bg-gray-700 px-3 py-1 rounded-lg text-xs" onClick={() => handleToolClick('/citation-checker', true)}>
                     View All
                   </Button>
                 </div>
                 
                 <div className="space-y-4">
-                  {citationStats && citationStats.length > 0 ? (
-                    citationStats.slice(0, 3).map((citation, index) => (
-                      <div key={index} className="flex items-start p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10">
+                  {citationStats && citationStats.length > 0 ? citationStats.slice(0, 3).map((citation, index) => <div key={index} className="flex items-start p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10">
                         <div className={`p-2 rounded-lg mr-3 ${citation.is_cited ? 'bg-[#00C853]/10' : 'bg-[#FF3D00]/10'}`}>
                           <Quote className={`w-4 h-4 ${citation.is_cited ? 'text-[#00C853]' : 'text-[#FF3D00]'}`} />
                         </div>
@@ -337,20 +254,12 @@ const Dashboard = () => {
                             </span>
                           </div>
                         </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-center py-8">
+                      </div>) : <div className="text-center py-8">
                       <p className="text-gray-400 mb-2">No recent citation checks</p>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => handleToolClick('/citation-checker', true)}
-                      >
+                      <Button variant="outline" size="sm" onClick={() => handleToolClick('/citation-checker', true)}>
                         Run First Check
                       </Button>
-                    </div>
-                  )}
+                    </div>}
                 </div>
               </div>
               
@@ -358,10 +267,7 @@ const Dashboard = () => {
                 <h3 className="font-semibold text-lg mb-4">AI Visibility Tools</h3>
                 
                 <div className="space-y-3">
-                  <div 
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40"
-                    onClick={() => handleToolClick('/analysis', true)}
-                  >
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40" onClick={() => handleToolClick('/analysis', true)}>
                     <div className="flex items-center">
                       <div className="bg-[#00E047]/10 p-2 rounded-lg mr-3">
                         <BarChart3 className="w-4 h-4 text-[#00E047]" />
@@ -376,10 +282,7 @@ const Dashboard = () => {
                     </Button>
                   </div>
                   
-                  <div 
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40"
-                    onClick={() => handleToolClick('/citation-checker', true)}
-                  >
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40" onClick={() => handleToolClick('/citation-checker', true)}>
                     <div className="flex items-center">
                       <div className="bg-[#2196F3]/10 p-2 rounded-lg mr-3">
                         <CheckSquare className="w-4 h-4 text-[#2196F3]" />
@@ -394,10 +297,7 @@ const Dashboard = () => {
                     </Button>
                   </div>
                   
-                  <div 
-                    className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40"
-                    onClick={() => handleToolClick('/seo-analysis', true)}
-                  >
+                  <div className="flex items-center justify-between p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm rounded-lg border border-white/10 cursor-pointer hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40" onClick={() => handleToolClick('/seo-analysis', true)}>
                     <div className="flex items-center">
                       <div className="bg-[#FFB300]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#FFB300]" />
@@ -427,7 +327,9 @@ const Dashboard = () => {
                       <span className="text-sm text-[#00E047]">95/100</span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-[#00E047] h-2 rounded-full" style={{width: '95%'}}></div>
+                      <div className="bg-[#00E047] h-2 rounded-full" style={{
+                      width: '95%'
+                    }}></div>
                     </div>
                   </div>
                   
@@ -437,7 +339,9 @@ const Dashboard = () => {
                       <span className="text-sm text-[#00E047]">92/100</span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-[#00E047] h-2 rounded-full" style={{width: '92%'}}></div>
+                      <div className="bg-[#00E047] h-2 rounded-full" style={{
+                      width: '92%'
+                    }}></div>
                     </div>
                   </div>
                   
@@ -447,7 +351,9 @@ const Dashboard = () => {
                       <span className="text-sm text-[#2196F3]">90/100</span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-[#2196F3] h-2 rounded-full" style={{width: '90%'}}></div>
+                      <div className="bg-[#2196F3] h-2 rounded-full" style={{
+                      width: '90%'
+                    }}></div>
                     </div>
                   </div>
                   
@@ -457,7 +363,9 @@ const Dashboard = () => {
                       <span className="text-sm text-[#2196F3]">88/100</span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-[#2196F3] h-2 rounded-full" style={{width: '88%'}}></div>
+                      <div className="bg-[#2196F3] h-2 rounded-full" style={{
+                      width: '88%'
+                    }}></div>
                     </div>
                   </div>
                   
@@ -467,7 +375,9 @@ const Dashboard = () => {
                       <span className="text-sm text-[#2196F3]">85/100</span>
                     </div>
                     <div className="w-full bg-gray-700 rounded-full h-2">
-                      <div className="bg-[#2196F3] h-2 rounded-full" style={{width: '85%'}}></div>
+                      <div className="bg-[#2196F3] h-2 rounded-full" style={{
+                      width: '85%'
+                    }}></div>
                     </div>
                   </div>
                 </div>
@@ -521,10 +431,7 @@ const Dashboard = () => {
                       <h4 className="font-medium">Deploy AI visibility tracking</h4>
                       <p className="text-sm text-gray-400">Implement comprehensive monitoring to track AI citations</p>
                     </div>
-                    <Button 
-                      className="ml-auto bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg text-xs"
-                      onClick={() => handleToolClick('/analysis', true)}
-                    >
+                    <Button className="ml-auto bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg text-xs" onClick={() => handleToolClick('/analysis', true)}>
                       Start
                     </Button>
                   </div>
@@ -537,10 +444,7 @@ const Dashboard = () => {
                       <h4 className="font-medium">Optimize for zero-click searches</h4>
                       <p className="text-sm text-gray-400">Structure content with direct answer paragraphs for key queries</p>
                     </div>
-                    <Button 
-                      className="ml-auto bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg text-xs"
-                      onClick={() => handleToolClick('/tso-dashboard')}
-                    >
+                    <Button className="ml-auto bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg text-xs" onClick={() => handleToolClick('/tso-dashboard')}>
                       Start
                     </Button>
                   </div>
@@ -553,10 +457,7 @@ const Dashboard = () => {
                       <h4 className="font-medium">Create LLMs.txt metadata files</h4>
                       <p className="text-sm text-gray-400">Implement AI-specific metadata to guide AI crawlers</p>
                     </div>
-                    <Button 
-                      className="ml-auto bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg text-xs"
-                      onClick={() => handleToolClick('/generator')}
-                    >
+                    <Button className="ml-auto bg-gray-700 hover:bg-gray-600 px-3 py-1 rounded-lg text-xs" onClick={() => handleToolClick('/generator')}>
                       Start
                     </Button>
                   </div>
@@ -567,10 +468,7 @@ const Dashboard = () => {
                 <h3 className="font-semibold mb-4">Quick Access Tools</h3>
                 
                 <div className="space-y-3">
-                  <div 
-                    className="block p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40 rounded-lg cursor-pointer border border-white/10"
-                    onClick={() => handleToolClick('/analysis', true)}
-                  >
+                  <div className="block p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40 rounded-lg cursor-pointer border border-white/10" onClick={() => handleToolClick('/analysis', true)}>
                     <div className="flex items-center">
                       <div className="bg-[#00E047]/10 p-2 rounded-lg mr-3">
                         <Search className="w-4 h-4 text-[#00E047]" />
@@ -582,10 +480,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div 
-                    className="block p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40 rounded-lg cursor-pointer border border-white/10"
-                    onClick={() => handleToolClick('/content-analysis')}
-                  >
+                  <div className="block p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40 rounded-lg cursor-pointer border border-white/10" onClick={() => handleToolClick('/content-analysis')}>
                     <div className="flex items-center">
                       <div className="bg-[#2196F3]/10 p-2 rounded-lg mr-3">
                         <Microscope className="w-4 h-4 text-[#2196F3]" />
@@ -597,10 +492,7 @@ const Dashboard = () => {
                     </div>
                   </div>
                   
-                  <div 
-                    className="block p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40 rounded-lg cursor-pointer border border-white/10"
-                    onClick={() => handleToolClick('/ai-sitemap', true)}
-                  >
+                  <div className="block p-3 bg-gradient-to-r from-black/50 to-black/30 backdrop-blur-sm hover:bg-gradient-to-r hover:from-black/60 hover:to-black/40 rounded-lg cursor-pointer border border-white/10" onClick={() => handleToolClick('/ai-sitemap', true)}>
                     <div className="flex items-center">
                       <div className="bg-[#FFB300]/10 p-2 rounded-lg mr-3">
                         <Map className="w-4 h-4 text-[#FFB300]" />
@@ -616,25 +508,18 @@ const Dashboard = () => {
             </div>
 
             {/* Upgrade CTA */}
-            {(!subscribed && !isTrialActive) && (
-              <Card className="mt-6 bg-gradient-to-br from-black/40 via-black/30 to-black/20 backdrop-blur-sm border border-[#00E047]/50">
+            {!subscribed && !isTrialActive && <Card className="mt-6 bg-gradient-to-br from-black/40 via-black/30 to-black/20 backdrop-blur-sm border border-[#00E047]/50">
                 <CardContent className="p-6 text-center">
                   <h3 className="text-xl font-bold text-[#00E047] mb-2">Unlock Premium Features</h3>
                   <p className="text-gray-400 mb-4">Start your 7-day free trial to access all advanced tools and features.</p>
-                  <Button 
-                    onClick={() => navigate('/upgrade')}
-                    className="bg-[#00E047] hover:bg-[#00E047]/80 text-black font-semibold px-8 py-2"
-                  >
+                  <Button onClick={() => navigate('/upgrade')} className="bg-[#00E047] hover:bg-[#00E047]/80 text-black font-semibold px-8 py-2">
                     Start Free Trial
                   </Button>
                 </CardContent>
-              </Card>
-            )}
+              </Card>}
           </div>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
