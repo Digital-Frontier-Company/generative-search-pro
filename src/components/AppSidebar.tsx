@@ -40,7 +40,7 @@ const dashboardNav = [{
   url: "/content-analysis",
   icon: FileText
 }, {
-  title: "SEO Analysis",
+  title: "SEO Analysis Hub",
   url: "/seo-analysis",
   icon: BarChart3
 }, {
