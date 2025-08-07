@@ -205,7 +205,7 @@ const AIAudit = () => {
           <Bot className="w-8 h-8 text-blue-600" />
           AI SEO Audit
         </h1>
-        <p className="text-gray-600">
+        <p className="text-slate-50 font-bold">
           Comprehensive analysis optimized for AI search engines and modern SEO
         </p>
       </div>
