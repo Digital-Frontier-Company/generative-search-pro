@@ -141,7 +141,7 @@ async function checkAIPlatform(
     case 'perplexity':
       return await checkPerplexity(query, domain, searchMethod);
     default:
-      return await simulateAIPlatform(platform, query, domain);
+      return null;
   }
 }
 
@@ -178,8 +178,8 @@ async function checkChatGPT(query: string, domain: string, searchMethod: string)
       sources = sourceMatches.map(match => match.replace(/\[Source: ([^\]]+)\]/, '$1'));
       confidence = 90;
     } else {
-      response = await simulateChatGPTResponse(query, domain);
-      confidence = 60;
+      // If not using direct method or key missing, skip to avoid simulated data
+      return null;
     }
 
     cited = response.toLowerCase().includes(domain.toLowerCase()) || 
@@ -235,8 +235,8 @@ async function checkClaude(query: string, domain: string, searchMethod: string):
       response = data.content?.[0]?.text || '';
       confidence = 90;
     } else {
-      response = await simulateClaudeResponse(query, domain);
-      confidence = 60;
+      // Skip if no key configured
+      return null;
     }
 
     cited = response.toLowerCase().includes(domain.toLowerCase());
@@ -294,9 +294,8 @@ async function checkPerplexity(query: string, domain: string, searchMethod: stri
       sources = sourceMatches.map(match => `Reference ${match}`);
       confidence = 95;
     } else {
-      response = await simulatePerplexityResponse(query, domain);
-      sources = [`https://${domain}`, 'https://example.com/source2'];
-      confidence = 70;
+      // Skip if no key configured
+      return null;
     }
 
     cited = response.toLowerCase().includes(domain.toLowerCase()) ||

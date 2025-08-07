@@ -162,11 +162,16 @@ const SEOTemplate: React.FC<SEOTemplateProps> = ({
       if (onAnalyze) {
         await onAnalyze(domain);
       } else {
-        // Use real SEO analysis instead of fake data
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          toast.error('Please sign in to analyze');
+          return;
+        }
+        // Use real SEO analysis with authenticated user
         const { data, error } = await supabase.functions.invoke('analyze-seo', {
           body: JSON.stringify({
             domain: domain.trim(),
-            user_id: 'demo-user',
+            user_id: user.id,
             comprehensive: true
           })
         });

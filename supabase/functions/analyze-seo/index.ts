@@ -251,15 +251,13 @@ async function checkBacklinks(domain: string) {
     const mozSecretKey = Deno.env.get('MOZ_SECRET_KEY')
     
     if (!mozApiKey || !mozSecretKey) {
-      console.warn('Moz API keys not found, providing simulated backlink data')
-      // Provide a reasonable default score based on domain characteristics
-      const simulatedScore = Math.floor(Math.random() * 40) + 10 // 10-50 range
+      console.warn('Moz API keys not found, skipping backlink analysis');
       return {
-        domain_authority: simulatedScore,
+        domain_authority: 0,
         findings: [{
           type: 'backlinks',
-          status: simulatedScore > 30 ? 'good' : simulatedScore > 15 ? 'warning' : 'error',
-          message: `Estimated Domain Authority: ${simulatedScore}/100 (Moz API not configured)`,
+          status: 'warning',
+          message: 'Backlink analysis unavailable - Moz API not configured',
           url: `https://${domain}`
         }]
       }
@@ -303,14 +301,12 @@ async function checkBacklinks(domain: string) {
     
   } catch (error) {
     console.error('Backlink check error:', error)
-    // Provide fallback data instead of failing completely
-    const fallbackScore = Math.floor(Math.random() * 30) + 5 // 5-35 range
     return { 
-      domain_authority: fallbackScore, 
+      domain_authority: 0, 
       findings: [{
         type: 'backlinks',
-        status: 'warning',
-        message: `Could not verify backlinks. Estimated DA: ${fallbackScore}/100`,
+        status: 'error',
+        message: `Could not verify backlinks: ${error.message}`,
         url: `https://${domain}`
       }]
     }

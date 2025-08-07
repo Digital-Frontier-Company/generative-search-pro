@@ -221,23 +221,7 @@ async function takeSERPSnapshot(query: string, domain: string, engine: 'google' 
   const serpApiKey = Deno.env.get('SERPAPI_KEY');
   
   if (!serpApiKey) {
-    // Create simulated snapshot for testing
-    return {
-      query,
-      domain,
-      engine,
-      aiAnswer: `Simulated AI answer for query: ${query}. This would contain current information about the topic.`,
-      citedSources: [
-        { title: 'Example Source 1', link: 'https://example.com' },
-        { title: 'Example Source 2', link: `https://${domain}` }
-      ],
-      citationPosition: 2,
-      totalSources: 2,
-      organicPositions: [5, 8],
-      featuredSnippet: null,
-      timestamp: new Date().toISOString(),
-      checksum: generateSnapshotChecksum(query, domain, new Date().toISOString())
-    };
+    throw new Error('SERPAPI_KEY not configured');
   }
 
   try {

@@ -164,19 +164,19 @@ const AIVisibilityScore = () => {
         setOverallScore(visibilityScore);
 
         // Update metrics with real analysis data
-        const updatedMetrics = metrics.map((metric, index) => {
+        const updatedMetrics = metrics.map((metric) => {
           let score = 0;
-          let change = Math.floor(Math.random() * 20) - 10; // Simulated change
+          const change = 0; // Use real trend data when available; no simulation
 
           switch (metric.label) {
             case "Featured Snippets":
-              score = Math.min(visibilityScore + Math.floor(Math.random() * 20) - 10, 100);
+              score = visibilityScore;
               break;
             case "AI Answer Boxes":
-              score = Math.max(visibilityScore - Math.floor(Math.random() * 15), 0);
+              score = visibilityScore;
               break;
             case "Voice Search":
-              score = Math.min(visibilityScore + Math.floor(Math.random() * 10) - 5, 100);
+              score = Math.max(0, Math.min(100, visibilityScore - 5));
               break;
             case "Schema Markup":
               score = analysis.schema_count > 0 ? Math.min(visibilityScore + 15, 100) : Math.max(visibilityScore - 20, 0);

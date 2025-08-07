@@ -404,16 +404,23 @@ const CitationMonitoringDashboard = () => {
               </CardHeader>
               <CardContent>
                 <div className="h-32 flex items-end justify-between space-x-1">
-                  {[...Array(7)].map((_, i) => (
-                    <div 
-                      key={i}
-                      className="bg-matrix-green/20 hover:bg-matrix-green/40 transition-colors duration-200 rounded-t"
-                      style={{ 
-                        height: `${Math.random() * 80 + 20}%`,
-                        width: '12%'
-                      }}
-                    />
-                  ))}
+                  {stats.citationTrend && stats.citationTrend.length > 0 ? (
+                    stats.citationTrend.slice(-8).map((d, i, arr) => {
+                      const max = Math.max(...arr.map(a => a.citations || 0), 1);
+                      const height = `${Math.max(5, Math.round(((d.citations || 0) / max) * 100))}%`;
+                      return (
+                        <div
+                          key={d.date + i}
+                          className="bg-matrix-green/20 hover:bg-matrix-green/40 transition-colors duration-200 rounded-t"
+                          style={{ height, width: '12%' }}
+                        />
+                      );
+                    })
+                  ) : (
+                    [...Array(8)].map((_, i) => (
+                      <div key={i} className="bg-matrix-green/10 rounded-t" style={{ height: '5%', width: '12%' }} />
+                    ))
+                  )}
                 </div>
                 <div className="flex justify-between text-xs text-matrix-green/70 mt-2">
                   {['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].map(day => (

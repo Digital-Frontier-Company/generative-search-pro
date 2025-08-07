@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const apiKey = "AIzaSyCXwMlmt4FAdlQGtuUSppht2awWR6Z2B9c"
+const apiKey = Deno.env.get("GOOGLE_API_KEY");
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -14,6 +14,9 @@ serve(async (req) => {
 
   try {
     const { url } = await req.json();
+    if (!apiKey) {
+      throw new Error('Google API key not configured');
+    }
     const api_url = `https://www.googleapis.com/pagespeedonline/v5/runPagespeed?url=${encodeURIComponent(url)}&key=${apiKey}&category=PERFORMANCE`;
 
     const response = await fetch(api_url);

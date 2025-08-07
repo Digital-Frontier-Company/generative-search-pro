@@ -247,16 +247,8 @@ async function checkAlexa(query: string, domain: string): Promise<VoiceSearchRes
         sources: sources.slice(0, 3) // Alexa typically uses fewer sources
       };
     } else {
-      // Fallback: simulate Alexa response pattern
-      return {
-        platform: 'alexa',
-        query,
-        response: `Simulated Alexa response for: ${query}`,
-        cited: false,
-        citationScore: 0,
-        responseLength: query.length + 30,
-        sources: []
-      };
+      // If no Bing API key, skip Alexa check instead of simulating data
+      return null;
     }
 
   } catch (error) {
