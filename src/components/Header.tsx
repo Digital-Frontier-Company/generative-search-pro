@@ -8,7 +8,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem,
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { AnalyticsCTA, defaultCTAVariants } from "@/components/optimized/AnalyticsCTA";
-import { SidebarTrigger } from "@/components/ui/sidebar";
 const Header = () => {
   console.log('Header component rendered, checking logo path');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -50,8 +49,7 @@ const Header = () => {
   }];
   return <header className="sticky top-0 z-50 w-full border-b border-matrix-green/20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center space-x-3">
-          <SidebarTrigger className="text-matrix-green" />
+        <div className="flex items-center space-x-4">
           <Link to="/" className="flex items-center space-x-3">
             <img 
               src="/lovable-uploads/508a5912-5d22-4a7d-a109-5bf20817d152.png"
@@ -106,26 +104,13 @@ const Header = () => {
                       <User className="mr-2 h-4 w-4" />
                       <span>Dashboard</span>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/ai-visibility-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>AI Visibility</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/content-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>Content Tools</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/seo-tso-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>SEO & TSO</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/competitive-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>Competitive Analysis</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/tools-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>Specialized Tools</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/zero-click-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>Zero-Click Optimization</span>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate('/analytics-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
-                      <span>Analytics</span>
+                    <DropdownMenuItem onClick={() => navigate('/tso-dashboard')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
+                      <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 2L2 7L12 12L22 7L12 2Z" />
+                        <path d="M2 17L12 22L22 17" />
+                        <path d="M2 12L12 17L22 12" />
+                      </svg>
+                      <span>TSO Dashboard</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => navigate('/settings')} className="text-matrix-green hover:bg-matrix-green/10 focus:bg-matrix-green/10">
                       <Settings className="mr-2 h-4 w-4" />

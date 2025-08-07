@@ -182,7 +182,7 @@ const Admin = () => {
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="no-users-found" disabled>No users found</SelectItem>
+                    <SelectItem value="" disabled>No users found</SelectItem>
                   )}
                 </SelectContent>
               </Select>

@@ -57,9 +57,9 @@
     --chart-4: 300 100% 70%;
     --chart-5: 30 100% 60%;
     
-    /* Auth gradient colors - deep blue with subtle lime */
-    --auth-gradient-start: 223 70% 12%;
-    --auth-gradient-end: 100 85% 35%;
+    /* Auth gradient colors - more blue influence */
+    --auth-gradient-start: 220 100% 25%;
+    --auth-gradient-end: 150 100% 55%;
   }
 
   .light {
@@ -101,9 +101,9 @@
     --sidebar-border: 220 13% 18%;
     --sidebar-ring: 120 100% 50%;
     
-    /* Auth gradient colors - deep blue with subtle lime */
-    --auth-gradient-start: 223 70% 12%;
-    --auth-gradient-end: 100 85% 35%;
+    /* Auth gradient colors - more blue influence */
+    --auth-gradient-start: 220 100% 25%;
+    --auth-gradient-end: 150 100% 55%;
   }
 }
 
@@ -116,7 +116,7 @@
     @apply bg-gradient-to-br from-auth-gradient-start to-auth-gradient-end text-foreground;
     min-height: 100vh;
     font-size: 1rem; /* 16px base */
-    line-height: 1.6; /* cozy density */
+    line-height: 1.6; /* 1.6 improves readability */
   }
 
   p {
@@ -146,7 +146,8 @@
   
   .hero-gradient {
     @apply bg-gradient-to-br from-primary/10 via-primary/5 to-background;
-    background: linear-gradient(135deg, hsl(100 85% 45% / 0.10) 0%, hsl(225 70% 20% / 0.9) 50%, hsl(225 70% 18% / 1) 100%);
+    /* Softer overlay of the new brand gradient */
+    background: linear-gradient(135deg, rgba(198, 255, 102, 0.08) 0%, rgba(29, 30, 95, 0.9) 50%, rgba(29, 30, 95, 1) 100%);
   }
   
   .content-card {
