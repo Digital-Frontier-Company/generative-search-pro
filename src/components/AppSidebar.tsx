@@ -28,6 +28,10 @@ const dashboardNav = [{
   url: "/dashboard",
   icon: LayoutDashboard
 }, {
+  title: "ALL Tools Hub",
+  url: "/analysis",
+  icon: Grid2x2
+}, {
   title: "Generator",
   url: "/generator",
   icon: Grid2x2
