@@ -2,6 +2,7 @@ import { NavLink } from "react-router-dom";
 import {
   Sidebar,
   SidebarContent,
+  SidebarHeader,
   SidebarGroup,
   SidebarGroupContent,
   SidebarGroupLabel,
@@ -98,6 +99,16 @@ function NavSection({ label, items }: { label: string; items: { title: string; u
 export default function AppSidebar() {
   return (
     <Sidebar className="border-r">
+      <SidebarHeader className="p-3">
+        <NavLink to="/" className="flex items-center gap-2">
+          <img
+            src="/lovable-uploads/21ed5c0e-6a0c-427c-96e5-419307020d09.png"
+            alt="GenerativeSearch.pro logo"
+            className="h-10 w-auto"
+            loading="eager"
+          />
+        </NavLink>
+      </SidebarHeader>
       <SidebarContent>
         <NavSection label="Main" items={mainNav} />
         <NavSection label="Dashboard" items={dashboardNav} />
