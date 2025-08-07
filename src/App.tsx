@@ -1,4 +1,3 @@
-
 import { Toaster } from "@/components/ui/sonner";
 import SkipLink from "@/components/SkipLink";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -43,12 +42,9 @@ import AuthorityTracker from "./components/TSO/AuthorityTracker";
 import CompetitiveAIAnalysis from "./components/TSO/CompetitiveAIAnalysis";
 import BusinessTypeTemplates from "./components/TSO/BusinessTypeTemplates";
 import TSOOnboarding from "./pages/TSOOnboarding";
-
 const queryClient = new QueryClient();
-
 function App() {
-  return (
-    <QueryClientProvider client={queryClient}>
+  return <QueryClientProvider client={queryClient}>
       <SkipLink />
       <AuthProvider>
         <SubscriptionProvider>
@@ -64,7 +60,7 @@ function App() {
                       <SidebarTrigger className="ml-2" />
                       <h1 className="sr-only">Navigation</h1>
                     </header>
-                    <div className="flex-1">
+                    <div className="flex-1 bg-[#030013]/[0.97]">
                       <Routes>
                         <Route path="/" element={<Index />} />
                         <Route path="/auth" element={<Auth />} />
@@ -72,191 +68,76 @@ function App() {
                         <Route path="/upgrade" element={<Upgrade />} />
                         <Route path="/resources" element={<Resources />} />
                         <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
-                        <Route
-                          path="/analysis"
-                          element={
-                            <ProtectedRoute>
+                        <Route path="/analysis" element={<ProtectedRoute>
                               <Analysis />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/dashboard"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/dashboard" element={<ProtectedRoute>
                               <Dashboard />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/generator"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/generator" element={<ProtectedRoute>
                               <ContentGenerator />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/history"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/history" element={<ProtectedRoute>
                               <ContentHistory />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/content-analysis"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/content-analysis" element={<ProtectedRoute>
                               <ContentAnalysis />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/seo-analysis"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/seo-analysis" element={<ProtectedRoute>
                               <SEOAnalysisSimple />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/domain-analysis"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/domain-analysis" element={<ProtectedRoute>
                               <DomainAnalysis />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/schema-analysis"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/schema-analysis" element={<ProtectedRoute>
                               <SchemaAnalysis />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/citation-checker"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/citation-checker" element={<ProtectedRoute>
                               <CitationChecker />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/ai-sitemap"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/ai-sitemap" element={<ProtectedRoute>
                               <AISitemap />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/settings"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/settings" element={<ProtectedRoute>
                               <Settings />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/admin"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/admin" element={<ProtectedRoute>
                               <Admin />
-                            </ProtectedRoute>
-                          }
-                        />
+                            </ProtectedRoute>} />
                         {/* TSO Dashboard and Tools */}
-                        <Route
-                          path="/tso-onboarding"
-                          element={
-                            <ProtectedRoute>
+                        <Route path="/tso-onboarding" element={<ProtectedRoute>
                               <TSOOnboarding />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/tso-dashboard"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/tso-dashboard" element={<ProtectedRoute>
                               <TSODashboard />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/ai-visibility-tracker"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/ai-visibility-tracker" element={<ProtectedRoute>
                               <AIVisibilityTracker />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/zero-click-optimizer"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/zero-click-optimizer" element={<ProtectedRoute>
                               <ZeroClickOptimizer />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/technical-ai-readiness"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/technical-ai-readiness" element={<ProtectedRoute>
                               <TechnicalAIReadiness />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/intent-driven-research"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/intent-driven-research" element={<ProtectedRoute>
                               <IntentDrivenResearch />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/semantic-analyzer"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/semantic-analyzer" element={<ProtectedRoute>
                               <SemanticAnalyzer />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/voice-search-optimizer"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/voice-search-optimizer" element={<ProtectedRoute>
                               <VoiceSearchOptimizer />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/authority-tracker"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/authority-tracker" element={<ProtectedRoute>
                               <AuthorityTracker />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/competitive-ai-analysis"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/competitive-ai-analysis" element={<ProtectedRoute>
                               <CompetitiveAIAnalysis />
-                            </ProtectedRoute>
-                          }
-                        />
-                        <Route
-                          path="/business-type-templates"
-                          element={
-                            <ProtectedRoute>
+                            </ProtectedRoute>} />
+                        <Route path="/business-type-templates" element={<ProtectedRoute>
                               <BusinessTypeTemplates />
-                            </ProtectedRoute>
-                          }
-                        />
+                            </ProtectedRoute>} />
                         <Route path="*" element={<NotFound />} />
                       </Routes>
                     </div>
@@ -268,8 +149,6 @@ function App() {
           </DomainProvider>
         </SubscriptionProvider>
       </AuthProvider>
-    </QueryClientProvider>
-  );
+    </QueryClientProvider>;
 }
-
 export default App;
