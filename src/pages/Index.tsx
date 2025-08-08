@@ -239,6 +239,10 @@ const Index = () => {
                   type="demo"
                 />
               </div>
+              <div className="mt-4 flex flex-col sm:flex-row gap-4">
+                <Button variant="outline" onClick={() => navigate('/brands')}>For Brands</Button>
+                <Button variant="outline" onClick={() => navigate('/influencers')}>For Influencers</Button>
+              </div>
             </div>
             <div className="md:w-1/2 flex justify-center">
               <div className="relative w-full max-w-md">

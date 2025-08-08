@@ -11,13 +11,15 @@ interface LeadCaptureModalProps {
   title?: string;
   description?: string;
   type?: "trial" | "demo" | "newsletter";
+  persona?: "brand" | "influencer";
 }
 
 const LeadCaptureModal = ({ 
   triggerText = "Start Free Trial", 
   title = "Start Your Free Trial",
   description = "Get instant access to all AI-powered SEO tools",
-  type = "trial"
+  type = "trial",
+  persona = "brand"
 }: LeadCaptureModalProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -26,7 +28,10 @@ const LeadCaptureModal = ({
     email: "",
     phone: "",
     company: "",
-    website: ""
+    website: "",
+    handle: "",
+    followers: "",
+    niche: ""
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -46,6 +51,10 @@ const LeadCaptureModal = ({
           phone: formData.phone,
           company: formData.company,
           website: formData.website,
+          handle: formData.handle,
+          followers: formData.followers,
+          niche: formData.niche,
+          persona,
           lead_type: type,
           source: "landing_page",
           timestamp: new Date().toISOString()
@@ -55,7 +64,7 @@ const LeadCaptureModal = ({
       if (webhookResponse.ok) {
         toast.success("Success! Check your email for next steps.");
         setIsOpen(false);
-        setFormData({ name: "", email: "", phone: "", company: "", website: "" });
+        setFormData({ name: "", email: "", phone: "", company: "", website: "", handle: "", followers: "", niche: "" });
       } else {
         throw new Error("Failed to submit");
       }
@@ -119,29 +128,65 @@ const LeadCaptureModal = ({
               className="bg-input border-border focus:border-primary"
             />
           </div>
-          {type !== "newsletter" && (
+          {persona === "influencer" ? (
             <>
               <div className="space-y-2">
-                <Label htmlFor="company">Company</Label>
+                <Label htmlFor="handle">Social Handle</Label>
                 <Input
-                  id="company"
-                  value={formData.company}
-                  onChange={(e) => handleInputChange("company", e.target.value)}
+                  id="handle"
+                  value={formData.handle}
+                  onChange={(e) => handleInputChange("handle", e.target.value)}
+                  placeholder="@yourhandle"
                   className="bg-input border-border focus:border-primary"
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="website">Website URL</Label>
+                <Label htmlFor="followers">Follower Count</Label>
                 <Input
-                  id="website"
-                  type="url"
-                  value={formData.website}
-                  onChange={(e) => handleInputChange("website", e.target.value)}
-                  placeholder="https://example.com"
+                  id="followers"
+                  type="number"
+                  value={formData.followers}
+                  onChange={(e) => handleInputChange("followers", e.target.value)}
+                  placeholder="e.g., 25000"
+                  className="bg-input border-border focus:border-primary"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="niche">Primary Niche</Label>
+                <Input
+                  id="niche"
+                  value={formData.niche}
+                  onChange={(e) => handleInputChange("niche", e.target.value)}
+                  placeholder="tech, beauty, fitness, etc."
                   className="bg-input border-border focus:border-primary"
                 />
               </div>
             </>
+          ) : (
+            type !== "newsletter" && (
+              <>
+                <div className="space-y-2">
+                  <Label htmlFor="company">Company</Label>
+                  <Input
+                    id="company"
+                    value={formData.company}
+                    onChange={(e) => handleInputChange("company", e.target.value)}
+                    className="bg-input border-border focus:border-primary"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="website">Website URL</Label>
+                  <Input
+                    id="website"
+                    type="url"
+                    value={formData.website}
+                    onChange={(e) => handleInputChange("website", e.target.value)}
+                    placeholder="https://example.com"
+                    className="bg-input border-border focus:border-primary"
+                  />
+                </div>
+              </>
+            )
           )}
           <Button 
             type="submit" 
