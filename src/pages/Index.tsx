@@ -17,6 +17,7 @@ import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeatureComparisonSection from "@/components/landing/FeatureComparisonSection";
 import TrustSection from "@/components/landing/TrustSection";
 import AnimatedGSPLogo from "@/components/AnimatedGSPLogo";
+import digitalPioneerLogo from "@/assets/digital-pioneer-logo.png";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -849,6 +850,29 @@ const Index = () => {
 
         {/* How It Works */}
         <HowItWorksSection />
+
+        {/* Web3 Project Section */}
+        <section className="mb-12 bg-muted/30 py-16 rounded-lg">
+          <div className="container mx-auto px-4 text-center">
+            <div className="flex flex-col items-center space-y-6">
+              <p className="text-lg text-muted-foreground">
+                Check out our web3 project being built
+              </p>
+              <a 
+                href="https://digitalpioneers.io" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="transition-transform hover:scale-105"
+              >
+                <img 
+                  src={digitalPioneerLogo} 
+                  alt="Digital Pioneer Collective - Web3 Project" 
+                  className="h-32 w-auto"
+                />
+              </a>
+            </div>
+          </div>
+        </section>
 
         {/* Feature Comparison */}
         <FeatureComparisonSection />
