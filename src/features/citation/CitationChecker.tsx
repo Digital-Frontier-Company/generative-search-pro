@@ -1,17 +1,17 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { Button } from './ui/button';
-import { Input } from './ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Badge } from './ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
-import { supabase } from '../integrations/supabase/client';
-import { useDomain } from '../contexts/DomainContext';
-import { useAuth } from '../contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useDomain } from '@/contexts/DomainContext';
+import { useAuth } from '@/contexts/AuthContext';
 import { ExternalLink, Search, TrendingUp, AlertCircle, Download, RefreshCw } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Progress } from './ui/progress';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 
 interface CitationResult {
   query: string;

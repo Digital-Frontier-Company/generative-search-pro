@@ -1,16 +1,16 @@
 import { useEffect, useState } from "react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "./ui/card";
-import { Badge } from "./ui/badge";
-import { Progress } from "./ui/progress";
-import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "./ui/tabs";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { CheckCircle, AlertTriangle, XCircle, Lightbulb, Bot, RefreshCw, TrendingUp, Search, Target, Zap } from "lucide-react";
 import { toast } from "sonner";
-import { supabase } from "../integrations/supabase/client";
-import { useSEOAnalysis } from "../contexts/SEOAnalysisContext";
-import { useAuth } from "../contexts/AuthContext";
-import { useDomain } from "../contexts/DomainContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useSEOAnalysis } from "@/contexts/SEOAnalysisContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { useDomain } from "@/contexts/DomainContext";
 interface AuditFinding {
   type: 'success' | 'warning' | 'error' | 'info';
   title: string;

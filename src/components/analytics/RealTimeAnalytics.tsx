@@ -76,7 +76,7 @@ const RealTimeAnalytics: React.FC = () => {
       );
 
       return () => {
-        subscription.unsubscribe();
+        subscription.then(sub => sub.unsubscribe());
       };
     }
   }, [user]);

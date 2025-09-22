@@ -479,5 +479,4 @@ export const AlertsWidget: React.FC<WidgetProps> = ({ userId, className, compact
   );
 };
 
-// Export all widgets
-export { QuickStatsWidget, PerformanceScoresWidget, TrendChartWidget, AlertsWidget };
+// Widgets are already exported above, no need for duplicate export

@@ -4,11 +4,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { LogOut, Settings as SettingsIcon } from 'lucide-react';
-import ProfileSettings from '@/components/ProfileSettings';
-import DocumentUpload from '@/components/DocumentUpload';
-import DomainConfiguration from '@/components/DomainConfiguration';
-import Header from '@/components/Header';
-import SubscriptionStatus from '@/components/SubscriptionStatus';
+import ProfileSettings from '@/features/user/ProfileSettings';
+import DocumentUpload from '@/features/content/generation/DocumentUpload';
+import DomainConfiguration from '@/features/domain/DomainConfiguration';
+import Header from '@/components/global/Header';
+import SubscriptionStatus from '@/features/user/SubscriptionStatus';
 
 const Settings = () => {
   const { signOut } = useAuth();

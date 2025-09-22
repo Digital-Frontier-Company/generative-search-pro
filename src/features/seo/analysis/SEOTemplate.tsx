@@ -20,7 +20,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { supabase } from '../integrations/supabase/client';
+import { supabase } from '@/integrations/supabase/client';
 
 // Helper functions for real data extraction
 const extractKeywordsFromDomain = (domain: string): string[] => {

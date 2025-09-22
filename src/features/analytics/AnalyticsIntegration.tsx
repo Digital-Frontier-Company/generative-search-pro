@@ -24,13 +24,13 @@ import { toast } from 'sonner';
 
 // Import our analytics components
 import AnalyticsDashboard from './AnalyticsDashboard';
-import RealTimeAnalytics from '../components/analytics/RealTimeAnalytics';
+import RealTimeAnalytics from '../../components/analytics/RealTimeAnalytics';
 import { 
   QuickStatsWidget, 
   PerformanceScoresWidget, 
   TrendChartWidget, 
   AlertsWidget 
-} from '../components/analytics/PerformanceWidgets';
+} from '../../components/analytics/PerformanceWidgets';
 import { analyticsService } from '@/services/analyticsService';
 import { useAuth } from '@/contexts/AuthContext';
 
@@ -272,7 +272,7 @@ const AnalyticsIntegration: React.FC<AnalyticsIntegrationProps> = ({
       </div>
 
       {/* Analytics Content */}
-      <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
+      <Tabs value={activeView} onValueChange={(value) => setActiveView(value as "dashboard" | "widgets" | "realtime")} className="w-full">
         <TabsContent value="widgets">
           <div className="space-y-6">
             {/* Contextual Insights */}
@@ -388,4 +388,3 @@ export const withAnalytics = <P extends object>(
 };
 
 // Export utility components for standalone use
-export { ContextualInsights } from './AnalyticsIntegration';

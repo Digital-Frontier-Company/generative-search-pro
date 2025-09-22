@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { removeBackground, loadImage } from '../utils/backgroundRemoval';
+import { removeBackground, loadImage } from '../../utils/backgroundRemoval';
 
 const HeroLogo = () => {
   const [processedLogoUrl, setProcessedLogoUrl] = useState<string | null>(null);

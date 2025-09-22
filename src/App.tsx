@@ -33,15 +33,15 @@ import Analysis from "./features/seo/analysis/AnalysisPage";
 
 // TSO Dashboard and Components
 import TSODashboard from "./features/tso/TSODashboardPage";
-import AIVisibilityTracker from "./features/tso/AIVisibilityTracker";
-import ZeroClickOptimizer from "./features/tso/ZeroClickOptimizer";
-import TechnicalAIReadiness from "./features/tso/TechnicalAIReadiness";
-import IntentDrivenResearch from "./features/tso/IntentDrivenResearch";
-import SemanticAnalyzer from "./features/tso/SemanticAnalyzer";
-import VoiceSearchOptimizer from "./features/tso/VoiceSearchOptimizer";
-import AuthorityTracker from "./features/tso/AuthorityTracker";
-import CompetitiveAIAnalysis from "./features/tso/CompetitiveAIAnalysis";
-import BusinessTypeTemplates from "./features/tso/BusinessTypeTemplates";
+import AIVisibilityTracker from "./features/tso/TSO/AIVisibilityTracker";
+import ZeroClickOptimizer from "./features/tso/TSO/ZeroClickOptimizer";
+import TechnicalAIReadiness from "./features/tso/TSO/TechnicalAIReadiness";
+import IntentDrivenResearch from "./features/tso/TSO/IntentDrivenResearch";
+import SemanticAnalyzer from "./features/tso/TSO/SemanticAnalyzer";
+import VoiceSearchOptimizer from "./features/tso/TSO/VoiceSearchOptimizer";
+import AuthorityTracker from "./features/tso/TSO/AuthorityTracker";
+import CompetitiveAIAnalysis from "./features/tso/TSO/CompetitiveAIAnalysis";
+import BusinessTypeTemplates from "./features/tso/TSO/BusinessTypeTemplates";
 import TSOOnboarding from "./features/tso/TSOOnboardingPage";
 
 // Marketplace Landing Pages (public)
