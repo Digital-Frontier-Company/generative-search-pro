@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { CheckCircle, ArrowRight, Zap, Database, Globe, Sparkles, ChevronDown, ChevronUp, Star, Users, TrendingUp, Search, Bot, Lightbulb, Upload, Clipboard, Bell, User, Info, Clock, CheckSquare, Target } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import JsonLdSchema from "@/components/JsonLdSchema";
+import Header from "@/components/global/Header";
+import Footer from "@/components/global/Footer";
+import JsonLdSchema from "@/features/schema/JsonLdSchema";
 import { getHomepageSchema, getHomepageFAQSchema } from "@/utils/jsonLdSchemas";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -16,7 +16,7 @@ import SocialProofSection from "@/components/landing/SocialProofSection";
 import HowItWorksSection from "@/components/landing/HowItWorksSection";
 import FeatureComparisonSection from "@/components/landing/FeatureComparisonSection";
 import TrustSection from "@/components/landing/TrustSection";
-import AnimatedGSPLogo from "@/components/AnimatedGSPLogo";
+import AnimatedGSPLogo from "@/components/global/AnimatedGSPLogo";
 import digitalPioneerLogo from "@/assets/digital-pioneer-logo.png";
 
 const Index = () => {

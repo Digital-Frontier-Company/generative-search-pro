@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import Header from "@/components/Header";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import Header from "@/components/global/Header";
+import Breadcrumbs from "@/components/global/Breadcrumbs";
 import { 
   FileText, 
   Layers, 

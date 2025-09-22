@@ -1,8 +1,8 @@
 
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import Breadcrumbs from "@/components/Breadcrumbs";
-import ContentQualityAnalyzer from "@/components/ContentQualityAnalyzer";
+import Header from "@/components/global/Header";
+import Footer from "@/components/global/Footer";
+import Breadcrumbs from "@/components/global/Breadcrumbs";
+import ContentQualityAnalyzer from "@/features/content/analysis/ContentQualityAnalyzer";
 
 const ContentAnalysis = () => {
   return (

@@ -1,7 +1,7 @@
 
-import DomainAnalyzer from "@/components/DomainAnalyzer";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import DomainAnalyzer from "@/features/domain/DomainAnalyzer";
+import Header from "@/components/global/Header";
+import Footer from "@/components/global/Footer";
 
 const DomainAnalysis = () => {
   return (

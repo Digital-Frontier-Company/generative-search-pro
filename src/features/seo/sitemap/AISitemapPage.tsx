@@ -1,7 +1,7 @@
 
-import AISitemapGenerator from "@/components/AISitemapGenerator";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import AISitemapGenerator from "@/features/seo/sitemap/AISitemapGenerator";
+import Header from "@/components/global/Header";
+import Footer from "@/components/global/Footer";
 
 const AISitemap = () => {
   return (

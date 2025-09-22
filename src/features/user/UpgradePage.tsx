@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, Loader2, Crown, Users, Zap, X } from "lucide-react";
-import Header from "@/components/Header";
+import Header from "@/components/global/Header";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { toast } from "sonner";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import Breadcrumbs from "@/components/global/Breadcrumbs";
 
 const Upgrade = () => {
   const navigate = useNavigate();

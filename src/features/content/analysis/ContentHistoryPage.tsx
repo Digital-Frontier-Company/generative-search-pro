@@ -24,7 +24,7 @@ import { ContentBlock, getUserContentHistory } from "@/services/contentService";
 import { formatDistanceToNow } from "date-fns";
 import { Eye, ArrowRight, RefreshCw, Loader2, Download, FileText, Bot } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
-import ContentSearch from "@/components/ContentSearch";
+import ContentSearch from "@/features/content/analysis/ContentSearch";
 
 const ContentHistory = () => {
   const navigate = useNavigate();

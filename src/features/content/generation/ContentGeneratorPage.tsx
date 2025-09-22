@@ -28,10 +28,10 @@ import {
   ContentBlock,
   generateContent 
 } from "@/services/contentService";
-import JsonLdSchema from "@/components/JsonLdSchema";
+import JsonLdSchema from "@/features/schema/JsonLdSchema";
 import { generateArticleSchema } from "@/utils/jsonLdSchemas";
-import Header from "@/components/Header";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import Header from "@/components/global/Header";
+import Breadcrumbs from "@/components/global/Breadcrumbs";
 
 const ContentGenerator = () => {
   const { user } = useAuth();

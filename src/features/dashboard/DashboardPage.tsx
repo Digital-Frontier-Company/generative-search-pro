@@ -2,12 +2,12 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useSubscription } from "@/contexts/SubscriptionContext";
 import { useDomain } from "@/contexts/DomainContext";
-import Header from "@/components/Header";
+import Header from "@/components/global/Header";
 
-import AIVisibilityScore from "@/components/AIVisibilityScore";
-import CitationMonitoringDashboard from "@/components/CitationMonitoringDashboard";
-import AIAudit from "@/components/AIAudit";
-import SEOToolsAnalytics from "@/components/SEOToolsAnalytics";
+import AIVisibilityScore from "@/features/seo/analysis/AIVisibilityScore";
+import CitationMonitoringDashboard from "@/features/citation/CitationMonitoringDashboard";
+import AIAudit from "@/features/seo/analysis/AIAudit";
+import SEOToolsAnalytics from "@/features/seo/analysis/SEOToolsAnalytics";
 import { SEOAnalysisProvider } from "@/contexts/SEOAnalysisContext";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target, BookOpen, Microscope, Settings, Zap } from "lucide-react";
-import TSONavigationCard from "@/components/TSO/TSONavigationCard";
+import TSONavigationCard from "@/features/tso/TSONavigationCard";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";

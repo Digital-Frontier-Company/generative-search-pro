@@ -1,7 +1,7 @@
 
-import CitationChecker from "@/components/CitationChecker";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import CitationChecker from "@/features/citation/CitationChecker";
+import Header from "@/components/global/Header";
+import Footer from "@/components/global/Footer";
 
 const CitationCheckerPage = () => {
   return (

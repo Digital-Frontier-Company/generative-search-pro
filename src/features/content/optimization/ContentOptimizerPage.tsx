@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import Header from "@/components/Header";
-import Breadcrumbs from "@/components/Breadcrumbs";
+import Header from "@/components/global/Header";
+import Breadcrumbs from "@/components/global/Breadcrumbs";
 import { 
   FileText, 
   BarChart3, 

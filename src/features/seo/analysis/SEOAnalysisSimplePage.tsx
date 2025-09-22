@@ -5,9 +5,9 @@ import { Input } from "@/components/ui/input";
 import { Globe, Search, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
-import SEODashboard from "@/components/SEODashboard";
+import Header from "@/components/global/Header";
+import Footer from "@/components/global/Footer";
+import SEODashboard from "@/features/dashboard/SEODashboard";
 
 const SEOAnalysisSimple = () => {
   const [domain, setDomain] = useState("");

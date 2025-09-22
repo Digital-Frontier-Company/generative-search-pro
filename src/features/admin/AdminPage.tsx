@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Loader2, Send, RefreshCw } from "lucide-react";
-import Header from "@/components/Header";
+import Header from "@/components/global/Header";
 import { toast } from "sonner";
 import {
   Select,
