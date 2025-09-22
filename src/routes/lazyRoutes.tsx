@@ -22,15 +22,15 @@ export const BrandSERPanalysis = lazy(() => import('@/features/seo/monitoring/Br
 export const CitationChecker = lazy(() => import('@/features/citation/CitationCheckerPage'));
 export const AISitemap = lazy(() => import('@/features/seo/sitemap/AISitemapPage'));
 
-// TSO Dashboard and Components - Build Fix
+// TSO Dashboard and Components - Fixed paths
 export const TSODashboard = lazy(() => import('@/features/tso/TSODashboardPage'));
 export const TSOOnboarding = lazy(() => import('@/features/tso/TSOOnboardingPage'));
-export const AIVisibilityTracker = lazy(() => import('@/features/tso/AIVisibilityTracker'));
-export const ZeroClickOptimizer = lazy(() => import('@/features/tso/ZeroClickOptimizer'));
-export const TechnicalAIReadiness = lazy(() => import('@/features/tso/TechnicalAIReadiness'));
-export const IntentDrivenResearch = lazy(() => import('@/features/tso/IntentDrivenResearch'));
-export const SemanticAnalyzer = lazy(() => import('@/features/tso/SemanticAnalyzer'));
-export const VoiceSearchOptimizer = lazy(() => import('@/features/tso/VoiceSearchOptimizer'));
-export const AuthorityTracker = lazy(() => import('@/features/tso/AuthorityTracker'));
-export const CompetitiveAIAnalysis = lazy(() => import('@/features/tso/CompetitiveAIAnalysis'));
-export const BusinessTypeTemplates = lazy(() => import('@/features/tso/BusinessTypeTemplates'));
+export const AIVisibilityTracker = lazy(() => import('@/features/tso/TSO/AIVisibilityTracker'));
+export const ZeroClickOptimizer = lazy(() => import('@/features/tso/TSO/ZeroClickOptimizer'));
+export const TechnicalAIReadiness = lazy(() => import('@/features/tso/TSO/TechnicalAIReadiness'));
+export const IntentDrivenResearch = lazy(() => import('@/features/tso/TSO/IntentDrivenResearch'));
+export const SemanticAnalyzer = lazy(() => import('@/features/tso/TSO/SemanticAnalyzer'));
+export const VoiceSearchOptimizer = lazy(() => import('@/features/tso/TSO/VoiceSearchOptimizer'));
+export const AuthorityTracker = lazy(() => import('@/features/tso/TSO/AuthorityTracker'));
+export const CompetitiveAIAnalysis = lazy(() => import('@/features/tso/TSO/CompetitiveAIAnalysis'));
+export const BusinessTypeTemplates = lazy(() => import('@/features/tso/TSO/BusinessTypeTemplates'));

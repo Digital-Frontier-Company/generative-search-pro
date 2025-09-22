@@ -331,7 +331,6 @@ export class EnhancedContentService {
       const { error } = await supabase
         .from('content_blocks')
         .insert({
-          id: contentBlock.id,
           user_id: userId,
           title: contentBlock.title,
           content: contentBlock.content,
