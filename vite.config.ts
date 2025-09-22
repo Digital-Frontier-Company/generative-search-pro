@@ -99,19 +99,19 @@ export default defineConfig(({ mode, command }) => ({
           'date-vendor': ['date-fns'],
           'supabase-vendor': ['@supabase/supabase-js'],
           
-          // Feature chunks based on actual components
+          // Feature chunks based on new structure
           'seo-tools': [
-            './src/components/SEOAnalyzer',
-            './src/components/AIAudit',
-            './src/components/AIVisibilityScore'
+            './src/features/seo/analysis/SEOAnalyzer',
+            './src/features/seo/analysis/AIAudit',
+            './src/features/seo/analysis/AIVisibilityScore'
           ],
           'citation-tools': [
-            './src/components/CitationChecker',
-            './src/components/CitationMonitoringDashboard'
+            './src/features/citation/CitationChecker',
+            './src/features/citation/CitationMonitoringDashboard'
           ],
           'content-tools': [
-            './src/components/ContentQualityAnalyzer',
-            './src/components/ContentSearch'
+            './src/features/content/analysis/ContentQualityAnalyzer',
+            './src/features/content/analysis/ContentSearch'
           ],
           'auth-security': [
             './src/lib/security',
