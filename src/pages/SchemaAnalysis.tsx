@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { Navigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -36,11 +36,8 @@ interface SchemaAnalysisData {
 }
 
 const SchemaAnalysis = () => {
-  const { user } = useAuth();
-  const [selectedSort, setSelectedSort] = useState("impact");
-  const [selectedCompetitorView, setSelectedCompetitorView] = useState("top5");
-  const [loading, setLoading] = useState(true);
-  const [analysisData, setAnalysisData] = useState<SchemaAnalysisData | null>(null);
+  return <Navigate to="/seo-analysis?tab=core-analysis&sub=schema" replace />;
+};
 
   useEffect(() => {
     if (user) {

@@ -1,7 +1,13 @@
 
+// @ts-expect-error -- Deno URL import
 import "https://deno.land/x/xhr@0.1.0/mod.ts";
+// @ts-expect-error -- Deno URL import
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+// @ts-expect-error -- Deno URL import
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.38.0';
+
+// Provide ambient Deno type for local TS tooling
+declare const Deno: { env: { get: (key: string) => string | undefined } };
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -10,6 +16,12 @@ const corsHeaders = {
 
 // Marketing Copy Amplifier class
 class MarketingAmplifier {
+  private powerWords: Record<string, string[]>;
+  private viralHooks: string[];
+  private patternInterrupts: string[];
+  private psychologicalTriggers: Record<string, string[]>;
+  private powerCtas: string[];
+
   constructor() {
     this.powerWords = {
       'good': ['explosive', 'game-changing', 'revolutionary', 'breakthrough'],
@@ -71,10 +83,10 @@ class MarketingAmplifier {
     ];
   }
   
-  amplifyWithPowerWords(text) {
+  amplifyWithPowerWords(text: string) {
     let amplified = text;
     
-    for (const [weakWord, powerAlternatives] of Object.entries(this.powerWords)) {
+    for (const [weakWord, powerAlternatives] of Object.entries(this.powerWords) as Array<[string, string[]]>) {
       const regex = new RegExp(`\\b${weakWord}\\b`, 'gi');
       if (regex.test(amplified)) {
         const replacement = powerAlternatives[Math.floor(Math.random() * powerAlternatives.length)];
@@ -85,14 +97,14 @@ class MarketingAmplifier {
     return amplified;
   }
   
-  addViralHooks(text) {
+  addViralHooks(text: string) {
     const sentences = text.split('.');
     if (!sentences.length) return text;
     
     const firstSentence = sentences[0].trim();
     
     if (firstSentence.length > 10) {
-      const words = firstSentence.toLowerCase().split();
+      const words = firstSentence.toLowerCase().split(/\s+/);
       const topicCandidates = words.filter(word => word.length > 4 && /^[a-zA-Z]+$/.test(word));
       const topic = topicCandidates[0] || "strategy";
       
@@ -117,9 +129,9 @@ class MarketingAmplifier {
     return sentences.join('.');
   }
   
-  addPatternInterrupts(text) {
+  addPatternInterrupts(text: string) {
     const paragraphs = text.split('\n\n');
-    const enhancedParagraphs = [];
+    const enhancedParagraphs: string[] = [];
     
     for (let i = 0; i < paragraphs.length; i++) {
       const paragraph = paragraphs[i];
@@ -136,11 +148,11 @@ class MarketingAmplifier {
     return enhancedParagraphs.join('\n\n');
   }
   
-  addPsychologicalTriggers(text) {
+  addPsychologicalTriggers(text: string) {
     let triggeredText = text;
     
     const ctaPattern = /\b(click|try|start|get|download|sign up)\b/gi;
-    const urgencyTriggers = this.psychologicalTriggers.urgency;
+    const urgencyTriggers: string[] = this.psychologicalTriggers.urgency;
     
     triggeredText = triggeredText.replace(ctaPattern, (match) => {
       const trigger = urgencyTriggers[Math.floor(Math.random() * urgencyTriggers.length)];
@@ -155,9 +167,9 @@ class MarketingAmplifier {
     return triggeredText;
   }
   
-  createCuriosityGaps(text) {
+  createCuriosityGaps(text: string) {
     const sentences = text.split('.');
-    const gappedSentences = [];
+    const gappedSentences: string[] = [];
     
     for (let i = 0; i < sentences.length; i++) {
       const sentence = sentences[i];
@@ -177,7 +189,7 @@ class MarketingAmplifier {
     return gappedSentences.join('.');
   }
   
-  addPowerCtas(text) {
+  addPowerCtas(text: string) {
     const weakCtas = ['learn more', 'click here', 'read more', 'find out', 'see more', 'get started', 'try it', 'check it out'];
     let ctaEnhanced = text;
     
@@ -193,20 +205,20 @@ class MarketingAmplifier {
     return ctaEnhanced;
   }
   
-  amplifyToMarketingCopy(text) {
+  amplifyToMarketingCopy(text: string) {
     console.log("🔍 Analyzing text for weak language patterns...");
-    let step1 = this.amplifyWithPowerWords(text);
+    const step1 = this.amplifyWithPowerWords(text);
     
     console.log("⚡ Injecting power words and viral hooks...");
-    let step2 = this.addViralHooks(step1);
+    const step2 = this.addViralHooks(step1);
     
     console.log("🎯 Adding pattern interrupts and psychological triggers...");
-    let step3 = this.addPatternInterrupts(step2);
-    let step4 = this.addPsychologicalTriggers(step3);
+    const step3 = this.addPatternInterrupts(step2);
+    const step4 = this.addPsychologicalTriggers(step3);
     
     console.log("🧲 Creating curiosity gaps and power CTAs...");
-    let step5 = this.createCuriosityGaps(step4);
-    let finalText = this.addPowerCtas(step5);
+    const step5 = this.createCuriosityGaps(step4);
+    const finalText = this.addPowerCtas(step5);
     
     return {
       original: text,
@@ -217,34 +229,40 @@ class MarketingAmplifier {
 }
 
 // Enhanced schema validation function with AEO requirements
-function validateSchema(schema) {
+function validateSchema(schema: unknown) {
   if (!schema || typeof schema !== 'object') {
     return { isValid: false, issues: ["Schema must be an object"] };
   }
   
-  const issues = [];
+  const issues: string[] = [];
+  const obj = schema as Record<string, unknown>;
   
   // Basic schema validation
-  if (!schema['@context']) issues.push("Missing @context property for machine readability");
-  if (!schema['@type']) issues.push("Missing @type property for content classification");
+  if (!('@context' in obj)) { issues.push("Missing @context property for machine readability"); }
+  if (!('@type' in obj)) { issues.push("Missing @type property for content classification"); }
   
   // AEO-specific validation
-  if (schema['@type'] === 'FAQPage') {
-    if (!schema.mainEntity || !Array.isArray(schema.mainEntity)) {
+  const typeVal = (obj['@type'] as string | undefined);
+  if (typeVal === 'FAQPage') {
+    const mainEntity = (obj['mainEntity'] as unknown);
+    if (!Array.isArray(mainEntity)) {
       issues.push("FAQPage schema must include mainEntity array for Answer Engine Optimization");
     } else {
-      schema.mainEntity.forEach((qa, index) => {
-        if (!qa.name) issues.push(`FAQ ${index + 1} missing question name`);
-        if (!qa.acceptedAnswer?.text) issues.push(`FAQ ${index + 1} missing answer text`);
+      (mainEntity as unknown[]).forEach((qa, index) => {
+        const qaObj = qa as Record<string, unknown>;
+        if (!("name" in qaObj) || typeof qaObj.name !== 'string' || qaObj.name.trim() === '') { issues.push(`FAQ ${index + 1} missing question name`); }
+        const accepted = qaObj["acceptedAnswer"] as Record<string, unknown> | undefined;
+        const answerText = accepted && typeof accepted === 'object' ? (accepted["text"] as string | undefined) : undefined;
+        if (!answerText || answerText.trim() === '') { issues.push(`FAQ ${index + 1} missing answer text`); }
       });
     }
   }
   
-  if (['Article', 'BlogPosting', 'NewsArticle'].includes(schema['@type'])) {
-    if (!schema.headline) issues.push("Article schema should include headline for snippet optimization");
-    if (!schema.author) issues.push("Missing author for E-E-A-T authority signals");
-    if (!schema.publisher) issues.push("Missing publisher for credibility markers");
-    if (!schema.datePublished) issues.push("Missing publication date for freshness signals");
+  if (['Article', 'BlogPosting', 'NewsArticle'].includes(typeVal || '')) {
+    if (!('headline' in obj)) { issues.push("Article schema should include headline for snippet optimization"); }
+    if (!('author' in obj)) { issues.push("Missing author for E-E-A-T authority signals"); }
+    if (!('publisher' in obj)) { issues.push("Missing publisher for credibility markers"); }
+    if (!('datePublished' in obj)) { issues.push("Missing publication date for freshness signals"); }
   }
   
   return {
@@ -332,61 +350,76 @@ serve(async (req) => {
     // STEP 1: Generate comprehensive content
     const comprehensivePrompt = getComprehensiveContentPrompt(topic, contentType, toneStyle, targetAudience, keywords);
     
-    const initialResponse = await fetch('https://api.openai.com/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'gpt-4o',
-        messages: [
-          { role: 'system', content: comprehensivePrompt },
-          { role: 'user', content: `Create comprehensive, in-depth content about "${topic}" that is minimum 750 words. Include detailed sections, examples, and actionable insights. Target keywords: ${keywords?.join(', ') || topic}` }
-        ],
-        temperature: 0.7,
-        max_tokens: 4000,
-        functions: [
-          {
-            name: 'format_comprehensive_content',
-            description: 'Format comprehensive SEO-optimized content with full metadata',
-            parameters: {
-              type: 'object',
-              properties: {
-                title: { type: 'string', description: 'SEO-optimized title with primary keyword' },
-                heroAnswer: { type: 'string', description: 'Direct answer to main query (≤50 words)' },
-                content: { type: 'string', description: 'Comprehensive HTML content (minimum 750 words)' },
-                metadata: {
-                  type: 'object',
-                  properties: {
-                    seoTitle: { type: 'string', description: 'SEO title (≤60 chars)' },
-                    metaDescription: { type: 'string', description: 'Meta description (≤160 chars)' },
-                    ogTitle: { type: 'string', description: 'Open Graph title' },
-                    ogDescription: { type: 'string', description: 'Open Graph description' },
-                    twitterTitle: { type: 'string', description: 'Twitter card title' },
-                    twitterDescription: { type: 'string', description: 'Twitter card description' },
-                    jsonLdSchema: { type: 'object', description: 'JSON-LD schema markup' },
-                    ctaVariants: { 
-                      type: 'array', 
-                      items: { type: 'string' },
-                      description: 'Three CTA variants'
-                    },
-                    focusKeywords: {
-                      type: 'array',
-                      items: { type: 'string' },
-                      description: 'Primary and secondary keywords'
-                    }
-                  },
-                  required: ['seoTitle', 'metaDescription', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'jsonLdSchema', 'ctaVariants', 'focusKeywords']
-                }
-              },
-              required: ['title', 'heroAnswer', 'content', 'metadata']
-            }
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const openaiBody = {
+      model: 'gpt-4o-mini',
+      messages: [
+        { role: 'system', content: comprehensivePrompt },
+        { role: 'user', content: `Create comprehensive, in-depth content about "${topic}" that is minimum 750 words. Include detailed sections, examples, and actionable insights. Target keywords: ${keywords?.join(', ') || topic}` }
+      ],
+      temperature: 0.7,
+      max_tokens: 4000,
+      functions: [
+        {
+          name: 'format_comprehensive_content',
+          description: 'Format comprehensive SEO-optimized content with full metadata',
+          parameters: {
+            type: 'object',
+            properties: {
+              title: { type: 'string', description: 'SEO-optimized title with primary keyword' },
+              heroAnswer: { type: 'string', description: 'Direct answer to main query (≤50 words)' },
+              content: { type: 'string', description: 'Comprehensive HTML content (minimum 750 words)' },
+              metadata: {
+                type: 'object',
+                properties: {
+                  seoTitle: { type: 'string' },
+                  metaDescription: { type: 'string' },
+                  ogTitle: { type: 'string' },
+                  ogDescription: { type: 'string' },
+                  twitterTitle: { type: 'string' },
+                  twitterDescription: { type: 'string' },
+                  jsonLdSchema: { type: 'object' },
+                  ctaVariants: { type: 'array', items: { type: 'string' } },
+                  focusKeywords: { type: 'array', items: { type: 'string' } }
+                },
+                required: ['seoTitle', 'metaDescription', 'ogTitle', 'ogDescription', 'twitterTitle', 'twitterDescription', 'jsonLdSchema', 'ctaVariants', 'focusKeywords']
+              }
+            },
+            required: ['title', 'heroAnswer', 'content', 'metadata']
           }
-        ],
-        function_call: { name: 'format_comprehensive_content' }
-      }),
-    });
+        }
+      ],
+      function_call: { name: 'format_comprehensive_content' }
+    };
+
+    async function callOpenAIWithRetry(attempt = 1): Promise<Response> {
+      try {
+        const res = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${openAIApiKey}`,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(openaiBody),
+          signal: controller.signal,
+        });
+        if (res.status >= 500 && attempt < 3) {
+          await new Promise(r => setTimeout(r, 300 * attempt));
+          return callOpenAIWithRetry(attempt + 1);
+        }
+        return res;
+      } catch (err) {
+        if (attempt < 3) {
+          await new Promise(r => setTimeout(r, 300 * attempt));
+          return callOpenAIWithRetry(attempt + 1);
+        }
+        throw err;
+      }
+    }
+
+    const initialResponse = await callOpenAIWithRetry();
+    clearTimeout(timeoutId);
 
     const initialData = await initialResponse.json();
     console.log("Initial comprehensive content generated");
@@ -399,7 +432,19 @@ serve(async (req) => {
       });
     }
 
-    const initialContent = JSON.parse(initialData.choices[0]?.message?.function_call?.arguments);
+    let initialContent;
+    try {
+      const args = initialData.choices?.[0]?.message?.function_call?.arguments || '{}';
+      initialContent = JSON.parse(args);
+    } catch (e) {
+      console.error('Failed to parse function_call arguments; falling back to plain content shape');
+      initialContent = {
+        title: topic,
+        heroAnswer: '',
+        content: initialData.choices?.[0]?.message?.content || '',
+        metadata: { seoTitle: topic, metaDescription: '', ogTitle: topic, ogDescription: '', twitterTitle: topic, twitterDescription: '', jsonLdSchema: {}, ctaVariants: [], focusKeywords: keywords || [] }
+      };
+    }
     
     console.log('🚀 Running Marketing Copy Amplifier...');
 
@@ -431,6 +476,8 @@ serve(async (req) => {
     
     console.log('Generating content embedding for vector search...');
     
+    const embedController = new AbortController();
+    const embedTimeout = setTimeout(() => embedController.abort(), 15000);
     const embeddingResponse = await fetch('https://api.openai.com/v1/embeddings', {
       method: 'POST',
       headers: {
@@ -441,7 +488,9 @@ serve(async (req) => {
         model: 'text-embedding-3-small',
         input: contentForEmbedding
       }),
+      signal: embedController.signal,
     });
+    clearTimeout(embedTimeout);
     
     const embeddingData = await embeddingResponse.json();
     

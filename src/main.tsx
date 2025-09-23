@@ -20,17 +20,21 @@ bundleOptimizer.preconnectDomains([
   'https://fonts.googleapis.com',
   'https://fonts.gstatic.com',
   'https://api.openai.com',
-  'https://serpapi.com'
+  'https://serpapi.com',
+  'https://*.supabase.co'
 ]);
 
 // Optimize cache
 bundleOptimizer.optimizeCache();
 
-// Register service worker for PWA
-// @ts-expect-error virtual module provided by vite-plugin-pwa
-import { registerSW } from "virtual:pwa-register";
-
-registerSW({ immediate: true });
+// Register service worker for PWA (optional in dev)
+try {
+  // @ts-expect-error virtual module provided by vite-plugin-pwa
+  const { registerSW } = await import("virtual:pwa-register");
+  registerSW({ immediate: true });
+} catch {
+  // ignore when plugin not active
+}
 
 // Initialize analytics
 import { useAnalytics } from "./hooks/useAnalytics";

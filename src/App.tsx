@@ -9,26 +9,31 @@ import { DomainProvider } from "@/contexts/DomainContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/AppSidebar";
-import Index from "./pages/Index";
-import Auth from "./pages/Auth";
-import About from "./pages/About";
-import Dashboard from "./pages/Dashboard";
-import ContentGenerator from "./pages/ContentGenerator";
-import ContentHistory from "./pages/ContentHistory";
-import ContentAnalysis from "./pages/ContentAnalysis";
-import ContentOptimizer from "./pages/ContentOptimizer";
-import Resources from "./pages/Resources";
-import SEOAnalysisSimple from "./pages/SEOAnalysisSimple";
-import DomainAnalysis from "./pages/DomainAnalysis";
-import SchemaAnalysis from "./pages/SchemaAnalysis";
-import CitationChecker from "./pages/CitationChecker";
-import AISitemap from "./pages/AISitemap";
-import Settings from "./pages/Settings";
-import Admin from "./pages/Admin";
-import Upgrade from "./pages/Upgrade";
-import NotFound from "./pages/NotFound";
+import { Suspense } from "react";
+import {
+  Index,
+  Auth,
+  About,
+  Dashboard,
+  ContentGenerator,
+  ContentHistory,
+  ContentAnalysis,
+  ContentOptimizer,
+  Resources,
+  SEOAnalysisSimple,
+  DomainAnalysis,
+  SchemaAnalysis,
+  CitationChecker,
+  AISitemap,
+  Settings,
+  Admin,
+  Upgrade,
+  NotFound,
+} from "./routes/lazyRoutes";
+import { Brands, Influencers } from "./routes/lazyRoutes";
 import SchemaMarkupGuide from "./pages/SchemaMarkupGuide";
 import Analysis from "./pages/Analysis";
+import { Skeleton } from "@/components/ui/skeleton";
 
 
 // TSO Dashboard and Components
@@ -66,6 +71,7 @@ function App() {
                       <h1 className="sr-only">Navigation</h1>
                     </header>
                     <div className="flex-1 bg-[#030013]/[0.97]">
+                        <Suspense fallback={<div className="p-6"><Skeleton className="h-6 w-1/3 mb-4" /><Skeleton className="h-4 w-2/3" /></div>}>
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/auth" element={<Auth />} />
@@ -92,16 +98,16 @@ function App() {
                                 <ContentAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/seo-analysis" element={<ProtectedRoute>
-                                <SEOAnalysisSimple />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/domain-analysis" element={<ProtectedRoute>
-                                <DomainAnalysis />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/schema-analysis" element={<ProtectedRoute>
-                                <SchemaAnalysis />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/citation-checker" element={<ProtectedRoute>
-                                <CitationChecker />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/ai-sitemap" element={<ProtectedRoute>
                                 <AISitemap />
@@ -148,6 +154,7 @@ function App() {
                               </ProtectedRoute>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+                        </Suspense>
                     </div>
                   </SidebarInset>
                 </div>

@@ -219,8 +219,11 @@ async function getHistoricalCitationData(domain: string, userId: string): Promis
 
   } catch (error) {
     console.error('Error fetching historical data:', error);
-    // Return simulated data for development
-    return generateSimulatedHistoricalData();
+    const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true';
+    if (allowSim) {
+      return generateSimulatedHistoricalData();
+    }
+    throw new Error('Historical data unavailable and simulation disabled.');
   }
 }
 

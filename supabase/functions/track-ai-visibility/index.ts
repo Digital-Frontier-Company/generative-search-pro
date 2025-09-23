@@ -28,7 +28,13 @@ serve(async (req) => {
       ? target_queries 
       : generateQueriesFromDomain(domain);
 
-    // Track visibility across each platform
+    // Simulation gating: this function currently uses simulated platform queries
+    const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true'
+    if (!allowSim) {
+      return new Response(JSON.stringify({ error: 'AI visibility tracking requires live integrations. Simulation is disabled.' }), { status: 501, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // Track visibility across each platform (simulated)
     const platformResults = await Promise.all(
       platforms.map(platform => trackPlatformVisibility(platform, domain, queriesToAnalyze))
     );

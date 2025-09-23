@@ -21,6 +21,8 @@ export const NotFound = lazy(() => import('@/pages/NotFound'));
 export const BrandSERPanalysis = lazy(() => import('@/pages/BrandSERPanalysis'));
 export const CitationChecker = lazy(() => import('@/pages/CitationChecker'));
 export const AISitemap = lazy(() => import('@/pages/AISitemap'));
+export const Brands = lazy(() => import('@/pages/Brands'));
+export const Influencers = lazy(() => import('@/pages/Influencers'));
 
 // TSO Dashboard and Components - Build Fix
 export const TSODashboard = lazy(() => import('@/pages/TSODashboard'));
