@@ -1,53 +1,50 @@
 import { Toaster } from "@/components/ui/sonner";
-import SkipLink from "@/components/SkipLink";
+import SkipLink from "@/components/global/SkipLink";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/contexts/AuthContext";
 import { SubscriptionProvider } from "@/contexts/SubscriptionContext";
 import { DomainProvider } from "@/contexts/DomainContext";
-import ProtectedRoute from "@/components/ProtectedRoute";
+import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
-import AppSidebar from "@/components/AppSidebar";
+import AppSidebar from "@/components/global/AppSidebar";
 import { Suspense } from "react";
-import {
-  Index,
-  Auth,
-  About,
-  Dashboard,
-  ContentGenerator,
-  ContentHistory,
-  ContentAnalysis,
-  ContentOptimizer,
-  Resources,
-  SEOAnalysisSimple,
-  DomainAnalysis,
-  SchemaAnalysis,
-  CitationChecker,
-  AISitemap,
-  Settings,
-  Admin,
-  Upgrade,
-  NotFound,
-} from "./routes/lazyRoutes";
-import { Brands, Influencers } from "./routes/lazyRoutes";
-import SchemaMarkupGuide from "./pages/SchemaMarkupGuide";
-import Analysis from "./pages/Analysis";
 import { Skeleton } from "@/components/ui/skeleton";
+import Index from "./pages/HomePage";
+import Auth from "./features/auth/AuthPage";
+import About from "./pages/About";
+import Dashboard from "./features/dashboard/DashboardPage";
+import ContentGenerator from "./features/content/generation/ContentGeneratorPage";
+import ContentHistory from "./features/content/analysis/ContentHistoryPage";
+import ContentAnalysis from "./features/content/analysis/ContentAnalysisPage";
+import ContentOptimizer from "./features/content/optimization/ContentOptimizerPage";
+import Resources from "./pages/Resources";
+import SEOAnalysisSimple from "./features/seo/analysis/SEOAnalysisSimplePage";
+import DomainAnalysis from "./features/domain/DomainAnalysisPage";
+import SchemaAnalysis from "./features/schema/SchemaAnalysisPage";
+import CitationChecker from "./features/citation/CitationCheckerPage";
+import AISitemap from "./features/seo/sitemap/AISitemapPage";
+import Settings from "./features/user/SettingsPage";
+import Admin from "./features/admin/AdminPage";
+import Upgrade from "./features/user/UpgradePage";
+import NotFound from "./pages/NotFoundPage";
+import SchemaMarkupGuide from "./features/schema/SchemaMarkupGuidePage";
+import Analysis from "./features/seo/analysis/AnalysisPage";
 
 
 // TSO Dashboard and Components
-import TSODashboard from "./pages/TSODashboard";
-import AIVisibilityTracker from "./components/TSO/AIVisibilityTracker";
-import ZeroClickOptimizer from "./components/TSO/ZeroClickOptimizer";
-import TechnicalAIReadiness from "./components/TSO/TechnicalAIReadiness";
-import IntentDrivenResearch from "./components/TSO/IntentDrivenResearch";
-import SemanticAnalyzer from "./components/TSO/SemanticAnalyzer";
-import VoiceSearchOptimizer from "./components/TSO/VoiceSearchOptimizer";
-import AuthorityTracker from "./components/TSO/AuthorityTracker";
-import CompetitiveAIAnalysis from "./components/TSO/CompetitiveAIAnalysis";
-import BusinessTypeTemplates from "./components/TSO/BusinessTypeTemplates";
-import TSOOnboarding from "./pages/TSOOnboarding";
+import TSODashboard from "./features/tso/TSODashboardPage";
+import AIVisibilityTracker from "./features/tso/TSO/AIVisibilityTracker";
+import ZeroClickOptimizer from "./features/tso/TSO/ZeroClickOptimizer";
+import TechnicalAIReadiness from "./features/tso/TSO/TechnicalAIReadiness";
+import IntentDrivenResearch from "./features/tso/TSO/IntentDrivenResearch";
+import SemanticAnalyzer from "./features/tso/TSO/SemanticAnalyzer";
+import VoiceSearchOptimizer from "./features/tso/TSO/VoiceSearchOptimizer";
+import AuthorityTracker from "./features/tso/TSO/AuthorityTracker";
+import CompetitiveAIAnalysis from "./features/tso/TSO/CompetitiveAIAnalysis";
+import BusinessTypeTemplates from "./features/tso/TSO/BusinessTypeTemplates";
+import TSOOnboarding from "./features/tso/TSOOnboardingPage";
 
 // Marketplace Landing Pages (public)
 import Brands from "./pages/Brands";
