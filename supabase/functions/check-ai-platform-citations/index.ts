@@ -48,9 +48,13 @@ const secureHandler = createSecureHandler(
 
     const performChecks = withPerformanceMonitoring(async () => {
       const results: AIPlatformResult[] = [];
+      const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true'
 
       for (const platform of platformList) {
         try {
+          if (search_method === 'simulation' && !allowSim) {
+            throw new Error('Simulation is disabled. Use search_method="direct" with API keys configured.');
+          }
           const result = await checkAIPlatform(platform, query, domain, search_method);
           if (result) {
             results.push(result);

@@ -23,28 +23,25 @@ const mainNav = [{
   url: "/settings",
   icon: SettingsIcon
 }];
+// Consolidated IA: Hubs first, common actions, then analyses
 const dashboardNav = [{
-  title: "Dashboard",
+  title: "Overview",
   url: "/dashboard",
   icon: LayoutDashboard
 }, {
-  title: "ALL Tools Hub",
+  title: "Tools Hub",
   url: "/analysis",
   icon: Grid2x2
 }, {
-  title: "Generator",
+  title: "Generate Content",
   url: "/generator",
   icon: Grid2x2
 }, {
-  title: "History",
+  title: "Content History",
   url: "/history",
   icon: ListChecks
 }, {
-  title: "Content Analysis",
-  url: "/content-analysis",
-  icon: FileText
-}, {
-  title: "SEO Analysis Hub",
+  title: "SEO Analysis",
   url: "/seo-analysis",
   icon: BarChart3
 }, {
@@ -56,7 +53,7 @@ const dashboardNav = [{
   url: "/schema-analysis",
   icon: Shield
 }, {
-  title: "Citation Checker",
+  title: "Citations",
   url: "/citation-checker",
   icon: ChartBarBig
 }, {
@@ -69,23 +66,23 @@ const tsoNav = [{
   url: "/tso-dashboard",
   icon: LayoutDashboard
 }, {
-  title: "TSO Onboarding",
+  title: "Onboarding",
   url: "/tso-onboarding",
   icon: Landmark
 }, {
-  title: "AI Visibility Tracker",
+  title: "Visibility",
   url: "/ai-visibility-tracker",
   icon: ChartNoAxesGantt
 }, {
-  title: "Zero Click Optimizer",
+  title: "Zero-Click",
   url: "/zero-click-optimizer",
   icon: ChartBarBig
 }, {
-  title: "Technical AI Readiness",
+  title: "AI Readiness",
   url: "/technical-ai-readiness",
   icon: Shield
 }, {
-  title: "Intent Driven Research",
+  title: "Intent Research",
   url: "/intent-driven-research",
   icon: FileSearch
 }, {
@@ -93,19 +90,19 @@ const tsoNav = [{
   url: "/semantic-analyzer",
   icon: FileText
 }, {
-  title: "Voice Search Optimizer",
+  title: "Voice Search",
   url: "/voice-search-optimizer",
   icon: AudioLines
 }, {
-  title: "Authority Tracker",
+  title: "Authority",
   url: "/authority-tracker",
   icon: Landmark
 }, {
-  title: "Competitive AI Analysis",
+  title: "Competitive Analysis",
   url: "/competitive-ai-analysis",
   icon: ChartBarBig
 }, {
-  title: "Business Type Templates",
+  title: "Templates",
   url: "/business-type-templates",
   icon: Grid2x2
 }];

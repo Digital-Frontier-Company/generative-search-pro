@@ -24,7 +24,13 @@ serve(async (req) => {
       ? target_queries 
       : await generateDomainQueries(domain);
 
-    // Analyze each query for intent and AI responses
+    // Simulation gating: AI responses are simulated
+    const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true'
+    if (!allowSim) {
+      return new Response(JSON.stringify({ error: 'Intent research requires live AI integrations. Simulation is disabled.' }), { status: 501, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
+    }
+
+    // Analyze each query for intent and AI responses (simulated)
     const queryAnalyses = await Promise.all(
       queriesToAnalyze.slice(0, 20).map(query => analyzeQueryIntent(query, domain))
     );

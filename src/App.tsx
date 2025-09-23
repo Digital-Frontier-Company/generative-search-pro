@@ -9,6 +9,8 @@ import { DomainProvider } from "@/contexts/DomainContext";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/global/AppSidebar";
+import { Suspense } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import Index from "./pages/HomePage";
 import Auth from "./features/auth/AuthPage";
 import About from "./pages/About";
@@ -66,6 +68,7 @@ function App() {
                       <h1 className="sr-only">Navigation</h1>
                     </header>
                     <div className="flex-1 bg-[#030013]/[0.97]">
+                        <Suspense fallback={<div className="p-6"><Skeleton className="h-6 w-1/3 mb-4" /><Skeleton className="h-4 w-2/3" /></div>}>
                         <Routes>
                           <Route path="/" element={<Index />} />
                           <Route path="/auth" element={<Auth />} />
@@ -92,16 +95,16 @@ function App() {
                                 <ContentAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/seo-analysis" element={<ProtectedRoute>
-                                <SEOAnalysisSimple />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/domain-analysis" element={<ProtectedRoute>
-                                <DomainAnalysis />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/schema-analysis" element={<ProtectedRoute>
-                                <SchemaAnalysis />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/citation-checker" element={<ProtectedRoute>
-                                <CitationChecker />
+                                <Analysis />
                               </ProtectedRoute>} />
                           <Route path="/ai-sitemap" element={<ProtectedRoute>
                                 <AISitemap />
@@ -148,6 +151,7 @@ function App() {
                               </ProtectedRoute>} />
                           <Route path="*" element={<NotFound />} />
                         </Routes>
+                        </Suspense>
                     </div>
                   </SidebarInset>
                 </div>

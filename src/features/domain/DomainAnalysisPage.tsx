@@ -1,18 +1,8 @@
 
-import DomainAnalyzer from "@/features/domain/DomainAnalyzer";
-import Header from "@/components/global/Header";
-import Footer from "@/components/global/Footer";
+import { Navigate } from "react-router-dom";
 
 const DomainAnalysis = () => {
-  return (
-    <div className="min-h-screen flex flex-col">
-      <Header />
-      <main className="flex-1">
-        <DomainAnalyzer />
-      </main>
-      <Footer />
-    </div>
-  );
+  return <Navigate to="/seo-analysis?tab=core-analysis&sub=domain" replace />;
 };
 
 export default DomainAnalysis;

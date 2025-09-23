@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router-dom";
 import Header from "@/components/global/Header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -24,7 +24,28 @@ import { SEOAnalysisProvider } from "@/contexts/SEOAnalysisContext";
 const Analysis = () => {
   const location = useLocation();
   const { defaultDomain } = useDomain();
-  const [activeTab, setActiveTab] = useState("overview");
+  const search = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const initialTab = search.get('tab') || 'overview';
+  const sub = search.get('sub') || '';
+  const [activeTab, setActiveTab] = useState(initialTab);
+
+  // Map sub routes to correct tab group
+  const subToGroup = (value: string) => {
+    if (["seo", "domain", "schema", "citations"].includes(value)) return "core-analysis";
+    if (["brand-serp", "realtime-serp", "voice-search", "ai-platforms"].includes(value)) return "monitoring";
+    if (["competitor", "opportunities", "content-quality"].includes(value)) return "advanced";
+    return "overview";
+  };
+
+  useEffect(() => {
+    if (sub) {
+      const group = subToGroup(sub);
+      if (group !== activeTab) {
+        setActiveTab(group);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sub]);
 
   // Get domain from navigation state or use default
   const domain = location.state?.domain || defaultDomain || '';
@@ -232,7 +253,7 @@ const Analysis = () => {
                 <div>
                   <h2 className="text-2xl font-semibold text-matrix-green mb-6">Core SEO Analysis</h2>
                   
-                  <Tabs defaultValue="seo" className="w-full">
+                  <Tabs defaultValue={sub && ["seo","domain","schema","citations"].includes(sub) ? sub : "seo"} className="w-full">
                     <TabsList className="grid w-full grid-cols-4">
                       <TabsTrigger value="seo">SEO Analysis</TabsTrigger>
                       <TabsTrigger value="domain">Domain Analysis</TabsTrigger>
@@ -265,7 +286,7 @@ const Analysis = () => {
                 <div>
                   <h2 className="text-2xl font-semibold text-matrix-green mb-6">Real-time Monitoring</h2>
                   
-                  <Tabs defaultValue="brand-serp" className="w-full">
+                  <Tabs defaultValue={sub && ["brand-serp","realtime-serp","voice-search","ai-platforms"].includes(sub) ? sub : "brand-serp"} className="w-full">
                     <TabsList className="grid w-full grid-cols-4">
                       <TabsTrigger value="brand-serp">Brand SERP</TabsTrigger>
                       <TabsTrigger value="realtime-serp">Real-time SERP</TabsTrigger>
@@ -298,7 +319,7 @@ const Analysis = () => {
                 <div>
                   <h2 className="text-2xl font-semibold text-matrix-green mb-6">Advanced Analysis</h2>
                   
-                  <Tabs defaultValue="competitor" className="w-full">
+                  <Tabs defaultValue={sub && ["competitor","opportunities","content-quality"].includes(sub) ? sub : "competitor"} className="w-full">
                     <TabsList className="grid w-full grid-cols-3">
                       <TabsTrigger value="competitor">Competitor Analysis</TabsTrigger>
                       <TabsTrigger value="opportunities">Opportunities</TabsTrigger>

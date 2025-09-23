@@ -1,5 +1,10 @@
+// @ts-ignore -- Deno URL import
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+// @ts-ignore -- Deno URL import
 import "https://deno.land/x/xhr@0.1.0/mod.ts"
+
+// Provide ambient Deno type for local TS tooling
+declare const Deno: any;
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -247,17 +252,63 @@ async function checkMetaTags(url) {
 
 async function checkBacklinks(domain: string) {
   try {
+    const ahrefsToken = Deno.env.get('AHREFS_API_KEY')
     const mozApiKey = Deno.env.get('MOZ_API_KEY')
     const mozSecretKey = Deno.env.get('MOZ_SECRET_KEY')
     
+    // Prefer Ahrefs if configured
+    if (ahrefsToken) {
+      try {
+        const ahrefsUrl = `https://apiv2.ahrefs.com?from=domain_rating&target=${encodeURIComponent(domain)}&mode=domain&output=json&token=${encodeURIComponent(ahrefsToken)}`
+        const res = await fetch(ahrefsUrl)
+        if (!res.ok) {
+          throw new Error(`Ahrefs API error: ${res.status}`)
+        }
+        const data = await res.json()
+        // Try to extract DR from common shapes
+        const dr = (
+          (Array.isArray(data?.domain_rating) && data.domain_rating[0]?.domain_rating) ??
+          data?.metrics?.domain_rating ??
+          data?.domain_rating ?? 0
+        )
+        const domainAuthority = Math.round(Number(dr) || 0)
+        return {
+          domain_authority: domainAuthority,
+          findings: [{
+            type: 'backlinks',
+            status: domainAuthority > 50 ? 'good' : domainAuthority > 20 ? 'warning' : 'error',
+            message: `Ahrefs Domain Rating (DR): ${domainAuthority}/100`,
+            url: `https://${domain}`
+          }]
+        }
+      } catch (err) {
+        console.warn('Ahrefs check failed, falling back:', err)
+        // Fall through to Moz/simulation handling below
+      }
+    }
+    
     if (!mozApiKey || !mozSecretKey) {
-      console.warn('Moz API keys not found, skipping backlink analysis');
+      const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true'
+      if (allowSim) {
+        console.warn('Moz API keys not found, simulation enabled (ALLOW_SIMULATION=true)')
+        const simulatedScore = Math.floor(Math.random() * 40) + 10
+        return {
+          domain_authority: simulatedScore,
+          findings: [{
+            type: 'backlinks',
+            status: simulatedScore > 30 ? 'good' : simulatedScore > 15 ? 'warning' : 'error',
+            message: `Estimated Domain Authority: ${simulatedScore}/100 (simulation)`,
+            url: `https://${domain}`
+          }]
+        }
+      }
+      // No simulation in production: return unavailable state
       return {
         domain_authority: 0,
         findings: [{
           type: 'backlinks',
-          status: 'warning',
-          message: 'Backlink analysis unavailable - Moz API not configured',
+          status: 'error',
+          message: 'Backlink data unavailable. Configure MOZ_API_KEY and MOZ_SECRET_KEY.',
           url: `https://${domain}`
         }]
       }
@@ -301,12 +352,25 @@ async function checkBacklinks(domain: string) {
     
   } catch (error) {
     console.error('Backlink check error:', error)
+    const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true'
+    if (allowSim) {
+      const fallbackScore = Math.floor(Math.random() * 30) + 5
+      return { 
+        domain_authority: fallbackScore, 
+        findings: [{
+          type: 'backlinks',
+          status: 'warning',
+          message: `Backlink check failed. Using simulated DA: ${fallbackScore}/100`,
+          url: `https://${domain}`
+        }]
+      }
+    }
     return { 
       domain_authority: 0, 
       findings: [{
         type: 'backlinks',
         status: 'error',
-        message: `Could not verify backlinks: ${error.message}`,
+        message: 'Backlink check failed and simulation is disabled. Ensure MOZ API is configured.',
         url: `https://${domain}`
       }]
     }
@@ -395,9 +459,9 @@ async function checkPageSpeed(url: string) {
 }
 
 function performEnhancedSEOAnalysis(html: string, url: string) {
-  const technicalFindings = []
+  const technicalFindings: Array<{ type: string; status: 'good' | 'warning' | 'error' | 'info'; message: string; url: string }> = []
   let technicalScore = 100
-  let backlinkScore = 50 // Default since we can't check backlinks easily
+  const backlinkScore = 50 // Default since we can't check backlinks easily
   
   // Enhanced title tag analysis
   const titleMatch = html.match(/<title[^>]*>([^<]+)<\/title>/i)
@@ -548,15 +612,7 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
     })
     technicalScore -= 5
   } else {
-    const sanitizeHtmlContent = (input: string): string => {
-      let previous: string;
-      do {
-        previous = input;
-        input = input.replace(/<[^>]*>/g, '');
-      } while (input !== previous);
-      return input.trim();
-    };
-    const h1Content = sanitizeHtmlContent(h1Matches[0]);
+    const h1Content = h1Matches[0].replace(/<[^>]*>/g, '').trim()
     technicalFindings.push({
       type: 'headings',
       status: 'good',
@@ -629,7 +685,7 @@ function performEnhancedSEOAnalysis(html: string, url: string) {
     })
     technicalScore -= 5
   } else {
-    let structuredDataTypes = []
+    const structuredDataTypes: string[] = []
     if (jsonLdMatches) {
       structuredDataTypes.push(`JSON-LD (${jsonLdMatches.length} blocks)`)
     }
@@ -841,6 +897,8 @@ ${generateActionPlan(analysisResult)}
 
 Please provide the complete markdown dashboard following this exact structure. Use emojis, tables, and clear formatting for easy reading.`
 
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 20000)
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -848,7 +906,7 @@ Please provide the complete markdown dashboard following this exact structure. U
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           {
             role: 'system',
@@ -859,10 +917,12 @@ Please provide the complete markdown dashboard following this exact structure. U
             content: prompt
           }
         ],
-        temperature: 0.3,
-        max_tokens: 2000
+        temperature: 0.2,
+        max_tokens: 1600
       }),
+      signal: controller.signal,
     })
+    clearTimeout(timeoutId)
 
     if (!response.ok) {
       throw new Error(`OpenAI API error: ${response.status}`)
@@ -985,7 +1045,7 @@ function getDAImpact(da) {
 }
 
 function generateActionPlan(analysisResult) {
-  const actions = []
+  const actions: string[] = []
   
   // Check performance issues
   if (analysisResult.analysisData?.performance?.score < 50) {
@@ -1016,7 +1076,7 @@ function generateActionPlan(analysisResult) {
 
 function calculateSEOScore(technicalFindings, backlinkData, pageSpeedData) {
   let totalScore = 0;
-  let maxScore = 100;
+  const maxScore = 100;
   
   // Technical SEO scoring (40% of total)
   let technicalScore = 40;
@@ -1027,10 +1087,11 @@ function calculateSEOScore(technicalFindings, backlinkData, pageSpeedData) {
   technicalScore = Math.max(0, technicalScore);
   
   // Page Speed scoring (30% of total)
-  const speedScore = (pageSpeedData.score / 100) * 30;
+  const speedScore = (pageSpeedData && pageSpeedData.score ? pageSpeedData.score : 0) / 100 * 30;
   
   // Backlink scoring (30% of total)
-  const backlinkScore = (backlinkData.domain_authority / 100) * 30;
+  const backlinkDA = typeof backlinkData?.domain_authority === 'number' ? backlinkData.domain_authority : 0;
+  const backlinkScore = (backlinkDA / 100) * 30;
   
   totalScore = technicalScore + speedScore + backlinkScore;
   

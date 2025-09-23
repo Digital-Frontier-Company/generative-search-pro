@@ -21,6 +21,8 @@ export const NotFound = lazy(() => import('@/pages/NotFoundPage'));
 export const BrandSERPanalysis = lazy(() => import('@/features/seo/monitoring/BrandSERPanalysisPage'));
 export const CitationChecker = lazy(() => import('@/features/citation/CitationCheckerPage'));
 export const AISitemap = lazy(() => import('@/features/seo/sitemap/AISitemapPage'));
+export const Brands = lazy(() => import('@/pages/Brands'));
+export const Influencers = lazy(() => import('@/pages/Influencers'));
 
 // TSO Dashboard and Components - Fixed paths
 export const TSODashboard = lazy(() => import('@/features/tso/TSODashboardPage'));
