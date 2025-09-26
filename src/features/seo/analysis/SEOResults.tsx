@@ -104,7 +104,7 @@ const SEOResults = ({ results }: SEOResultsProps) => {
                       {getStatusIcon(finding.status)}
                       <div className="flex-1">
                         <span className="font-medium text-white capitalize">
-                          {finding.type.replace(/_/g, ' ')}:
+                          {finding.type ? finding.type.replace(/_/g, ' ') : 'Unknown'}:
                         </span>
                         <span className="ml-2 text-gray-300">{finding.message}</span>
                       </div>
