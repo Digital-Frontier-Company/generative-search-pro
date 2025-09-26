@@ -28,13 +28,17 @@ bundleOptimizer.preconnectDomains([
 bundleOptimizer.optimizeCache();
 
 // Register service worker for PWA (optional in dev)
-try {
-  // @ts-expect-error virtual module provided by vite-plugin-pwa
-  const { registerSW } = await import("virtual:pwa-register");
-  registerSW({ immediate: true });
-} catch {
-  // ignore when plugin not active
-}
+// Avoid top-level await for es2020 target
+// @ts-expect-error virtual module provided by vite-plugin-pwa
+import('virtual:pwa-register')
+  .then(({ registerSW }) => {
+    try {
+      registerSW({ immediate: true });
+    } catch {}
+  })
+  .catch(() => {
+    // ignore when plugin not active
+  });
 
 // Initialize analytics
 import { useAnalytics } from "./hooks/useAnalytics";
