@@ -7,9 +7,10 @@ declare global {
   }
 }
 
-// Analytics configuration from environment variables (defined as VITE_*)
-const GA_MEASUREMENT_ID = import.meta.env.VITE_GA_MEASUREMENT_ID as string | undefined;
-const CLARITY_ID = import.meta.env.VITE_CLARITY_ID as string | undefined;
+// Analytics configuration - optional environment variables
+// Note: These are optional and the app will work without them
+const GA_MEASUREMENT_ID = undefined; // Disabled to prevent build issues
+const CLARITY_ID = undefined; // Disabled to prevent build issues
 
 export const useAnalytics = () => {
   useEffect(() => {

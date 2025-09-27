@@ -24,13 +24,13 @@ import { toast } from 'sonner';
 
 // Import our analytics components
 import AnalyticsDashboard from './AnalyticsDashboard';
-import RealTimeAnalytics from '../../components/analytics/RealTimeAnalytics';
+import RealTimeAnalytics from '@/components/analytics/RealTimeAnalytics';
 import { 
   QuickStatsWidget, 
   PerformanceScoresWidget, 
   TrendChartWidget, 
   AlertsWidget 
-} from '../../components/analytics/PerformanceWidgets';
+} from '@/components/analytics/PerformanceWidgets';
 import { analyticsService } from '@/services/analyticsService';
 import { useAuth } from '@/contexts/AuthContext';
 

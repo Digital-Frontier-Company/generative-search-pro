@@ -5,7 +5,7 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useDomain } from '@/contexts/DomainContext';
 import SEOResults from './SEOResults';
-import DomainInput from '../../domain/DomainInput';
+import DomainInput from '@/features/domain/DomainInput';
 import { Globe } from 'lucide-react';
 
 interface SEOAnalysisResult {
