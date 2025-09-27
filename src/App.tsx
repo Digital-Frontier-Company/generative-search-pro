@@ -11,44 +11,7 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import AppSidebar from "@/components/global/AppSidebar";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
-import Index from "./pages/HomePage";
-import Auth from "./features/auth/AuthPage";
-import About from "./pages/About";
-import Dashboard from "./features/dashboard/DashboardPage";
-import ContentGenerator from "./features/content/generation/ContentGeneratorPage";
-import ContentHistory from "./features/content/analysis/ContentHistoryPage";
-import ContentAnalysis from "./features/content/analysis/ContentAnalysisPage";
-import ContentOptimizer from "./features/content/optimization/ContentOptimizerPage";
-import Resources from "./pages/Resources";
-import SEOAnalysisSimple from "./features/seo/analysis/SEOAnalysisSimplePage";
-import DomainAnalysis from "./features/domain/DomainAnalysisPage";
-import SchemaAnalysis from "./features/schema/SchemaAnalysisPage";
-import CitationChecker from "./features/citation/CitationCheckerPage";
-import AISitemap from "./features/seo/sitemap/AISitemapPage";
-import Settings from "./features/user/SettingsPage";
-import Admin from "./features/admin/AdminPage";
-import Upgrade from "./features/user/UpgradePage";
-import NotFound from "./pages/NotFoundPage";
-import SchemaMarkupGuide from "./features/schema/SchemaMarkupGuidePage";
-import Analysis from "./features/seo/analysis/AnalysisPage";
-
-
-// TSO Dashboard and Components
-import TSODashboard from "./features/tso/TSODashboardPage";
-import AIVisibilityTracker from "./features/tso/TSO/AIVisibilityTracker";
-import ZeroClickOptimizer from "./features/tso/TSO/ZeroClickOptimizer";
-import TechnicalAIReadiness from "./features/tso/TSO/TechnicalAIReadiness";
-import IntentDrivenResearch from "./features/tso/TSO/IntentDrivenResearch";
-import SemanticAnalyzer from "./features/tso/TSO/SemanticAnalyzer";
-import VoiceSearchOptimizer from "./features/tso/TSO/VoiceSearchOptimizer";
-import AuthorityTracker from "./features/tso/TSO/AuthorityTracker";
-import CompetitiveAIAnalysis from "./features/tso/TSO/CompetitiveAIAnalysis";
-import BusinessTypeTemplates from "./features/tso/TSO/BusinessTypeTemplates";
-import TSOOnboarding from "./features/tso/TSOOnboardingPage";
-
-// Marketplace Landing Pages (public)
-import Brands from "./pages/Brands";
-import Influencers from "./pages/Influencers";
+import * as LazyRoutes from "@/routes/lazyRoutes";
 const queryClient = new QueryClient();
 function App() {
   return <QueryClientProvider client={queryClient}>
@@ -70,86 +33,85 @@ function App() {
                     <div className="flex-1 bg-[#030013]/[0.97]">
                         <Suspense fallback={<div className="p-6"><Skeleton className="h-6 w-1/3 mb-4" /><Skeleton className="h-4 w-2/3" /></div>}>
                         <Routes>
-                          <Route path="/" element={<Index />} />
-                          <Route path="/auth" element={<Auth />} />
-                          <Route path="/about" element={<About />} />
-                          <Route path="/upgrade" element={<Upgrade />} />
-                          <Route path="/resources" element={<Resources />} />
-                          <Route path="/schema-markup-guide" element={<SchemaMarkupGuide />} />
+                          <Route path="/" element={<LazyRoutes.Index />} />
+                          <Route path="/auth" element={<LazyRoutes.Auth />} />
+                          <Route path="/about" element={<LazyRoutes.About />} />
+                          <Route path="/upgrade" element={<LazyRoutes.Upgrade />} />
+                          <Route path="/resources" element={<LazyRoutes.Resources />} />
                           {/* Public marketplace landing pages */}
-                          <Route path="/brands" element={<Brands />} />
-                          <Route path="/influencers" element={<Influencers />} />
+                          <Route path="/brands" element={<LazyRoutes.Brands />} />
+                          <Route path="/influencers" element={<LazyRoutes.Influencers />} />
                           <Route path="/analysis" element={<ProtectedRoute>
-                                <Analysis />
+                                <LazyRoutes.SEOAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/dashboard" element={<ProtectedRoute>
-                                <Dashboard />
+                                <LazyRoutes.Dashboard />
                               </ProtectedRoute>} />
                           <Route path="/generator" element={<ProtectedRoute>
-                                <ContentGenerator />
+                                <LazyRoutes.ContentGenerator />
                               </ProtectedRoute>} />
                           <Route path="/history" element={<ProtectedRoute>
-                                <ContentHistory />
+                                <LazyRoutes.ContentHistory />
                               </ProtectedRoute>} />
                           <Route path="/content-analysis" element={<ProtectedRoute>
-                                <ContentAnalysis />
+                                <LazyRoutes.ContentAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/seo-analysis" element={<ProtectedRoute>
-                                <Analysis />
+                                <LazyRoutes.SEOAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/domain-analysis" element={<ProtectedRoute>
-                                <Analysis />
+                                <LazyRoutes.DomainAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/schema-analysis" element={<ProtectedRoute>
-                                <Analysis />
+                                <LazyRoutes.SchemaAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/citation-checker" element={<ProtectedRoute>
-                                <Analysis />
+                                <LazyRoutes.CitationChecker />
                               </ProtectedRoute>} />
                           <Route path="/ai-sitemap" element={<ProtectedRoute>
-                                <AISitemap />
+                                <LazyRoutes.AISitemap />
                               </ProtectedRoute>} />
                           <Route path="/settings" element={<ProtectedRoute>
-                                <Settings />
+                                <LazyRoutes.Settings />
                               </ProtectedRoute>} />
                           <Route path="/admin" element={<ProtectedRoute>
-                                <Admin />
+                                <LazyRoutes.Admin />
                               </ProtectedRoute>} />
                           {/* TSO Dashboard and Tools */}
                           <Route path="/tso-onboarding" element={<ProtectedRoute>
-                                <TSOOnboarding />
+                                <LazyRoutes.TSOOnboarding />
                               </ProtectedRoute>} />
                           <Route path="/tso-dashboard" element={<ProtectedRoute>
-                                <TSODashboard />
+                                <LazyRoutes.TSODashboard />
                               </ProtectedRoute>} />
                           <Route path="/ai-visibility-tracker" element={<ProtectedRoute>
-                                <AIVisibilityTracker />
+                                <LazyRoutes.AIVisibilityTracker />
                               </ProtectedRoute>} />
                           <Route path="/zero-click-optimizer" element={<ProtectedRoute>
-                                <ZeroClickOptimizer />
+                                <LazyRoutes.ZeroClickOptimizer />
                               </ProtectedRoute>} />
                           <Route path="/technical-ai-readiness" element={<ProtectedRoute>
-                                <TechnicalAIReadiness />
+                                <LazyRoutes.TechnicalAIReadiness />
                               </ProtectedRoute>} />
                           <Route path="/intent-driven-research" element={<ProtectedRoute>
-                                <IntentDrivenResearch />
+                                <LazyRoutes.IntentDrivenResearch />
                               </ProtectedRoute>} />
                           <Route path="/semantic-analyzer" element={<ProtectedRoute>
-                                <SemanticAnalyzer />
+                                <LazyRoutes.SemanticAnalyzer />
                               </ProtectedRoute>} />
                           <Route path="/voice-search-optimizer" element={<ProtectedRoute>
-                                <VoiceSearchOptimizer />
+                                <LazyRoutes.VoiceSearchOptimizer />
                               </ProtectedRoute>} />
                           <Route path="/authority-tracker" element={<ProtectedRoute>
-                                <AuthorityTracker />
+                                <LazyRoutes.AuthorityTracker />
                               </ProtectedRoute>} />
                           <Route path="/competitive-ai-analysis" element={<ProtectedRoute>
-                                <CompetitiveAIAnalysis />
+                                <LazyRoutes.CompetitiveAIAnalysis />
                               </ProtectedRoute>} />
                           <Route path="/business-type-templates" element={<ProtectedRoute>
-                                <BusinessTypeTemplates />
+                                <LazyRoutes.BusinessTypeTemplates />
                               </ProtectedRoute>} />
-                          <Route path="*" element={<NotFound />} />
+                          <Route path="*" element={<LazyRoutes.NotFound />} />
                         </Routes>
                         </Suspense>
                     </div>

@@ -99,25 +99,11 @@ export default defineConfig(({ mode, command }) => ({
           'date-vendor': ['date-fns'],
           'supabase-vendor': ['@supabase/supabase-js'],
           
-          // Feature chunks based on new structure
-          'seo-tools': [
-            './src/features/seo/analysis/SEOAnalyzer',
-            './src/features/seo/analysis/AIAudit',
-            './src/features/seo/analysis/AIVisibilityScore'
-          ],
-          'citation-tools': [
-            './src/features/citation/CitationChecker',
-            './src/features/citation/CitationMonitoringDashboard'
-          ],
-          'content-tools': [
-            './src/features/content/analysis/ContentQualityAnalyzer',
-            './src/features/content/analysis/ContentSearch'
-          ],
-          'auth-security': [
-            './src/lib/security',
-            './src/lib/secureApiClient',
-            './src/lib/errorHandler'
-          ]
+          // Feature chunks - simplified to avoid build issues
+          'seo-tools': [],
+          'citation-tools': [],
+          'content-tools': [],
+          'auth-security': []
         },
         // Optimize chunk file names
         chunkFileNames: (chunkInfo) => {
