@@ -12,6 +12,7 @@ import AppSidebar from "@/components/global/AppSidebar";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as LazyRoutes from "@/routes/lazyRoutes";
+import { SpeedInsights } from "@vercel/speed-insights/react";
 const queryClient = new QueryClient();
 function App() {
   return <QueryClientProvider client={queryClient}>
@@ -123,6 +124,7 @@ function App() {
           </DomainProvider>
         </SubscriptionProvider>
       </AuthProvider>
+      <SpeedInsights />
     </QueryClientProvider>;
 }
 export default App;
