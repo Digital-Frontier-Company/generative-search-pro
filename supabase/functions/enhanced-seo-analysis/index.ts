@@ -48,7 +48,7 @@ function keywordDensity(body: string, topN = 8) {
 
 function readability(body: string): number {
   const sentences = (body.match(/[.!?]+/g) || []).length || 1;
-  const words = (body.match(/\S+/g) || []).length || 1;
+  const words = (bodyText.match(/\S+/g) || []).length || 1;
   const syllables = (body.toLowerCase().match(/[aeiouy]{1,2}/g) || []).length || 1;
   const score =
     206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
@@ -143,8 +143,8 @@ serve(async (req: Request) => {
     const lists = count(html, /<(ul|ol)\b/gi);
     const tables = count(html, /<table\b/gi);
     const scripts = count(html, /<script\b/gi);
-    const body = textOf(html);
-    const wordCount = (body.match(/\S+/g) || []).length;
+    const bodyText = textOf(html);
+    const wordCount = (bodyText.match(/\S+/g) || []).length;
     const questionHeadings = headingStructure.filter((h) =>
       /^(what|how|why|when|where|who|can|does|is|are)\b|\?$/i.test(h.text),
     ).length;
@@ -200,7 +200,7 @@ serve(async (req: Request) => {
         Math.min(12, lists * 2) +
         (questionHeadings ? Math.min(13, questionHeadings * 4) : 0) +
         Math.min(10, internalLinks / 3) +
-        (readability(body) >= 50 ? 15 : 8),
+        (readability(bodyText) >= 50 ? 15 : 8),
     );
 
     const mobile_score = clamp(
@@ -221,7 +221,7 @@ serve(async (req: Request) => {
         (viewport ? 20 : 0) +
         Math.min(20, links / 3) +
         (headingStructure.length >= 3 ? 20 : 8) +
-        (readability(body) >= 55 ? 15 : 7),
+        (readability(bodyText) >= 55 ? 15 : 7),
     );
 
     const ai_readiness_score = clamp(
@@ -476,10 +476,10 @@ serve(async (req: Request) => {
         faqSections,
         listFormatting: lists,
         headingStructure,
-        keywordDensity: keywordDensity(body),
-        readabilityScore: readability(body),
+        keywordDensity: keywordDensity(bodyText),
+        readabilityScore: readability(bodyText),
         wordCount,
-        entityRecognition: Object.keys(keywordDensity(body, 6)),
+        entityRecognition: Object.keys(keywordDensity(bodyText, 6)),
         semanticAnalysis: {
           topicCoverage: clamp(Math.min(100, wordCount / 12)),
           intentMatching: clamp(questionHeadings * 15 + 40),
