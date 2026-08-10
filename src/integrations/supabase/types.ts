@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -879,71 +879,52 @@ export type Database = {
     }
     Functions: {
       add_user_credits: {
-        Args: { user_email: string; credit_amount: number }
+        Args: { credit_amount: number; user_email: string }
         Returns: number
       }
-      analyze_content_quality: {
-        Args: { content_text: string }
-        Returns: Json
-      }
+      analyze_content_quality: { Args: { content_text: string }; Returns: Json }
       analyze_keywords: {
         Args: { content_text: string; target_keyword: string }
         Returns: Json
       }
-      check_ai_friendliness: {
-        Args: { content_text: string }
-        Returns: Json
-      }
+      check_ai_friendliness: { Args: { content_text: string }; Returns: Json }
       get_page_parents: {
         Args: { page_id: number }
         Returns: {
           id: number
+          meta: Json
           parent_page_id: number
           path: string
-          meta: Json
         }[]
       }
-      increment_credits: {
-        Args: Record<PropertyKey, never> | { user_id: number; amount: number }
-        Returns: undefined
-      }
+      increment_credits:
+        | { Args: never; Returns: undefined }
+        | { Args: { amount: number; user_id: number }; Returns: undefined }
       match_content_by_query: {
         Args: {
-          query_text: string
-          match_threshold?: number
           match_count?: number
+          match_threshold?: number
+          query_text: string
         }
         Returns: {
-          id: number
-          title: string
           content: string
-          metadata: Json
           created_at: string
           generated_at: string
-          user_id: string
+          id: number
+          metadata: Json
           similarity: number
+          title: string
+          user_id: string
         }[]
       }
-      postgres_fdw_disconnect: {
-        Args: { "": string }
-        Returns: boolean
-      }
-      postgres_fdw_disconnect_all: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      postgres_fdw_disconnect: { Args: { "": string }; Returns: boolean }
+      postgres_fdw_disconnect_all: { Args: never; Returns: boolean }
       postgres_fdw_get_connections: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: Record<string, unknown>[]
       }
-      postgres_fdw_handler: {
-        Args: Record<PropertyKey, never>
-        Returns: unknown
-      }
-      set_openai_key: {
-        Args: { api_key: string }
-        Returns: undefined
-      }
+      postgres_fdw_handler: { Args: never; Returns: unknown }
+      set_openai_key: { Args: { api_key: string }; Returns: undefined }
     }
     Enums: {
       [_ in never]: never
