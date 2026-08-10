@@ -148,6 +148,9 @@ const EnhancedSEOAnalyzer = () => {
   const [domain, setDomain] = useState(defaultDomain || '');
   const [results, setResults] = useState<EnhancedSEOResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [toolError, setToolError] = useState<ToolError | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [lastLevel, setLastLevel] = useState<'quick' | 'comprehensive' | 'ai-focused'>('comprehensive');
   const [activeTab, setActiveTab] = useState('overview');
   const [analysisType, setAnalysisType] = useState<'quick' | 'comprehensive' | 'ai-focused'>('comprehensive');
 
