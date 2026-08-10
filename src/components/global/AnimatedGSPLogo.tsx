@@ -74,7 +74,7 @@ const AnimatedGSPLogo = () => {
             }}
           >
             <span 
-              className={`text-3xl font-bold text-black transition-all duration-300 transform-gpu ${isHovered ? 'animate-spin' : ''}`}
+              className={`text-3xl font-bold text-primary-foreground transition-all duration-300 transform-gpu ${isHovered ? 'animate-spin' : ''}`}
               style={{ 
                 textShadow: '0 2px 4px rgba(0, 0, 0, 0.3)',
                 transform: 'translateZ(10px)',
