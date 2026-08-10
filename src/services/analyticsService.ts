@@ -73,21 +73,12 @@ class AnalyticsService {
       return cached.data;
     }
 
-    try {
-      const { data, error } = await supabase.functions.invoke('get-analytics-overview', {
-        body: JSON.stringify(query)
-      });
+    const data = await invokeTool<AnalyticsData>('get-analytics-overview', { ...query });
 
-      if (error) throw error;
+    // Cache the result
+    this.cache.set(cacheKey, { data, timestamp: Date.now() });
 
-      // Cache the result
-      this.cache.set(cacheKey, { data, timestamp: Date.now() });
-      
-      return data;
-    } catch (error) {
-      console.error('Analytics overview error:', error);
-      throw error;
-    }
+    return data;
   }
 
   // Get content performance analytics
