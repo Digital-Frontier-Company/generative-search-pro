@@ -309,10 +309,20 @@ const AnalyticsDashboard = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto p-6">
-        <div className="flex items-center justify-center h-64">
-          <RefreshCw className="w-8 h-8 animate-spin text-primary" />
-        </div>
+      <div className="container mx-auto p-6 max-w-7xl">
+        <ToolLoading label="Loading analytics" elapsed={elapsed} rows={5} />
+      </div>
+    );
+  }
+
+  if (toolError) {
+    return (
+      <div className="container mx-auto p-6 max-w-7xl">
+        <ToolErrorView
+          error={toolError}
+          onRetry={loadAnalyticsData}
+          onSignIn={() => (window.location.href = '/auth')}
+        />
       </div>
     );
   }
