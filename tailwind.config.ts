@@ -141,12 +141,13 @@ export default {
 				},
 				'glow-pulse': {
 					'0%, 100%': {
-						'box-shadow': '0 0 20px hsl(120 100% 50% / 0.3)'
+						'box-shadow': '0 0 20px hsl(var(--primary) / 0.3)'
 					},
 					'50%': {
-						'box-shadow': '0 0 30px hsl(120 100% 50% / 0.5)'
+						'box-shadow': '0 0 30px hsl(var(--accent) / 0.5)'
 					}
 				},
+
 				'spin-slow': {
 					'0%': {
 						transform: 'rotate(0deg)'
@@ -166,12 +167,13 @@ export default {
 				'spin-slow': 'spin-slow 3s linear infinite'
 			},
 			boxShadow: {
-				'glow': '0 0 20px hsl(120 100% 50% / 0.3)',
-				'glow-lg': '0 0 30px hsl(120 100% 50% / 0.4)',
-				'glow-xl': '0 0 40px hsl(120 100% 50% / 0.5)',
-				'card': '0 4px 6px -1px hsl(220 13% 4% / 0.3), 0 2px 4px -1px hsl(220 13% 4% / 0.2)',
-				'card-hover': '0 10px 15px -3px hsl(220 13% 4% / 0.4), 0 4px 6px -2px hsl(220 13% 4% / 0.3)'
+				'glow': '0 0 20px hsl(var(--primary) / 0.3)',
+				'glow-lg': '0 0 30px hsl(var(--accent) / 0.4)',
+				'glow-xl': '0 0 40px hsl(var(--accent) / 0.5)',
+				'card': '0 4px 6px -1px hsl(230 60% 3% / 0.4), 0 2px 4px -1px hsl(230 60% 3% / 0.3)',
+				'card-hover': '0 10px 15px -3px hsl(230 60% 3% / 0.45), 0 4px 6px -2px hsl(230 60% 3% / 0.35)'
 			}
+
 		}
 	},
 	plugins: [require("tailwindcss-animate")],
