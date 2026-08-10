@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { invokeTool, type ToolError } from '@/lib/toolInvoke';
 import { ToolLoading, ToolErrorView } from '@/components/tools/ToolStateView';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
