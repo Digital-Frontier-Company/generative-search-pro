@@ -308,6 +308,7 @@ export function withLazyWrapper<T extends ComponentType<any>>(
         FallbackComponent={(errorProps) => (
           <ErrorComponent
             {...errorProps}
+            error={errorProps.error as Error}
             componentName={componentName}
           />
         )}

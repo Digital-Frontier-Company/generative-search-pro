@@ -171,7 +171,7 @@ class SecureLogger {
     errorTracker.track(error);
 
     // Console logging (development only)
-    if (process.env.NODE_ENV === 'development') {
+    if (import.meta.env.DEV) {
       const logMethod = this.getLogMethod(error.severity);
       logMethod(`[${error.category.toUpperCase()}] ${error.message}`, {
         id: error.id,

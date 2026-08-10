@@ -40,7 +40,7 @@ export const SmartInput: React.FC<SmartInputProps> = ({
   const [isFocused, setIsFocused] = useState(false);
   const [hasStartedTyping, setHasStartedTyping] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
-  const timeoutRef = useRef<NodeJS.Timeout>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   
   const { trackFormInteraction } = useAnalytics();
   
