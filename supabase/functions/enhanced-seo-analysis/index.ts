@@ -473,7 +473,7 @@ serve(async (req: Request) => {
       content_analysis: {
         aiStructureScore: ai_readiness_score,
         questionAnswerSections: questionHeadings,
-        faqSections: schemaTypes.includes("FAQPage") ? 1 : 0,
+        faqSections,
         listFormatting: lists,
         headingStructure,
         keywordDensity: keywordDensity(body),
