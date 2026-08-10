@@ -357,15 +357,8 @@ export class EnhancedContentService {
     suggestions: string[];
     aiReadinessScore: number;
   }> {
-    const { data, error } = await supabase.functions.invoke('optimize-content-for-ai', {
-      body: JSON.stringify({ content, keywords })
-    });
-
-    if (error) {
-      throw new Error('Failed to optimize content for AI');
-    }
-
-    return data;
+    // AI-backed: no client timeout, generation may legitimately run for minutes.
+    return invokeTool('optimize-content-for-ai', { content, keywords }, { timeoutMs: null });
   }
 
   async generateCompetitorAnalysis(topic: string, competitors: string[]): Promise<{
@@ -373,15 +366,7 @@ export class EnhancedContentService {
     opportunities: string[];
     recommendations: string[];
   }> {
-    const { data, error } = await supabase.functions.invoke('analyze-competitors', {
-      body: JSON.stringify({ topic, competitors })
-    });
-
-    if (error) {
-      throw new Error('Failed to analyze competitors');
-    }
-
-    return data;
+    return invokeTool('analyze-competitors', { topic, competitors });
   }
 }
 
