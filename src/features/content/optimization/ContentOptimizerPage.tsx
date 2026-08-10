@@ -297,7 +297,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-3xl font-bold mb-4 text-white">
-              Content <span className="text-[#39FF14]" style={{textShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}>Optimizer</span>
+              Content <span className="text-[#4DA3FF]" style={{textShadow: '0 0 5px #4DA3FF, 0 0 10px #4DA3FF'}}>Optimizer</span>
             </h1>
             <p className="text-gray-300 max-w-2xl mx-auto">
               Optimize your content for both AI answer engines and traditional search. Get actionable insights to improve your content's visibility and performance.
@@ -306,10 +306,10 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
 
           {/* Input Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="bg-[#1E2329] border-[#39FF14]/30">
+            <Card className="bg-[#171C36] border-[#4DA3FF]/30">
               <CardHeader>
                 <CardTitle className="text-white flex items-center">
-                  <FileText className="w-5 h-5 mr-2 text-[#39FF14]" />
+                  <FileText className="w-5 h-5 mr-2 text-[#4DA3FF]" />
                   Content Input
                 </CardTitle>
               </CardHeader>
@@ -322,7 +322,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                     value={targetKeyword}
                     onChange={(e) => setTargetKeyword(e.target.value)}
                     placeholder="Enter your primary keyword"
-                    className="bg-[#0D1117] border-[#39FF14]/30 text-white"
+                    className="bg-[#0A0E20] border-[#4DA3FF]/30 text-white"
                   />
                 </div>
                 
@@ -335,7 +335,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                     onChange={(e) => setContent(e.target.value)}
                     placeholder="Paste your content here..."
                     rows={10}
-                    className="bg-[#0D1117] border-[#39FF14]/30 text-white resize-none"
+                    className="bg-[#0A0E20] border-[#4DA3FF]/30 text-white resize-none"
                   />
                 </div>
 
@@ -343,15 +343,15 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                   <Button 
                     onClick={analyzeContent}
                     disabled={loading}
-                    className="bg-[#39FF14] text-[#0D1117] font-bold hover:bg-[#39FF14]/80 flex-1"
-                    style={{boxShadow: '0 0 5px #39FF14, 0 0 10px #39FF14'}}
+                    className="bg-[#4DA3FF] text-[#0A0E20] font-bold hover:bg-[#4DA3FF]/80 flex-1"
+                    style={{boxShadow: '0 0 5px #4DA3FF, 0 0 10px #4DA3FF'}}
                   >
                     {loading ? "Analyzing..." : "Analyze Content"}
                   </Button>
                   <Button 
                     onClick={loadSampleContent}
                     variant="outline"
-                    className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
+                    className="border-[#4DA3FF] text-[#4DA3FF] hover:bg-[#4DA3FF] hover:text-[#0A0E20]"
                   >
                     Load Sample
                   </Button>
@@ -367,7 +367,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                         <button
                           key={item.id}
                           onClick={() => loadFromUserContent(item)}
-                          className="w-full text-left p-2 text-sm bg-[#0D1117] border border-[#39FF14]/20 rounded hover:border-[#39FF14]/50 text-gray-300 truncate"
+                          className="w-full text-left p-2 text-sm bg-[#0A0E20] border border-[#4DA3FF]/20 rounded hover:border-[#4DA3FF]/50 text-gray-300 truncate"
                         >
                           {item.title}
                         </button>
@@ -379,11 +379,11 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
             </Card>
 
             {/* Analysis Results */}
-            <Card className="bg-[#1E2329] border-[#39FF14]/30">
+            <Card className="bg-[#171C36] border-[#4DA3FF]/30">
               <CardHeader>
                 <CardTitle className="text-white flex items-center justify-between">
                   <span className="flex items-center">
-                    <BarChart3 className="w-5 h-5 mr-2 text-[#39FF14]" />
+                    <BarChart3 className="w-5 h-5 mr-2 text-[#4DA3FF]" />
                     Analysis Results
                   </span>
                   {analysisResults && (
@@ -391,7 +391,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                       onClick={exportAnalysis}
                       size="sm"
                       variant="outline"
-                      className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
+                      className="border-[#4DA3FF] text-[#4DA3FF] hover:bg-[#4DA3FF] hover:text-[#0A0E20]"
                     >
                       <Download className="w-4 h-4 mr-1" />
                       Export
@@ -413,12 +413,12 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                   <div className="space-y-4">
                     {/* Overall Metrics */}
                     <div className="grid grid-cols-2 gap-4">
-                      <div className="bg-[#0D1117] p-4 rounded">
+                      <div className="bg-[#0A0E20] p-4 rounded">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-300">Keyword Density</span>
                           <span className={`font-bold ${
                             analysisResults.keywordDensity < 1 ? 'text-red-400' : 
-                            analysisResults.keywordDensity > 3 ? 'text-yellow-400' : 'text-[#39FF14]'
+                            analysisResults.keywordDensity > 3 ? 'text-yellow-400' : 'text-[#4DA3FF]'
                           }`}>
                             {analysisResults.keywordDensity}%
                           </span>
@@ -430,12 +430,12 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                         <p className="text-xs text-gray-400 mt-1">Target: 1-3%</p>
                       </div>
 
-                      <div className="bg-[#0D1117] p-4 rounded">
+                      <div className="bg-[#0A0E20] p-4 rounded">
                         <div className="flex justify-between items-center mb-2">
                           <span className="text-sm text-gray-300">Readability</span>
                           <span className={`font-bold ${
                             analysisResults.readabilityScore < 30 ? 'text-red-400' : 
-                            analysisResults.readabilityScore < 60 ? 'text-yellow-400' : 'text-[#39FF14]'
+                            analysisResults.readabilityScore < 60 ? 'text-yellow-400' : 'text-[#4DA3FF]'
                           }`}>
                             {analysisResults.readabilityScore}/100
                           </span>
@@ -451,20 +451,20 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                     </div>
 
                     {/* Content Stats */}
-                    <div className="bg-[#0D1117] p-4 rounded">
+                    <div className="bg-[#0A0E20] p-4 rounded">
                       <h4 className="font-medium text-white mb-3">Content Statistics</h4>
                       <div className="grid grid-cols-3 gap-4 text-sm">
                         <div>
                           <span className="text-gray-400">Words:</span>
-                          <span className="text-[#39FF14] ml-2 font-bold">{analysisResults.words}</span>
+                          <span className="text-[#4DA3FF] ml-2 font-bold">{analysisResults.words}</span>
                         </div>
                         <div>
                           <span className="text-gray-400">Sentences:</span>
-                          <span className="text-[#39FF14] ml-2 font-bold">{analysisResults.sentences}</span>
+                          <span className="text-[#4DA3FF] ml-2 font-bold">{analysisResults.sentences}</span>
                         </div>
                         <div>
                           <span className="text-gray-400">Keywords:</span>
-                          <span className="text-[#39FF14] ml-2 font-bold">{analysisResults.keywordCount}</span>
+                          <span className="text-[#4DA3FF] ml-2 font-bold">{analysisResults.keywordCount}</span>
                         </div>
                       </div>
                     </div>
@@ -477,33 +477,33 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
           {/* Optimization Tabs */}
           {analysisResults && (
             <Tabs defaultValue="qa" className="w-full">
-              <TabsList className="grid w-full grid-cols-5 bg-[#1E2329]">
-                <TabsTrigger value="qa" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+              <TabsList className="grid w-full grid-cols-5 bg-[#171C36]">
+                <TabsTrigger value="qa" className="data-[state=active]:bg-[#4DA3FF] data-[state=active]:text-[#0A0E20]">
                   Q&A Format
                 </TabsTrigger>
-                <TabsTrigger value="keywords" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                <TabsTrigger value="keywords" className="data-[state=active]:bg-[#4DA3FF] data-[state=active]:text-[#0A0E20]">
                   Keywords
                 </TabsTrigger>
-                <TabsTrigger value="schema" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                <TabsTrigger value="schema" className="data-[state=active]:bg-[#4DA3FF] data-[state=active]:text-[#0A0E20]">
                   Schema
                 </TabsTrigger>
-                <TabsTrigger value="readability" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                <TabsTrigger value="readability" className="data-[state=active]:bg-[#4DA3FF] data-[state=active]:text-[#0A0E20]">
                   Readability
                 </TabsTrigger>
-                <TabsTrigger value="context" className="data-[state=active]:bg-[#39FF14] data-[state=active]:text-[#0D1117]">
+                <TabsTrigger value="context" className="data-[state=active]:bg-[#4DA3FF] data-[state=active]:text-[#0A0E20]">
                   Context
                 </TabsTrigger>
               </TabsList>
 
               <TabsContent value="qa" className="mt-6">
-                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                <Card className="bg-[#171C36] border-[#4DA3FF]/30">
                   <CardHeader>
                     <CardTitle className="text-white">Question & Answer Format</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
                       {analysisResults.qaQuestions.map((qa: any, index: number) => (
-                        <div key={index} className="bg-[#0D1117] p-4 rounded border border-[#39FF14]/20">
+                        <div key={index} className="bg-[#0A0E20] p-4 rounded border border-[#4DA3FF]/20">
                           <div className="font-bold text-white mb-2">Q{index + 1}: {qa.question}</div>
                           <div className="text-gray-300">A: {qa.answer}</div>
                         </div>
@@ -514,29 +514,29 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
               </TabsContent>
 
               <TabsContent value="keywords" className="mt-6">
-                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                <Card className="bg-[#171C36] border-[#4DA3FF]/30">
                   <CardHeader>
                     <CardTitle className="text-white">Keyword Analysis</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="bg-[#0D1117] p-4 rounded">
+                      <div className="bg-[#0A0E20] p-4 rounded">
                         <h4 className="font-medium text-white mb-3">Current Analysis</h4>
                         <ul className="space-y-2 text-sm">
                           <li className="text-gray-300">
-                            Keyword: <span className="bg-[#39FF14]/20 text-[#39FF14] px-2 py-1 rounded">{targetKeyword}</span>
+                            Keyword: <span className="bg-[#4DA3FF]/20 text-[#4DA3FF] px-2 py-1 rounded">{targetKeyword}</span>
                           </li>
-                          <li className="text-gray-300">Current appearances: <span className="text-[#39FF14]">{analysisResults.keywordCount}</span></li>
-                          <li className="text-gray-300">Current density: <span className="text-[#39FF14]">{analysisResults.keywordDensity}%</span></li>
+                          <li className="text-gray-300">Current appearances: <span className="text-[#4DA3FF]">{analysisResults.keywordCount}</span></li>
+                          <li className="text-gray-300">Current density: <span className="text-[#4DA3FF]">{analysisResults.keywordDensity}%</span></li>
                         </ul>
                       </div>
                       
-                      <div className="bg-[#0D1117] p-4 rounded">
+                      <div className="bg-[#0A0E20] p-4 rounded">
                         <h4 className="font-medium text-white mb-3">Optimization Suggestions</h4>
                         <ul className="space-y-2 text-sm">
                           {analysisResults.keywordSuggestions.map((suggestion: string, index: number) => (
                             <li key={index} className="text-gray-300 flex items-start">
-                              <span className="text-[#39FF14] mr-2">→</span>
+                              <span className="text-[#4DA3FF] mr-2">→</span>
                               {suggestion}
                             </li>
                           ))}
@@ -548,7 +548,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
               </TabsContent>
 
               <TabsContent value="schema" className="mt-6">
-                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                <Card className="bg-[#171C36] border-[#4DA3FF]/30">
                   <CardHeader>
                     <CardTitle className="text-white flex items-center justify-between">
                       FAQ Schema Markup
@@ -556,7 +556,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                         onClick={() => copyToClipboard(JSON.stringify(analysisResults.schemaMarkup, null, 2))}
                         size="sm"
                         variant="outline"
-                        className="border-[#39FF14] text-[#39FF14] hover:bg-[#39FF14] hover:text-[#0D1117]"
+                        className="border-[#4DA3FF] text-[#4DA3FF] hover:bg-[#4DA3FF] hover:text-[#0A0E20]"
                       >
                         <Copy className="w-4 h-4 mr-1" />
                         Copy
@@ -564,29 +564,29 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-[#0D1117] p-4 rounded mb-4">
-                      <pre className="text-[#39FF14] text-sm overflow-x-auto">
+                    <div className="bg-[#0A0E20] p-4 rounded mb-4">
+                      <pre className="text-[#4DA3FF] text-sm overflow-x-auto">
                         <code>{JSON.stringify(analysisResults.schemaMarkup, null, 2)}</code>
                       </pre>
                     </div>
                     
-                    <div className="bg-[#0D1117] p-4 rounded">
+                    <div className="bg-[#0A0E20] p-4 rounded">
                       <h4 className="font-medium text-white mb-3">Implementation Instructions</h4>
                       <ul className="space-y-2 text-sm">
                         <li className="text-gray-300 flex items-start">
-                          <span className="text-[#39FF14] mr-2">→</span>
+                          <span className="text-[#4DA3FF] mr-2">→</span>
                           Add this schema to your page's &lt;head&gt; section
                         </li>
                         <li className="text-gray-300 flex items-start">
-                          <span className="text-[#39FF14] mr-2">→</span>
+                          <span className="text-[#4DA3FF] mr-2">→</span>
                           Wrap it in &lt;script type="application/ld+json"&gt; tags
                         </li>
                         <li className="text-gray-300 flex items-start">
-                          <span className="text-[#39FF14] mr-2">→</span>
+                          <span className="text-[#4DA3FF] mr-2">→</span>
                           Test with Google's Rich Results Test tool
                         </li>
                         <li className="text-gray-300 flex items-start">
-                          <span className="text-[#39FF14] mr-2">→</span>
+                          <span className="text-[#4DA3FF] mr-2">→</span>
                           Monitor performance in Search Console
                         </li>
                       </ul>
@@ -596,30 +596,30 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
               </TabsContent>
 
               <TabsContent value="readability" className="mt-6">
-                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                <Card className="bg-[#171C36] border-[#4DA3FF]/30">
                   <CardHeader>
                     <CardTitle className="text-white">Readability Analysis</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
-                      <div className="bg-[#0D1117] p-4 rounded">
+                      <div className="bg-[#0A0E20] p-4 rounded">
                         <h4 className="font-medium text-white mb-3">Current Metrics</h4>
                         <ul className="space-y-2 text-sm">
                           <li className="text-gray-300">
-                            Flesch Reading Ease: <span className="text-[#39FF14]">{analysisResults.readabilityScore}/100</span>
+                            Flesch Reading Ease: <span className="text-[#4DA3FF]">{analysisResults.readabilityScore}/100</span>
                           </li>
                           <li className="text-gray-300">
-                            Average words per sentence: <span className="text-[#39FF14]">{analysisResults.avgWordsPerSentence}</span>
+                            Average words per sentence: <span className="text-[#4DA3FF]">{analysisResults.avgWordsPerSentence}</span>
                           </li>
                         </ul>
                       </div>
 
-                      <div className="bg-[#0D1117] p-4 rounded">
+                      <div className="bg-[#0A0E20] p-4 rounded">
                         <h4 className="font-medium text-white mb-3">Improvement Suggestions</h4>
                         <ul className="space-y-2 text-sm">
                           {analysisResults.readabilitySuggestions.map((suggestion: string, index: number) => (
                             <li key={index} className="text-gray-300 flex items-start">
-                              <span className="text-[#39FF14] mr-2">→</span>
+                              <span className="text-[#4DA3FF] mr-2">→</span>
                               {suggestion}
                             </li>
                           ))}
@@ -631,17 +631,17 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
               </TabsContent>
 
               <TabsContent value="context" className="mt-6">
-                <Card className="bg-[#1E2329] border-[#39FF14]/30">
+                <Card className="bg-[#171C36] border-[#4DA3FF]/30">
                   <CardHeader>
                     <CardTitle className="text-white">Context Enhancement</CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <div className="bg-[#0D1117] p-4 rounded">
+                    <div className="bg-[#0A0E20] p-4 rounded">
                       <h4 className="font-medium text-white mb-3">Suggested Improvements</h4>
                       <ul className="space-y-2 text-sm">
                         {analysisResults.contextSuggestions.map((suggestion: string, index: number) => (
                           <li key={index} className="text-gray-300 flex items-start">
-                            <span className="text-[#39FF14] mr-2">→</span>
+                            <span className="text-[#4DA3FF] mr-2">→</span>
                             {suggestion}
                           </li>
                         ))}
