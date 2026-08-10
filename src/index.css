@@ -128,11 +128,11 @@
     line-height: 1.6; /* 1.6 improves readability */
   }
 
-  p {
+  p:not([class]) {
     @apply text-base leading-relaxed max-w-prose my-4;
   }
 
-  ul, ol {
+  ul:not([class]), ol:not([class]) {
     @apply list-inside list-disc pl-6 leading-relaxed max-w-prose my-4;
   }
 
