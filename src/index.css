@@ -155,7 +155,10 @@
 
 @layer components {
   .gradient-text {
-    @apply bg-gradient-to-r from-primary to-primary/80 bg-clip-text text-transparent;
+    background: var(--gradient-brand);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   
   .link-gradient {
@@ -166,38 +169,35 @@
   }
 
   .hero-gradient {
-    @apply bg-gradient-to-br from-primary/10 via-primary/5 to-background;
-    /* Softer overlay of the new brand gradient */
-    background: linear-gradient(135deg, rgba(198, 255, 102, 0.08) 0%, rgba(29, 30, 95, 0.9) 50%, rgba(29, 30, 95, 1) 100%);
+    background: linear-gradient(135deg, hsl(196 100% 58% / 0.14) 0%, hsl(268 90% 60% / 0.12) 45%, hsl(var(--background)) 100%);
   }
 
   .content-card {
     @apply bg-card rounded-lg border border-border/50 transition-all duration-300;
-    /* Subtle glassy card on top of gradient */
-    background: linear-gradient(145deg, rgba(50, 52, 120, 0.7) 0%, rgba(30, 32, 90, 0.7) 100%);
+    background: linear-gradient(145deg, hsl(232 42% 16% / 0.75) 0%, hsl(250 40% 13% / 0.75) 100%);
     backdrop-filter: blur(8px);
-    box-shadow: 0 4px 12px -1px rgba(0, 0, 0, 0.45), 0 2px 8px -1px rgba(0, 0, 0, 0.35);
+    box-shadow: 0 4px 12px -1px hsl(230 60% 3% / 0.5), 0 2px 8px -1px hsl(230 60% 3% / 0.4);
   }
 
   .content-card:hover {
     @apply border-primary/30 shadow-lg;
-    box-shadow: 0 10px 15px -3px hsl(220 13% 4% / 0.4), 0 4px 6px -2px hsl(220 13% 4% / 0.3), 0 0 0 1px hsl(120 100% 50% / 0.1);
+    box-shadow: 0 10px 15px -3px hsl(230 60% 3% / 0.5), 0 4px 6px -2px hsl(230 60% 3% / 0.35), 0 0 0 1px hsl(var(--primary) / 0.18);
   }
 
   .glow-button {
-    @apply bg-primary text-primary-foreground font-semibold transition-all duration-300;
-    background: linear-gradient(135deg, hsl(120 100% 50%) 0%, hsl(120 100% 45%) 100%);
-    box-shadow: 0 4px 14px 0 hsl(120 100% 50% / 0.3);
+    @apply text-primary-foreground font-semibold transition-all duration-300;
+    background: var(--gradient-brand);
+    box-shadow: var(--shadow-brand);
   }
 
   .glow-button:hover {
     @apply transform scale-105;
-    box-shadow: 0 6px 20px 0 hsl(120 100% 50% / 0.4);
+    box-shadow: 0 12px 34px -8px hsl(268 90% 60% / 0.55);
   }
 
   .matrix-text {
     @apply text-primary;
-    text-shadow: 0 0 10px hsl(120 100% 50% / 0.6);
+    text-shadow: 0 0 10px hsl(var(--primary) / 0.6);
   }
 
   .hover-scale {
@@ -209,12 +209,12 @@
   }
 
   .shadow-glow {
-    box-shadow: 0 0 20px hsl(120 100% 50% / 0.3);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.35);
   }
 
   .neon-border {
     @apply border-2 border-primary;
-    box-shadow: 0 0 5px hsl(120 100% 50% / 0.6), 0 0 10px hsl(120 100% 50% / 0.4);
+    box-shadow: 0 0 5px hsl(var(--primary) / 0.6), 0 0 10px hsl(var(--accent) / 0.4);
   }
 
   /* Progress ring styles */
@@ -233,13 +233,14 @@
 
   .score-circle {
     @apply w-24 h-24 rounded-full border-4 border-primary/20 flex items-center justify-center;
-    background: radial-gradient(circle, hsl(120 100% 50% / 0.1) 0%, transparent 70%);
+    background: radial-gradient(circle, hsl(var(--primary) / 0.14) 0%, transparent 70%);
   }
 
   .score-circle.excellent {
     @apply border-primary;
-    box-shadow: 0 0 20px hsl(120 100% 50% / 0.4);
+    box-shadow: 0 0 20px hsl(var(--primary) / 0.45);
   }
+
 
   .score-circle.good {
     @apply border-yellow-500;
