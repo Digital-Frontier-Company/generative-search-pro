@@ -1,10 +1,31 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './AuthContext';
 
+export const cleanDomain = (domain: string) =>
+  domain
+    .trim()
+    .replace(/^https?:\/\//, '')
+    .replace(/^www\./, '')
+    .replace(/\/$/, '')
+    .toLowerCase();
+
+export const isValidDomain = (domain: string) =>
+  /^(?:https?:\/\/)?(?:www\.)?([a-zA-Z0-9-]+\.)+[a-zA-Z]{2,}(\/.*)?$/.test(domain.trim());
+
 interface DomainContextType {
+  /** The domain every tool should currently operate on. */
   defaultDomain: string | null;
+  /** The domain saved on the user's profile (the fallback). */
+  savedDefaultDomain: string | null;
+  /** All domains the user has added in this workspace. */
+  domains: string[];
+  /** Persist a new profile default (also makes it active). */
   setDefaultDomain: (domain: string | null) => Promise<void>;
+  /** Switch the active domain for this session without changing the default. */
+  setActiveDomain: (domain: string | null) => void;
+  addDomain: (domain: string) => void;
+  removeDomain: (domain: string) => void;
   isLoading: boolean;
 }
 
@@ -18,19 +39,38 @@ export const useDomain = () => {
   return context;
 };
 
+const storageKey = (userId?: string) => `gsp:domains:${userId ?? 'anon'}`;
+const activeKey = (userId?: string) => `gsp:active-domain:${userId ?? 'anon'}`;
+
+const readList = (userId?: string): string[] => {
+  try {
+    const raw = localStorage.getItem(storageKey(userId));
+    const parsed = raw ? JSON.parse(raw) : [];
+    return Array.isArray(parsed) ? parsed.filter((d) => typeof d === 'string') : [];
+  } catch {
+    return [];
+  }
+};
+
 export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [defaultDomain, setDefaultDomainState] = useState<string | null>(null);
+  const [savedDefaultDomain, setSavedDefaultDomain] = useState<string | null>(null);
+  const [activeDomain, setActiveDomainState] = useState<string | null>(null);
+  const [domains, setDomains] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { user } = useAuth();
 
-  // Load default domain from user profile
   useEffect(() => {
-    const loadDefaultDomain = async () => {
+    const load = async () => {
       if (!user) {
-        setDefaultDomainState(null);
+        setSavedDefaultDomain(null);
+        setActiveDomainState(null);
+        setDomains([]);
         setIsLoading(false);
         return;
       }
+
+      const stored = readList(user.id);
+      const storedActive = localStorage.getItem(activeKey(user.id));
 
       try {
         const { data, error } = await supabase
@@ -39,11 +79,18 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({ childr
           .eq('id', user.id)
           .maybeSingle();
 
-        if (error) {
-          console.error('Error loading default domain:', error);
-        } else if (data?.default_domain) {
-          setDefaultDomainState(data.default_domain);
-        }
+        if (error) console.error('Error loading default domain:', error);
+
+        const profileDomain = data?.default_domain ?? null;
+        const merged = Array.from(
+          new Set([...(profileDomain ? [profileDomain] : []), ...stored])
+        );
+
+        setSavedDefaultDomain(profileDomain);
+        setDomains(merged);
+        setActiveDomainState(
+          storedActive && merged.includes(storedActive) ? storedActive : profileDomain
+        );
       } catch (error) {
         console.error('Error loading default domain:', error);
       } finally {
@@ -51,36 +98,89 @@ export const DomainProvider: React.FC<{ children: React.ReactNode }> = ({ childr
       }
     };
 
-    // Only load if we haven't loaded yet or user changed
-    loadDefaultDomain();
-  }, [user?.id]); // Only depend on user.id to prevent duplicate calls
+    load();
+  }, [user?.id]);
+
+  const persistList = useCallback(
+    (next: string[]) => {
+      setDomains(next);
+      try {
+        localStorage.setItem(storageKey(user?.id), JSON.stringify(next));
+      } catch {
+        /* storage unavailable */
+      }
+    },
+    [user?.id]
+  );
+
+  const setActiveDomain = useCallback(
+    (domain: string | null) => {
+      setActiveDomainState(domain);
+      try {
+        if (domain) localStorage.setItem(activeKey(user?.id), domain);
+        else localStorage.removeItem(activeKey(user?.id));
+      } catch {
+        /* storage unavailable */
+      }
+    },
+    [user?.id]
+  );
+
+  const addDomain = useCallback(
+    (domain: string) => {
+      const cleaned = cleanDomain(domain);
+      if (!cleaned) return;
+      persistList(Array.from(new Set([...domains, cleaned])));
+      setActiveDomain(cleaned);
+    },
+    [domains, persistList, setActiveDomain]
+  );
+
+  const removeDomain = useCallback(
+    (domain: string) => {
+      const next = domains.filter((d) => d !== domain);
+      persistList(next);
+      if (activeDomain === domain) setActiveDomain(next[0] ?? savedDefaultDomain ?? null);
+    },
+    [domains, activeDomain, persistList, setActiveDomain, savedDefaultDomain]
+  );
 
   const setDefaultDomain = async (domain: string | null) => {
     if (!user) return;
 
-    try {
-      const { error } = await supabase
-        .from('profiles')
-        .upsert({
-          id: user.id,
-          default_domain: domain,
-          updated_at: new Date().toISOString(),
-        });
+    const cleaned = domain ? cleanDomain(domain) : null;
 
-      if (error) {
-        console.error('Error saving default domain:', error);
-        throw error;
-      }
+    const { error } = await supabase.from('profiles').upsert({
+      id: user.id,
+      default_domain: cleaned,
+      updated_at: new Date().toISOString(),
+    });
 
-      setDefaultDomainState(domain);
-    } catch (error) {
-      console.error('Error updating default domain:', error);
+    if (error) {
+      console.error('Error saving default domain:', error);
       throw error;
     }
+
+    setSavedDefaultDomain(cleaned);
+    if (cleaned) {
+      persistList(Array.from(new Set([...domains, cleaned])));
+    }
+    setActiveDomain(cleaned);
   };
 
   return (
-    <DomainContext.Provider value={{ defaultDomain, setDefaultDomain, isLoading }}>
+    <DomainContext.Provider
+      value={{
+        defaultDomain: activeDomain ?? savedDefaultDomain,
+        savedDefaultDomain,
+        domains,
+        setDefaultDomain,
+        setActiveDomain,
+        addDomain,
+        removeDomain,
+        isLoading,
+      }}
+    >
       {children}
     </DomainContext.Provider>
   );
