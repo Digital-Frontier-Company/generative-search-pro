@@ -93,6 +93,8 @@ const AnalyticsDashboard = () => {
   const [trends, setTrends] = useState<TrendData[]>([]);
   const [competitors, setCompetitors] = useState<CompetitorInsight[]>([]);
   const [loading, setLoading] = useState(true);
+  const [toolError, setToolError] = useState<ToolError | null>(null);
+  const [elapsed, setElapsed] = useState(0);
   const [dateRange, setDateRange] = useState<'7d' | '30d' | '90d' | '1y'>('30d');
   const [activeTab, setActiveTab] = useState('overview');
 
@@ -104,85 +106,65 @@ const AnalyticsDashboard = () => {
 
   const loadAnalyticsData = async () => {
     setLoading(true);
+    setToolError(null);
+    setElapsed(0);
+    const started = Date.now();
+    const ticker = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
     try {
-      await Promise.all([
-        loadOverviewData(),
-        loadTrendData(),
-        loadCompetitorData()
-      ]);
+      // Overview is the primary dataset — its failure is surfaced to the user.
+      await loadOverviewData();
+      // Secondary panels degrade quietly rather than blocking the dashboard.
+      await Promise.allSettled([loadTrendData(), loadCompetitorData()]);
     } catch (error) {
-      console.error('Error loading analytics:', error);
-      toast.error('Failed to load analytics data');
+      const toolErr = error as ToolError;
+      console.error('Error loading analytics:', toolErr);
+      setToolError(toolErr);
+      toast.error(toolErr.message);
     } finally {
+      clearInterval(ticker);
       setLoading(false);
     }
   };
 
   const loadOverviewData = async () => {
-    try {
-      const { data, error } = await supabase.functions.invoke('get-analytics-overview', {
-        body: JSON.stringify({
-          user_id: user?.id,
-          date_range: dateRange
-        })
-      });
+    const data = await invokeTool<any>('get-analytics-overview', { date_range: dateRange });
 
-      if (error) throw error;
+    const realOverview: AnalyticsOverview = {
+      totalContent: data?.totalContent ?? 0,
+      totalSEOAnalyses: data?.totalSEOAnalyses ?? 0,
+      totalCitationChecks: data?.totalCitationChecks ?? 0,
+      avgContentScore: data?.avgContentScore ?? 0,
+      avgSEOScore: data?.avgSEOScore ?? 0,
+      avgCitationRate: data?.avgCitationRate ?? 0,
+      weeklyGrowth: {
+        content: data?.weeklyGrowth?.content ?? 0,
+        seo: data?.weeklyGrowth?.seo ?? 0,
+        citations: data?.weeklyGrowth?.citations ?? 0
+      },
+      topPerformingContent: data?.topPerformingContent ?? [],
+      aiEnginePerformance: data?.aiEnginePerformance ?? []
+    };
 
-      const realOverview: AnalyticsOverview = {
-        totalContent: data?.totalContent ?? 0,
-        totalSEOAnalyses: data?.totalSEOAnalyses ?? 0,
-        totalCitationChecks: data?.totalCitationChecks ?? 0,
-        avgContentScore: data?.avgContentScore ?? 0,
-        avgSEOScore: data?.avgSEOScore ?? 0,
-        avgCitationRate: data?.avgCitationRate ?? 0,
-        weeklyGrowth: {
-          content: data?.weeklyGrowth?.content ?? 0,
-          seo: data?.weeklyGrowth?.seo ?? 0,
-          citations: data?.weeklyGrowth?.citations ?? 0
-        },
-        topPerformingContent: data?.topPerformingContent ?? [],
-        aiEnginePerformance: data?.aiEnginePerformance ?? []
-      };
-
-      setOverview(realOverview);
-    } catch (error) {
-      console.error('Error loading overview:', error);
-    }
+    setOverview(realOverview);
   };
 
   const loadTrendData = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-analytics-trends', {
-        body: JSON.stringify({
-          user_id: user?.id,
-          date_range: dateRange
-        })
-      });
-
-      if (error) throw error;
-
-      // Generate mock trend data for development
-      setTrends(Array.isArray(data) ? (data as TrendData[]) : []);
+      const data = await invokeTool<TrendData[]>('get-analytics-trends', { date_range: dateRange });
+      setTrends(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading trends:', error);
+      setTrends([]);
     }
   };
 
   const loadCompetitorData = async () => {
     try {
-      const { data, error } = await supabase.functions.invoke('get-competitor-insights', {
-        body: JSON.stringify({
-          user_id: user?.id,
-          date_range: dateRange
-        })
-      });
-
-      if (error) throw error;
-
-      setCompetitors(Array.isArray(data) ? (data as CompetitorInsight[]) : []);
+      const data = await invokeTool<CompetitorInsight[]>('get-competitor-insights', { date_range: dateRange });
+      setCompetitors(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error loading competitor data:', error);
+      setCompetitors([]);
     }
   };
 
