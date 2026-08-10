@@ -540,7 +540,19 @@ const EnhancedSEOAnalyzer = () => {
         </CardContent>
       </Card>
 
-      {results && (
+      {loading && (
+        <ToolLoading label={`Running ${lastLevel} SEO analysis on ${domain}`} elapsed={elapsed} rows={4} />
+      )}
+
+      {!loading && toolError && (
+        <ToolErrorView
+          error={toolError}
+          onRetry={() => runAnalysis(lastLevel)}
+          onSignIn={() => navigate('/auth')}
+        />
+      )}
+
+      {!loading && !toolError && results && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
