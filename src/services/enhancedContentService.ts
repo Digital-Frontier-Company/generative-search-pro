@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { invokeTool } from '@/lib/toolInvoke';
 import { toast } from 'sonner';
 
 // Enhanced content types with AI optimization

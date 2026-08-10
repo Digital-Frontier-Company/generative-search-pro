@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { invokeTool } from '@/lib/toolInvoke';
 
 // Analytics data types
 export interface AnalyticsQuery {
