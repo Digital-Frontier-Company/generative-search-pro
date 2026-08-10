@@ -16,6 +16,7 @@ export const Settings = lazy(() => import('@/features/user/SettingsPage'));
 export const Upgrade = lazy(() => import('@/features/user/UpgradePage'));
 export const Admin = lazy(() => import('@/features/admin/AdminPage'));
 export const About = lazy(() => import('@/pages/About'));
+export const ToolsHub = lazy(() => import('@/pages/ToolsHubPage'));
 export const Resources = lazy(() => import('@/pages/Resources'));
 export const NotFound = lazy(() => import('@/pages/NotFoundPage'));
 export const BrandSERPanalysis = lazy(() => import('@/features/seo/monitoring/BrandSERPanalysisPage'));
