@@ -148,6 +148,7 @@ const EnhancedSEOAnalyzer = () => {
   const { user } = useAuth();
   const { defaultDomain } = useDomain();
   
+  const navigate = useNavigate();
   const [domain, setDomain] = useState(defaultDomain || '');
   const [results, setResults] = useState<EnhancedSEOResult | null>(null);
   const [loading, setLoading] = useState(false);
