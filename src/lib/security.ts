@@ -516,7 +516,7 @@ export function validateSecurityHeaders(response: Response): void {
   
   const missingHeaders = securityHeaders.filter(header => !headers.get(header));
   
-  if (missingHeaders.length > 0 && process.env.NODE_ENV === 'development') {
+  if (missingHeaders.length > 0 && import.meta.env.DEV) {
     console.warn('Missing security headers:', missingHeaders);
   }
 }

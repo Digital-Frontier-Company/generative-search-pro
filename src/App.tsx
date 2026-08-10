@@ -9,6 +9,7 @@ import { DomainProvider } from "@/contexts/DomainContext";
 import ProtectedRoute from "@/features/auth/ProtectedRoute";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import AppSidebar from "@/components/global/AppSidebar";
+import DomainSwitcher from "@/components/global/DomainSwitcher";
 import { Suspense } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import * as LazyRoutes from "@/routes/lazyRoutes";
@@ -29,6 +30,9 @@ function App() {
                     <header className="sticky top-0 z-40 flex h-12 items-center border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                       <SidebarTrigger className="ml-2" />
                       <h1 className="sr-only">Navigation</h1>
+                      <div className="ml-auto mr-3 flex items-center gap-2">
+                        <DomainSwitcher />
+                      </div>
                     </header>
                     <div className="flex-1 bg-[#030013]/[0.97]">
                         <Suspense fallback={<div className="p-6"><Skeleton className="h-6 w-1/3 mb-4" /><Skeleton className="h-4 w-2/3" /></div>}>
@@ -41,8 +45,11 @@ function App() {
                           {/* Public marketplace landing pages */}
                           <Route path="/brands" element={<LazyRoutes.Brands />} />
                           <Route path="/influencers" element={<LazyRoutes.Influencers />} />
+                          <Route path="/tools" element={<ProtectedRoute>
+                                <LazyRoutes.ToolsHub />
+                              </ProtectedRoute>} />
                           <Route path="/analysis" element={<ProtectedRoute>
-                                <LazyRoutes.SEOAnalysis />
+                                <LazyRoutes.ToolsHub />
                               </ProtectedRoute>} />
                           <Route path="/dashboard" element={<ProtectedRoute>
                                 <LazyRoutes.Dashboard />

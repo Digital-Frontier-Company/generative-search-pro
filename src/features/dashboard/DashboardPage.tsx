@@ -15,7 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FileText, Search, BarChart3, Globe, CheckSquare, Map, Target, BookOpen, Microscope, Settings, Zap } from "lucide-react";
-import TSONavigationCard from "@/features/tso/TSO/TSONavigationCard";
+import { TOOLS, TOOL_CATEGORIES } from "@/config/tools";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -59,111 +59,37 @@ const Dashboard = () => {
     }
   };
 
-  const analysisTools = [
-    {
-      title: "SEO Analysis Hub",
-      description: "Comprehensive SEO analysis and optimization tools",
-      icon: <BarChart3 className="w-6 h-6" />,
-      path: "/analysis",
-      tier: "basic",
-      usesDomain: true
-    },
-    {
-      title: "Citation Checker",
-      description: "Track AI engine citations and references",
-      icon: <CheckSquare className="w-6 h-6" />,
-      path: "/citation-checker",
-      tier: "basic",
-      usesDomain: true
-    }
-  ];
-
-  const contentTools = [
-    {
-      title: "Content Generator",
-      description: "Generate AEO-optimized content",
-      icon: <FileText className="w-6 h-6" />,
-      path: "/generator",
-      tier: "basic",
-      usesDomain: false
-    },
-    {
-      title: "Content Analysis",
-      description: "Analyze and optimize content for AI search",
-      icon: <Microscope className="w-6 h-6" />,
-      path: "/content-analysis",
-      tier: "basic", 
-      usesDomain: false
-    },
-    {
-      title: "Content History",
-      description: "View and manage generated content",
-      icon: <Search className="w-6 h-6" />,
-      path: "/history",
-      tier: "basic",
-      usesDomain: false
-    }
-  ];
-
-  const utilityTools = [
-    {
-      title: "AI Sitemap Generator",
-      description: "Generate intelligent XML sitemaps",
-      icon: <Map className="w-6 h-6" />,
-      path: "/ai-sitemap",
-      tier: "basic",
-      usesDomain: true
-    },
-    {
-      title: "Resources & Learning",
-      description: "Guides, tutorials, and best practices",
-      icon: <BookOpen className="w-6 h-6" />,
-      path: "/resources",
-      tier: "basic",
-      usesDomain: false
-    }
-  ];
-
-  const getTierBadgeColor = (tier: string) => {
-    switch (tier) {
-      case 'basic': return 'bg-blue-100 text-blue-800';
-      case 'pro': return 'bg-purple-100 text-purple-800';
-      case 'team': return 'bg-green-100 text-green-800';
-      default: return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const handleToolClick = (tool: any) => {
+  const handleToolClick = (tool: (typeof TOOLS)[number]) => {
     if (tool.usesDomain && !defaultDomain) {
-      toast.error('Please set a default domain first to use this tool!');
+      toast.error('Set an active domain in the top bar to use this tool.');
       return;
     }
     navigate(tool.path, { state: { domain: defaultDomain } });
   };
 
-  const ToolCard = ({ tool }: { tool: any }) => (
-    <Card 
+  const ToolCard = ({ tool }: { tool: (typeof TOOLS)[number] }) => (
+    <Card
       className="content-card cursor-pointer hover-scale"
       onClick={() => handleToolClick(tool)}
     >
       <CardContent className="p-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-start gap-3">
           <div className="p-2 rounded-lg bg-matrix-green/10 text-matrix-green">
-            {tool.icon}
+            <tool.icon className="w-5 h-5" />
           </div>
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1">
               <h3 className="font-medium text-matrix-green">{tool.title}</h3>
               {tool.usesDomain && (
-                <div className={`w-2 h-2 rounded-full ${defaultDomain ? 'bg-green-500' : 'bg-yellow-500'}`} 
-                     title={defaultDomain ? 'Domain configured' : 'Needs domain'} />
+                <span
+                  className={`w-2 h-2 rounded-full ${defaultDomain ? 'bg-green-500' : 'bg-yellow-500'}`}
+                  title={defaultDomain ? 'Domain ready' : 'Needs a domain'}
+                />
               )}
             </div>
             <p className="text-sm text-matrix-green/70">{tool.description}</p>
+            <p className="mt-1 text-xs text-matrix-green/50">{tool.outcome}</p>
           </div>
-          <Badge className={getTierBadgeColor(tool.tier)} variant="outline">
-            {tool.tier}
-          </Badge>
         </div>
       </CardContent>
     </Card>
@@ -204,9 +130,6 @@ const Dashboard = () => {
                     <SEOToolsAnalytics />
                   </div>
                 </div>
-                <div className="mt-6">
-                  <TSONavigationCard />
-                </div>
               </SEOAnalysisProvider>
             </TabsContent>
 
@@ -215,86 +138,25 @@ const Dashboard = () => {
             </TabsContent>
 
             <TabsContent value="tools">
-              {/* Global Domain Configuration */}
-              <Card className="content-card mb-6">
-                <CardHeader>
-                  <CardTitle className="text-matrix-green flex items-center">
-                    <Settings className="w-5 h-5 mr-2" />
-                    Domain Configuration
-                  </CardTitle>
-                  <CardDescription>
-                    Set your primary domain to use across all analysis tools
-                  </CardDescription>
-                </CardHeader>
-                 <CardContent>
-                   <div className="flex gap-4 items-end">
-                     <div className="flex-1">
-                       <Input
-                         placeholder="Enter your domain (e.g., example.com)"
-                         value={defaultDomain || ''}
-                         onChange={(e) => {}}
-                         className="text-lg"
-                         readOnly
-                       />
-                     </div>
-                     <Button 
-                       onClick={() => navigate('/settings')}
-                       className="glow-button text-black font-semibold px-8"
-                     >
-                       <Settings className="w-4 h-4 mr-2" />
-                       Configure
-                     </Button>
-                   </div>
-                   {defaultDomain && (
-                     <div className="mt-3 text-sm text-matrix-green/70">
-                       Current domain: <span className="font-medium text-matrix-green">{defaultDomain}</span>
-                     </div>
-                   )}
-                   {!defaultDomain && (
-                     <div className="mt-3 text-sm text-yellow-600">
-                       No default domain set. Click "Configure" to set one.
-                     </div>
-                   )}
-                 </CardContent>
-              </Card>
-
-              {/* Analysis Tools */}
-              <div className="space-y-6">
-                <div>
-                  <h3 className="text-lg font-semibold text-matrix-green mb-4 flex items-center">
-                    <BarChart3 className="w-5 h-5 mr-2" />
-                    Analysis Tools
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {analysisTools.map((tool) => (
-                      <ToolCard key={tool.title} tool={tool} />
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-matrix-green mb-4 flex items-center">
-                    <FileText className="w-5 h-5 mr-2" />
-                    Content Tools
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {contentTools.map((tool) => (
-                      <ToolCard key={tool.title} tool={tool} />
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <h3 className="text-lg font-semibold text-matrix-green mb-4 flex items-center">
-                    <Map className="w-5 h-5 mr-2" />
-                    Utility Tools
-                  </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {utilityTools.map((tool) => (
-                      <ToolCard key={tool.title} tool={tool} />
-                    ))}
-                  </div>
-                </div>
+              <div className="space-y-8">
+                {TOOL_CATEGORIES.map((cat) => {
+                  const tools = TOOLS.filter((t) => t.category === cat.id);
+                  if (!tools.length) return null;
+                  return (
+                    <div key={cat.id}>
+                      <h3 className="text-lg font-semibold text-matrix-green">{cat.label}</h3>
+                      <p className="mb-4 text-sm text-matrix-green/70">{cat.description}</p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {tools.map((tool) => (
+                          <ToolCard key={tool.id} tool={tool} />
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                <Button variant="outline" onClick={() => navigate("/tools")}>
+                  Open the full tools hub
+                </Button>
               </div>
             </TabsContent>
           </Tabs>

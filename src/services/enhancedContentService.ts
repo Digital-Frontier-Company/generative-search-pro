@@ -334,11 +334,13 @@ export class EnhancedContentService {
           user_id: userId,
           title: contentBlock.title,
           content: contentBlock.content,
-          html_content: contentBlock.htmlContent,
-          metadata: contentBlock.metadata,
-          optimization: contentBlock.optimization,
           created_at: contentBlock.created_at,
-          updated_at: contentBlock.updated_at
+          metadata: {
+            ...(contentBlock.metadata as Record<string, unknown>),
+            html_content: contentBlock.htmlContent,
+            optimization: contentBlock.optimization,
+            updated_at: contentBlock.updated_at,
+          } as unknown as never,
         });
 
       if (error) {
