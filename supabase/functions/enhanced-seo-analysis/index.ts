@@ -150,7 +150,7 @@ serve(async (req: Request) => {
     ).length;
     const faqSections =
       (schemaTypes.includes("FAQPage") ? 1 : 0) +
-      count(html, /faq/gi > 0 ? /id=["'][^"']*faq[^"']*["']/gi : /faq/gi);
+      count(html, /id=["'][^"']*faq[^"']*["']/gi);
     const pageBytes = html.length;
 
     let robotsOk = false;
