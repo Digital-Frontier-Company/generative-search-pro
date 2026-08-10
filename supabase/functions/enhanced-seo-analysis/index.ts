@@ -48,7 +48,7 @@ function keywordDensity(body: string, topN = 8) {
 
 function readability(body: string): number {
   const sentences = (body.match(/[.!?]+/g) || []).length || 1;
-  const words = (bodyText.match(/\S+/g) || []).length || 1;
+  const words = (body.match(/\S+/g) || []).length || 1;
   const syllables = (body.toLowerCase().match(/[aeiouy]{1,2}/g) || []).length || 1;
   const score =
     206.835 - 1.015 * (words / sentences) - 84.6 * (syllables / words);
