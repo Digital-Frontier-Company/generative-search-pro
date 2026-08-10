@@ -73,11 +73,15 @@ export default {
 				'auth-gradient-start': 'hsl(var(--auth-gradient-start))',
 				'auth-gradient-end': 'hsl(var(--auth-gradient-end))',
 				// Brand colors for GenerativeSearch.pro style
+				'brand-blue': 'hsl(var(--brand-blue))',
+				'brand-indigo': 'hsl(var(--brand-indigo))',
+				'brand-violet': 'hsl(var(--brand-violet))',
 				'matrix-green': 'hsl(var(--matrix-green))',
-				'success': 'hsl(120 100% 50%)',
-				'warning': 'hsl(60 100% 50%)',
-				'error': 'hsl(0 100% 50%)',
-				'info': 'hsl(240 100% 70%)'
+				'success': 'hsl(150 70% 45%)',
+				'warning': 'hsl(38 95% 55%)',
+				'error': 'hsl(0 84% 60%)',
+				'info': 'hsl(214 100% 60%)'
+
 			},
 			fontFamily: {
 				sans: ["Inter", "sans-serif"],
