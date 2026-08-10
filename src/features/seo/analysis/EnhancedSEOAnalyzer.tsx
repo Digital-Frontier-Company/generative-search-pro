@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { invokeTool, type ToolError } from '@/lib/toolInvoke';
+import { ToolLoading, ToolErrorView } from '@/components/tools/ToolStateView';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -145,9 +148,13 @@ const EnhancedSEOAnalyzer = () => {
   const { user } = useAuth();
   const { defaultDomain } = useDomain();
   
+  const navigate = useNavigate();
   const [domain, setDomain] = useState(defaultDomain || '');
   const [results, setResults] = useState<EnhancedSEOResult | null>(null);
   const [loading, setLoading] = useState(false);
+  const [toolError, setToolError] = useState<ToolError | null>(null);
+  const [elapsed, setElapsed] = useState(0);
+  const [lastLevel, setLastLevel] = useState<'quick' | 'comprehensive' | 'ai-focused'>('comprehensive');
   const [activeTab, setActiveTab] = useState('overview');
   const [analysisType, setAnalysisType] = useState<'quick' | 'comprehensive' | 'ai-focused'>('comprehensive');
 
@@ -173,45 +180,33 @@ const EnhancedSEOAnalyzer = () => {
 
     setLoading(true);
     setResults(null);
+    setToolError(null);
+    setLastLevel(analysisLevel);
+    setElapsed(0);
+    const started = Date.now();
+    const ticker = setInterval(() => setElapsed(Math.floor((Date.now() - started) / 1000)), 1000);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        toast.error('Please sign in to run SEO analysis');
-        return;
-      }
-
-      console.log(`Starting ${analysisLevel} SEO analysis for:`, domain);
-      
-      // Call enhanced SEO analysis function
-      const { data, error } = await supabase.functions.invoke('enhanced-seo-analysis', {
-        body: JSON.stringify({
-          domain: domain.trim(),
-          user_id: user.id,
-          analysis_type: analysisLevel,
-          include_ai_optimization: true,
-          include_competitor_analysis: analysisLevel !== 'quick',
-          include_content_analysis: true,
-          include_performance_metrics: true
-        })
+      const data = await invokeTool<any>('enhanced-seo-analysis', {
+        domain: domain.trim(),
+        analysis_type: analysisLevel,
+        include_ai_optimization: true,
+        include_competitor_analysis: analysisLevel !== 'quick',
+        include_content_analysis: true,
+        include_performance_metrics: true,
       });
 
-      if (error) {
-        console.error('Enhanced SEO analysis error:', error);
-        throw error;
-      }
-
-      // Process the enhanced analysis results
       const enhancedResults = await processEnhancedResults(data, domain);
       setResults(enhancedResults);
       setActiveTab('overview');
       toast.success('Enhanced SEO analysis completed!');
-      
-    } catch (error: any) {
-      console.error('Analysis error:', error);
-      toast.error(error?.message || 'Failed to analyze domain');
+    } catch (error) {
+      const toolErr = error as ToolError;
+      console.error('Analysis error:', toolErr);
+      setToolError(toolErr);
+      toast.error(toolErr.message);
     } finally {
+      clearInterval(ticker);
       setLoading(false);
     }
   };
@@ -547,7 +542,19 @@ const EnhancedSEOAnalyzer = () => {
         </CardContent>
       </Card>
 
-      {results && (
+      {loading && (
+        <ToolLoading label={`Running ${lastLevel} SEO analysis on ${domain}`} elapsed={elapsed} rows={4} />
+      )}
+
+      {!loading && toolError && (
+        <ToolErrorView
+          error={toolError}
+          onRetry={() => runAnalysis(lastLevel)}
+          onSignIn={() => navigate('/auth')}
+        />
+      )}
+
+      {!loading && !toolError && results && (
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
           <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="overview">Overview</TabsTrigger>
