@@ -239,12 +239,42 @@ const EnhancedSEOAnalyzer = () => {
         claudeReadiness: data.claude_readiness || 80,
         geminiReadiness: data.gemini_readiness || 75
       },
-      technicalAudit: generateEnhancedTechnicalIssues(data),
-      contentAnalysis: generateContentAnalysis(data, targetDomain),
+      technicalAudit: data.technical_audit?.length
+        ? (data.technical_audit as TechnicalIssue[])
+        : generateEnhancedTechnicalIssues(data),
+      contentAnalysis: data.content_analysis
+        ? (data.content_analysis as ContentAnalysis)
+        : generateContentAnalysis(data, targetDomain),
       competitorInsights: generateCompetitorInsights(targetDomain),
-      aiRecommendations: generateAIRecommendations(data),
-      performanceMetrics: generatePerformanceMetrics(data),
-      opportunities: generateSEOOpportunities(data, targetDomain),
+      aiRecommendations: data.ai_recommendations?.length
+        ? (data.ai_recommendations as AIRecommendation[])
+        : generateAIRecommendations(data),
+      performanceMetrics: data.performance_metrics
+        ? {
+            coreWebVitals: {
+              lcp: Math.round((data.performance_metrics.coreWebVitals?.lcp ?? 0) / 100) / 10,
+              fid: data.performance_metrics.coreWebVitals?.fid ?? 0,
+              cls: data.performance_metrics.coreWebVitals?.cls ?? 0,
+              fcp: Math.round((data.performance_metrics.coreWebVitals?.fcp ?? 0) / 100) / 10,
+              ttfb: data.performance_metrics.coreWebVitals?.ttfb ?? 0,
+            },
+            mobileScore: data.performance_metrics.mobileScore ?? 0,
+            desktopScore: data.performance_metrics.desktopScore ?? 0,
+            accessibilityScore: data.performance_metrics.accessibilityScore ?? 0,
+          }
+        : generatePerformanceMetrics(data),
+      opportunities: data.opportunities?.length
+        ? (data.opportunities as any[]).map((o) => ({
+            title: o.title,
+            description: o.description,
+            potentialTrafficIncrease:
+              o.potentialImpact === 'high' ? '25-40%' : o.potentialImpact === 'medium' ? '10-20%' : '5-10%',
+            difficulty: o.effort === 'low' ? 'easy' : o.effort === 'high' ? 'hard' : 'medium',
+            category: o.category,
+            estimatedImplementationTime: o.effort === 'low' ? '1-2 weeks' : '3-5 weeks',
+            aiEnginesBenefit: ['ChatGPT', 'Perplexity', 'Google AI Overviews', 'Bing Copilot'],
+          })) as SEOOpportunity[]
+        : generateSEOOpportunities(data, targetDomain),
       lastAnalyzed: new Date().toISOString()
     };
   };

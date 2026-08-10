@@ -129,24 +129,23 @@ const AnalyticsDashboard = () => {
 
       if (error) throw error;
 
-      // Process real data or use mock data for development
-      const mockOverview: AnalyticsOverview = {
-        totalContent: data?.totalContent || 45,
-        totalSEOAnalyses: data?.totalSEOAnalyses || 23,
-        totalCitationChecks: data?.totalCitationChecks || 78,
-        avgContentScore: data?.avgContentScore || 82,
-        avgSEOScore: data?.avgSEOScore || 75,
-        avgCitationRate: data?.avgCitationRate || 68,
+      const realOverview: AnalyticsOverview = {
+        totalContent: data?.totalContent ?? 0,
+        totalSEOAnalyses: data?.totalSEOAnalyses ?? 0,
+        totalCitationChecks: data?.totalCitationChecks ?? 0,
+        avgContentScore: data?.avgContentScore ?? 0,
+        avgSEOScore: data?.avgSEOScore ?? 0,
+        avgCitationRate: data?.avgCitationRate ?? 0,
         weeklyGrowth: {
-          content: data?.weeklyGrowth?.content || 15,
-          seo: data?.weeklyGrowth?.seo || 8,
-          citations: data?.weeklyGrowth?.citations || 12
+          content: data?.weeklyGrowth?.content ?? 0,
+          seo: data?.weeklyGrowth?.seo ?? 0,
+          citations: data?.weeklyGrowth?.citations ?? 0
         },
-        topPerformingContent: data?.topPerformingContent || generateMockContentData(),
-        aiEnginePerformance: data?.aiEnginePerformance || generateMockAIEngineData()
+        topPerformingContent: data?.topPerformingContent ?? [],
+        aiEnginePerformance: data?.aiEnginePerformance ?? []
       };
 
-      setOverview(mockOverview);
+      setOverview(realOverview);
     } catch (error) {
       console.error('Error loading overview:', error);
     }
@@ -164,8 +163,7 @@ const AnalyticsDashboard = () => {
       if (error) throw error;
 
       // Generate mock trend data for development
-      const mockTrends: TrendData[] = data || generateMockTrendData();
-      setTrends(mockTrends);
+      setTrends(Array.isArray(data) ? (data as TrendData[]) : []);
     } catch (error) {
       console.error('Error loading trends:', error);
     }
@@ -182,13 +180,7 @@ const AnalyticsDashboard = () => {
 
       if (error) throw error;
 
-      const mockCompetitors: CompetitorInsight[] = data || [
-        { domain: 'competitor1.com', citationShare: 25, averagePosition: 2.3, gapsIdentified: 8, opportunityScore: 85 },
-        { domain: 'competitor2.com', citationShare: 18, averagePosition: 3.1, gapsIdentified: 12, opportunityScore: 72 },
-        { domain: 'competitor3.com', citationShare: 15, averagePosition: 2.8, gapsIdentified: 6, opportunityScore: 68 }
-      ];
-
-      setCompetitors(mockCompetitors);
+      setCompetitors(Array.isArray(data) ? (data as CompetitorInsight[]) : []);
     } catch (error) {
       console.error('Error loading competitor data:', error);
     }
