@@ -181,6 +181,7 @@ const Resources = () => {
             </TabsList>
 
             <TabsContent value="guides" className="space-y-6">
+              <h2 className="text-2xl font-bold text-matrix-green">In-depth AEO guides</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {guides.map((guide, index) => (
                   <Card key={index} className="content-card hover:scale-[1.02] transition-all cursor-pointer">
@@ -232,6 +233,7 @@ const Resources = () => {
             </TabsContent>
 
             <TabsContent value="tutorials" className="space-y-6">
+              <h2 className="text-2xl font-bold text-matrix-green">Video tutorials</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tutorials.map((tutorial, index) => (
                   <Card key={index} className="content-card hover:scale-[1.02] transition-all cursor-pointer">
@@ -271,6 +273,7 @@ const Resources = () => {
             </TabsContent>
 
             <TabsContent value="faq" className="space-y-6">
+              <h2 className="text-2xl font-bold text-matrix-green">Frequently asked questions</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   {faqs.slice(0, 2).map((faq, index) => (
@@ -313,7 +316,7 @@ const Resources = () => {
           {/* Contact Support */}
           <Card className="content-card">
             <CardContent className="py-8 text-center">
-              <h3 className="text-xl font-bold text-matrix-green mb-2">Need More Help?</h3>
+              <h2 className="text-xl font-bold text-matrix-green mb-2">Need More Help?</h2>
               <p className="text-matrix-green/70 mb-4">
                 Can't find what you're looking for? Our support team is here to help.
               </p>
