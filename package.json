@@ -58,7 +58,7 @@
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "^7.53.0",
     "react-resizable-panels": "^2.1.3",
-    "react-router-dom": "^6.26.2",
+    "react-router-dom": "6.30.4",
     "recharts": "^2.15.4",
     "sanitize-html": "^2.17.0",
     "serpapi": "^2.2.1",
