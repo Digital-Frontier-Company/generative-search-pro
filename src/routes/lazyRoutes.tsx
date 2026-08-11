@@ -7,6 +7,7 @@ export const Dashboard = lazy(() => import('@/features/dashboard/DashboardPage')
 export const SEOAnalysis = lazy(() => import('@/features/seo/analysis/SEOAnalysisPage'));
 export const SEOAnalysisSimple = lazy(() => import('@/features/seo/analysis/SEOAnalysisSimplePage'));
 export const SchemaAnalysis = lazy(() => import('@/features/schema/SchemaAnalysisPage'));
+export const SchemaMarkupGuide = lazy(() => import('@/features/schema/SchemaMarkupGuidePage'));
 export const DomainAnalysis = lazy(() => import('@/features/domain/DomainAnalysisPage'));
 export const ContentAnalysis = lazy(() => import('@/features/content/analysis/ContentAnalysisPage'));
 export const ContentOptimizer = lazy(() => import('@/features/content/optimization/ContentOptimizerPage'));
