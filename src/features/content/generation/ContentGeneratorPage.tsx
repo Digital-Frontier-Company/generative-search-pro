@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { sanitizeGeneratedHtml } from "@/lib/htmlSanitizer";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -100,7 +101,7 @@ const ContentGenerator = () => {
   const downloadHTML = () => {
     if (!generatedContent) return;
     
-    const blob = new Blob([generatedContent.content], { type: 'text/html' });
+    const blob = new Blob([sanitizeGeneratedHtml(generatedContent.content)], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
@@ -118,7 +119,7 @@ const ContentGenerator = () => {
     
     const jsonData = JSON.stringify({
       title: generatedContent.title,
-      content: generatedContent.content,
+      content: sanitizeGeneratedHtml(generatedContent.content),
       metadata: generatedContent.metadata
     }, null, 2);
     
@@ -283,14 +284,14 @@ const ContentGenerator = () => {
                     
                     <div 
                       className="prose prose-slate max-w-none" 
-                      dangerouslySetInnerHTML={{ __html: generatedContent.content }} 
+                      dangerouslySetInnerHTML={{ __html: sanitizeGeneratedHtml(generatedContent.content) }} 
                     />
                   </CardContent>
                   <CardFooter className="flex justify-end">
                     <Button 
                       variant="outline" 
                       size="sm"
-                      onClick={() => copyToClipboard(generatedContent.content, "HTML content")}
+                      onClick={() => copyToClipboard(sanitizeGeneratedHtml(generatedContent.content), "HTML content")}
                     >
                       {copied ? (
                         <>
@@ -476,7 +477,7 @@ const ContentGenerator = () => {
                           <Button 
                             variant="outline" 
                             className="w-full justify-start gap-3"
-                            onClick={() => copyToClipboard(generatedContent.content, "HTML content")}
+                            onClick={() => copyToClipboard(sanitizeGeneratedHtml(generatedContent.content), "HTML content")}
                           >
                             <Copy className="h-5 w-5" />
                             <div className="text-left">
