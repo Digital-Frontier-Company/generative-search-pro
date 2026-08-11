@@ -28,9 +28,9 @@ function App() {
                   <AppSidebar />
                   <SidebarInset>
                     <header className="sticky top-0 z-40 flex h-12 items-center border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-                      <SidebarTrigger className="ml-2" />
+                      <SidebarTrigger className="ml-2" aria-label="Toggle sidebar" />
                       <h1 className="sr-only">Navigation</h1>
-                      <div className="ml-auto mr-3 flex items-center gap-2">
+                      <div className="ml-auto mr-3 flex items-center gap-2" aria-label="Active domain selector">
                         <DomainSwitcher />
                       </div>
                     </header>
@@ -42,6 +42,7 @@ function App() {
                           <Route path="/about" element={<LazyRoutes.About />} />
                           <Route path="/upgrade" element={<LazyRoutes.Upgrade />} />
                           <Route path="/resources" element={<LazyRoutes.Resources />} />
+                          <Route path="/schema-markup-guide" element={<LazyRoutes.SchemaMarkupGuide />} />
                           {/* Public marketplace landing pages */}
                           <Route path="/brands" element={<LazyRoutes.Brands />} />
                           <Route path="/influencers" element={<LazyRoutes.Influencers />} />

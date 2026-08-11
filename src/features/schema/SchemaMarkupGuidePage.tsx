@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import Header from '@/components/global/Header';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,43 @@ const SchemaMarkupGuide = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Advanced Schema Markup Strategies (JSON-LD Guide)</title>
+        <meta
+          name="description"
+          content="A deep dive into JSON-LD implementation and advanced structured data techniques that help AI search engines understand and cite your pages."
+        />
+        <link rel="canonical" href="https://generativesearch.pro/schema-markup-guide" />
+        <meta property="og:title" content="Advanced Schema Markup Strategies (JSON-LD Guide)" />
+        <meta
+          property="og:description"
+          content="Deep dive into JSON-LD implementation and advanced structured data techniques for AI search visibility."
+        />
+        <meta property="og:url" content="https://generativesearch.pro/schema-markup-guide" />
+        <meta property="og:type" content="article" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Article",
+            headline: "Advanced Schema Markup Strategies",
+            description:
+              "Deep dive into JSON-LD implementation and advanced structured data techniques.",
+            mainEntityOfPage: {
+              "@type": "WebPage",
+              "@id": "https://generativesearch.pro/schema-markup-guide",
+            },
+            author: { "@type": "Organization", name: "GenerativeSearch.pro" },
+            publisher: {
+              "@type": "Organization",
+              name: "GenerativeSearch.pro",
+              logo: {
+                "@type": "ImageObject",
+                url: "https://generativesearch.pro/gsp-logo.png",
+              },
+            },
+          })}
+        </script>
+      </Helmet>
       <Header />
       <div className="container mx-auto px-4 py-8 max-w-4xl">
         <Button

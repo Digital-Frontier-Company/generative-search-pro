@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { useNavigate } from "react-router-dom";
 import { Search, ArrowRight, Globe } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -49,6 +50,20 @@ const ToolsHubPage = () => {
 
   return (
     <div className="container mx-auto max-w-6xl px-4 py-8">
+      <Helmet>
+        <title>SEO, AEO & GEO Tools Hub | GenerativeSearch.pro</title>
+        <meta
+          name="description"
+          content="Browse every GenerativeSearch.pro tool: AI visibility tracking, citation checks, schema analysis, content optimization and competitor research."
+        />
+        <link rel="canonical" href="https://generativesearch.pro/tools" />
+        <meta property="og:title" content="SEO, AEO & GEO Tools Hub" />
+        <meta
+          property="og:description"
+          content="Every analysis, optimization and research tool for generative search in one place."
+        />
+        <meta property="og:url" content="https://generativesearch.pro/tools" />
+      </Helmet>
       <header className="mb-6 space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Tools</h1>
         <p className="text-sm text-muted-foreground">

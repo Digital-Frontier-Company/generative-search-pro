@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -99,6 +100,46 @@ const Resources = () => {
 
   return (
     <>
+      <Helmet>
+        <title>AEO Resources: Guides, Tutorials & FAQ | GenerativeSearch.pro</title>
+        <meta
+          name="description"
+          content="Free Answer Engine Optimization guides, video tutorials and FAQs to help you rank in AI search results, featured snippets and voice assistants."
+        />
+        <link rel="canonical" href="https://generativesearch.pro/resources" />
+        <meta property="og:title" content="AEO Resources: Guides, Tutorials & FAQ" />
+        <meta
+          property="og:description"
+          content="Learn Answer Engine Optimization with guides, tutorials and answers to common AEO questions."
+        />
+        <meta property="og:url" content="https://generativesearch.pro/resources" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Resources & Learning Center",
+            url: "https://generativesearch.pro/resources",
+            description:
+              "Guides, video tutorials and FAQs about Answer Engine Optimization.",
+            hasPart: [...guides, ...tutorials].map((item) => ({
+              "@type": "CreativeWork",
+              name: item.title,
+              description: item.description,
+            })),
+          })}
+        </script>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: faqs.map((faq) => ({
+              "@type": "Question",
+              name: faq.question,
+              acceptedAnswer: { "@type": "Answer", text: faq.answer },
+            })),
+          })}
+        </script>
+      </Helmet>
       <Header />
       <div className="container mx-auto py-8">
         <div className="max-w-6xl mx-auto space-y-6">
@@ -106,6 +147,7 @@ const Resources = () => {
             <h1 className="text-3xl font-bold text-matrix-green mb-2">Resources & Learning Center</h1>
             <p className="text-matrix-green/70">Master Answer Engine Optimization with our comprehensive guides and tutorials</p>
           </div>
+
 
           {/* Search */}
           <Card className="content-card">
@@ -139,6 +181,7 @@ const Resources = () => {
             </TabsList>
 
             <TabsContent value="guides" className="space-y-6">
+              <h2 className="text-2xl font-bold text-matrix-green">In-depth AEO guides</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {guides.map((guide, index) => (
                   <Card key={index} className="content-card hover:scale-[1.02] transition-all cursor-pointer">
@@ -190,6 +233,7 @@ const Resources = () => {
             </TabsContent>
 
             <TabsContent value="tutorials" className="space-y-6">
+              <h2 className="text-2xl font-bold text-matrix-green">Video tutorials</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {tutorials.map((tutorial, index) => (
                   <Card key={index} className="content-card hover:scale-[1.02] transition-all cursor-pointer">
@@ -229,6 +273,7 @@ const Resources = () => {
             </TabsContent>
 
             <TabsContent value="faq" className="space-y-6">
+              <h2 className="text-2xl font-bold text-matrix-green">Frequently asked questions</h2>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 <div className="space-y-4">
                   {faqs.slice(0, 2).map((faq, index) => (
@@ -271,7 +316,7 @@ const Resources = () => {
           {/* Contact Support */}
           <Card className="content-card">
             <CardContent className="py-8 text-center">
-              <h3 className="text-xl font-bold text-matrix-green mb-2">Need More Help?</h3>
+              <h2 className="text-xl font-bold text-matrix-green mb-2">Need More Help?</h2>
               <p className="text-matrix-green/70 mb-4">
                 Can't find what you're looking for? Our support team is here to help.
               </p>

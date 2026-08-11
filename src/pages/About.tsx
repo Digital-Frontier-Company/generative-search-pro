@@ -1,4 +1,5 @@
 
+import { Helmet } from "react-helmet-async";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -69,7 +70,40 @@ const About = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>About GenerativeSearch.pro — AI Search Optimization Team</title>
+        <meta
+          name="description"
+          content="Meet the team behind GenerativeSearch.pro and learn how we build Answer Engine Optimization tools for AI-powered search engines."
+        />
+        <link rel="canonical" href="https://generativesearch.pro/about" />
+        <meta property="og:title" content="About GenerativeSearch.pro — AI Search Optimization Team" />
+        <meta
+          property="og:description"
+          content="Our mission, team, and milestones building Answer Engine Optimization tools for AI-powered search."
+        />
+        <meta property="og:url" content="https://generativesearch.pro/about" />
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "AboutPage",
+            name: "About GenerativeSearch.pro",
+            url: "https://generativesearch.pro/about",
+            description:
+              "Meet the team behind GenerativeSearch.pro and learn how we build Answer Engine Optimization tools for AI-powered search engines.",
+            mainEntity: {
+              "@type": "Organization",
+              name: "GenerativeSearch.pro",
+              url: "https://generativesearch.pro",
+              logo: "https://generativesearch.pro/gsp-logo.png",
+              description:
+                "AI-powered SEO, AEO and GEO optimization platform for generative search engines.",
+            },
+          })}
+        </script>
+      </Helmet>
       <Header />
+      
       
       {/* Hero Section */}
       <section className="py-16 md:py-24 hero-gradient">
