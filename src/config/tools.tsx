@@ -16,6 +16,8 @@ import {
   Swords,
   LayoutTemplate,
   Rocket,
+  Gauge,
+  SlidersHorizontal,
   type LucideIcon,
 } from "lucide-react";
 
@@ -161,6 +163,30 @@ export const TOOLS: ToolDefinition[] = [
     icon: Mic,
     usesDomain: false,
     status: "live",
+  },
+
+  {
+    id: "aeo-setup",
+    title: "AEO Panel Setup",
+    description: "Define brands and the prompt panel that gets sampled daily.",
+    outcome: "A stable measurement panel ready for repeated sampling.",
+    path: "/aeo-setup",
+    category: "visibility",
+    icon: SlidersHorizontal,
+    usesDomain: false,
+    status: "live",
+  },
+  {
+    id: "aeo-dashboard",
+    title: "AEO Measurement",
+    description: "Answer share with confidence intervals and source leverage.",
+    outcome: "Statistically honest AI visibility, not a single-shot rank.",
+    path: "/aeo-dashboard",
+    category: "visibility",
+    icon: Gauge,
+    usesDomain: false,
+    status: "live",
+    inSidebar: true,
   },
 
   // Technical

@@ -119,6 +119,13 @@ function App() {
                           <Route path="/business-type-templates" element={<ProtectedRoute>
                                 <LazyRoutes.BusinessTypeTemplates />
                               </ProtectedRoute>} />
+                          {/* AEO measurement */}
+                          <Route path="/aeo-setup" element={<ProtectedRoute>
+                                <LazyRoutes.AEOSetup />
+                              </ProtectedRoute>} />
+                          <Route path="/aeo-dashboard" element={<ProtectedRoute>
+                                <LazyRoutes.AEODashboard />
+                              </ProtectedRoute>} />
                           <Route path="*" element={<LazyRoutes.NotFound />} />
                         </Routes>
                         </Suspense>
