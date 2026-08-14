@@ -22,7 +22,7 @@ export class ToolError extends Error {
     this.tool = tool;
     this.kind = kind;
     this.status = opts?.status;
-    this.retryable = opts?.retryable ?? kind !== 'auth' && kind !== 'validation';
+    this.retryable = opts?.retryable ?? (kind !== 'auth' && kind !== 'validation');
   }
 }
 
