@@ -163,13 +163,13 @@ const TechnicalAIReadiness = () => {
   ];
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      <div className="mb-8">
+    <article className="container mx-auto p-6 max-w-6xl">
+      <header className="mb-8">
         <h1 className="text-3xl font-bold mb-2 text-matrix-green">Technical AI Readiness</h1>
         <p className="text-matrix-green/70">
           Analyze your website's technical infrastructure for optimal AI crawler accessibility and processing.
         </p>
-      </div>
+      </header>
 
       <Card className="content-card mb-6">
         <CardHeader>
@@ -233,6 +233,7 @@ const TechnicalAIReadiness = () => {
             </TabsList>
 
             <TabsContent value="overview">
+              <h2 className="sr-only">Category overview</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {categories.map(({ key, name, icon: Icon }) => {
                   const categoryData = readinessData.categories[key];
@@ -272,6 +273,7 @@ const TechnicalAIReadiness = () => {
             </TabsContent>
 
             <TabsContent value="priority">
+              <h2 className="sr-only">Priority actions</h2>
               <Card className="content-card">
                 <CardHeader>
                   <CardTitle className="text-matrix-green">Priority Actions</CardTitle>
@@ -284,7 +286,7 @@ const TechnicalAIReadiness = () => {
                           {getPriorityIcon(action.impact)}
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-2">
-                              <h4 className="font-semibold text-matrix-green">{action.category}</h4>
+                              <h3 className="font-semibold text-matrix-green">{action.category}</h3>
                               <Badge 
                                 variant={action.impact === 'high' ? 'destructive' : 
                                        action.impact === 'medium' ? 'default' : 'secondary'}
@@ -311,6 +313,7 @@ const TechnicalAIReadiness = () => {
             </TabsContent>
 
             <TabsContent value="details">
+              <h2 className="sr-only">Detailed analysis</h2>
               <div className="space-y-6">
                 {categories.map(({ key, name, icon: Icon }) => {
                   const categoryData = readinessData.categories[key];
@@ -332,7 +335,7 @@ const TechnicalAIReadiness = () => {
                         <div className="space-y-4">
                           {categoryData.findings.length > 0 && (
                             <div>
-                              <h4 className="font-semibold text-matrix-green mb-2">Findings</h4>
+                              <h3 className="font-semibold text-matrix-green mb-2">Findings</h3>
                               <ul className="space-y-1">
                                 {categoryData.findings.map((finding, index) => (
                                   <li key={index} className="text-matrix-green/90 text-sm flex items-start gap-2">
@@ -346,7 +349,7 @@ const TechnicalAIReadiness = () => {
                           
                           {categoryData.recommendations.length > 0 && (
                             <div>
-                              <h4 className="font-semibold text-matrix-green mb-2">Recommendations</h4>
+                              <h3 className="font-semibold text-matrix-green mb-2">Recommendations</h3>
                               <ul className="space-y-1">
                                 {categoryData.recommendations.map((rec, index) => (
                                   <li key={index} className="text-matrix-green/90 text-sm flex items-start gap-2">
@@ -371,7 +374,7 @@ const TechnicalAIReadiness = () => {
           </div>
         </div>
       )}
-    </div>
+    </article>
   );
 };
 

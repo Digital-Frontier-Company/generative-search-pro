@@ -11,9 +11,9 @@ const SEOAnalysis = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <Breadcrumbs />
-      <main className="flex-1">
+      <div className="flex-1">
         <SEOAnalyzer />
-      </main>
+      </div>
       <Footer />
     </div>
   );

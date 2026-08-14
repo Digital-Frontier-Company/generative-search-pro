@@ -9,7 +9,7 @@ const ContentAnalysis = () => {
     <div className="min-h-screen flex flex-col">
       <Header />
       <Breadcrumbs />
-      <main className="flex-1">
+      <div className="flex-1">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-6xl mx-auto">
             <div className="text-center mb-8">
@@ -22,7 +22,7 @@ const ContentAnalysis = () => {
             <ContentQualityAnalyzer />
           </div>
         </div>
-      </main>
+      </div>
       <Footer />
     </div>
   );

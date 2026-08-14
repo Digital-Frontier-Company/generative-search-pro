@@ -26,7 +26,7 @@ function App() {
               <SidebarProvider>
                 <div className="min-h-screen flex w-full">
                   <AppSidebar />
-                  <SidebarInset>
+                  <SidebarInset id="main-content">
                     <header className="sticky top-0 z-40 flex h-12 items-center border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                       <SidebarTrigger className="ml-2" aria-label="Toggle sidebar" />
                       <span className="sr-only">Navigation</span>

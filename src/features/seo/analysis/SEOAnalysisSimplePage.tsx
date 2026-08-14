@@ -73,7 +73,7 @@ const SEOAnalysisSimple = () => {
   return (
     <div className="min-h-screen flex flex-col bg-black">
       <Header />
-      <main className="flex-1 bg-black">
+      <div className="flex-1 bg-black">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-4xl mx-auto">
             <div className="text-center mb-8">
@@ -139,7 +139,7 @@ const SEOAnalysisSimple = () => {
             )}
           </div>
         </div>
-      </main>
+      </div>
       <Footer />
     </div>
   );

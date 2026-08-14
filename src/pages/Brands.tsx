@@ -31,7 +31,7 @@ const Brands = () => {
       </Helmet>
       <JsonLdSchema schema={schema} />
       <Header />
-      <main className="container mx-auto p-6">
+      <div className="container mx-auto p-6">
         <section className="mb-12">
           <div className="flex flex-col md:flex-row items-center justify-between">
             <div className="md:w-1/2 mb-8 md:mb-0">
@@ -65,7 +65,7 @@ const Brands = () => {
         <SocialProofSection />
         <TrustSection />
         <NewsletterSignup />
-      </main>
+      </div>
       <Footer />
     </div>
   );
