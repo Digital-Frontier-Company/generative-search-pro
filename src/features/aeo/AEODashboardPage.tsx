@@ -47,6 +47,7 @@ const AEODashboardPage = () => {
   const [sources, setSources] = useState<SourceRow[]>([]);
   const [alerts, setAlerts] = useState<{ id: string; severity: string; message: string }[]>([]);
   const [floor, setFloor] = useState<number | null>(null);
+  const [activePrompts, setActivePrompts] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
 
@@ -82,7 +83,7 @@ const AEODashboardPage = () => {
       setFloor(floorRes.data ? Number(floorRes.data.value) : null);
 
       if (panel) {
-        const [sourceRes, alertRes] = await Promise.all([
+        const [sourceRes, alertRes, promptRes] = await Promise.all([
           (supabase.rpc as any)("source_graph", {
             p_panel_id: panel.id,
             p_end_date: endDate,
