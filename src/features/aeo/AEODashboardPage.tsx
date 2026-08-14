@@ -171,16 +171,28 @@ const AEODashboardPage = () => {
       if (!panelId) return;
       const result = await invokeTool<any>("run-panel", { panel_id: panelId });
       toast.success(
-        `Sampling started — ${result?.calls_attempted ?? 0} model calls running in the background. Refresh in a few minutes.`
+        `Sampling queued — ${result?.calls_attempted ?? 0} model calls are draining in the background.`
       );
-      await loadData();
-
+      await Promise.all([loadData(), loadBatch()]);
     } catch (e: any) {
       toast.error(e?.message ?? "Sampling run failed.");
     } finally {
       setRunning(false);
     }
   };
+
+  const resumeBatch = async () => {
+    if (!panel) return;
+    try {
+      await invokeTool<any>("run-panel", { panel_id: panel.id });
+      toast.success("Worker resumed.");
+      await loadBatch();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not resume the worker.");
+    }
+  };
+
+
 
 
   const overall = useMemo(() => {
