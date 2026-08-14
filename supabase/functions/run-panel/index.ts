@@ -207,7 +207,24 @@ Deno.serve(async (req: Request) => {
     }
   });
 
-  await admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) });
+    await admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) });
+    console.log("run-panel finished", { panelId, ...stats });
+  })().catch((err) => console.error("run-panel background failure", err));
 
-  return json({ panel_id: panelId, calls_attempted: jobs.length, ...stats });
+  // @ts-ignore -- EdgeRuntime is provided by the Supabase edge runtime
+  if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(work);
+
+  return json(
+    {
+      panel_id: panelId,
+      status: "running",
+      calls_attempted: jobs.length,
+      prompts: prompts.length,
+      models,
+      replicates,
+      note: "Sampling started in the background — scores refresh when it finishes.",
+    },
+    202,
+  );
+
 });
