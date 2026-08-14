@@ -125,6 +125,10 @@ const AEODashboardPage = () => {
 
   const runSampling = async () => {
     if (!panel) return;
+    if (activePrompts === 0) {
+      toast.error("This panel has no active prompts. Add prompts in panel setup first.");
+      return;
+    }
     setRunning(true);
     try {
       const result = await invokeTool<any>("run-panel", { panel_id: panel.id });
