@@ -47,6 +47,7 @@ const AEODashboardPage = () => {
   const [sources, setSources] = useState<SourceRow[]>([]);
   const [alerts, setAlerts] = useState<{ id: string; severity: string; message: string }[]>([]);
   const [floor, setFloor] = useState<number | null>(null);
+  const [activePrompts, setActivePrompts] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
 
@@ -82,7 +83,7 @@ const AEODashboardPage = () => {
       setFloor(floorRes.data ? Number(floorRes.data.value) : null);
 
       if (panel) {
-        const [sourceRes, alertRes] = await Promise.all([
+        const [sourceRes, alertRes, promptRes] = await Promise.all([
           (supabase.rpc as any)("source_graph", {
             p_panel_id: panel.id,
             p_end_date: endDate,
@@ -96,13 +97,20 @@ const AEODashboardPage = () => {
             .is("resolved_at", null)
             .order("detected_at", { ascending: false })
             .limit(5),
+          supabase
+            .from("prompts")
+            .select("id", { count: "exact", head: true })
+            .eq("panel_id", panel.id)
+            .eq("is_active", true),
         ]);
         if (sourceRes.error) throw sourceRes.error;
         setSources((sourceRes.data ?? []) as SourceRow[]);
         setAlerts(alertRes.data ?? []);
+        setActivePrompts(promptRes.count ?? 0);
       } else {
         setSources([]);
         setAlerts([]);
+        setActivePrompts(null);
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Could not load measurements.");
@@ -117,6 +125,10 @@ const AEODashboardPage = () => {
 
   const runSampling = async () => {
     if (!panel) return;
+    if (activePrompts === 0) {
+      toast.error("This panel has no active prompts. Add prompts in panel setup first.");
+      return;
+    }
     setRunning(true);
     try {
       const result = await invokeTool<any>("run-panel", { panel_id: panel.id });
@@ -215,10 +227,19 @@ const AEODashboardPage = () => {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />}
                 Refresh
               </Button>
-              <Button onClick={runSampling} disabled={!panel || running}>
+              <Button onClick={runSampling} disabled={!panel || running || activePrompts === 0}>
                 {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
                 {running ? "Sampling…" : "Run sampling now"}
               </Button>
+              {panel && activePrompts === 0 && (
+                <span className="text-sm text-muted-foreground">
+                  This panel has no active prompts —{" "}
+                  <Link className="underline" to="/aeo-setup">
+                    add prompts
+                  </Link>
+                  .
+                </span>
+              )}
               {!panel && (
                 <span className="text-sm text-muted-foreground">
                   This brand has no panel yet —{" "}
