@@ -28,6 +28,9 @@ import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useDomain } from '@/contexts/DomainContext';
+import { AddToPlanButton } from '@/features/actionPlan/AddToPlanButton';
+import { ActionPlanPanel } from '@/features/actionPlan/ActionPlanPanel';
+
 
 interface IntentAnalysis {
   intent: 'informational' | 'navigational' | 'transactional' | 'commercial';
@@ -189,13 +192,15 @@ const IntentDrivenResearch = () => {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="setup">Research Setup</TabsTrigger>
           <TabsTrigger value="analysis">Intent Analysis</TabsTrigger>
           <TabsTrigger value="gaps">Content Gaps</TabsTrigger>
           <TabsTrigger value="clusters">Topic Clusters</TabsTrigger>
           <TabsTrigger value="recommendations">Recommendations</TabsTrigger>
+          <TabsTrigger value="plan">Action Plan</TabsTrigger>
         </TabsList>
+
 
         <TabsContent value="setup">
           <Card className="content-card">
