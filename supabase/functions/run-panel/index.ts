@@ -15,7 +15,7 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 // @ts-ignore -- Deno npm import
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { DEFAULT_MODELS } from "../_shared/aeo-providers.ts";
-import { type BrandSpec } from "../_shared/aeo-extract.ts";
+
 import { createLogger } from "../_shared/obs.ts";
 import { kickWorker } from "../_shared/queue.ts";
 
