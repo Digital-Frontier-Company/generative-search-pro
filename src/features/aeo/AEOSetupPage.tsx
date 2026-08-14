@@ -38,7 +38,7 @@ const AEOSetupPage = () => {
   const [promptsLoading, setPromptsLoading] = useState(false);
 
   const [promptText, setPromptText] = useState("");
-  const [intentStage, setIntentStage] = useState<string>("consideration");
+  const [intentStage, setIntentStage] = useState<string>("solution_seeking");
   const [promptClass, setPromptClass] = useState<string>("category");
   const [savingPrompt, setSavingPrompt] = useState(false);
   const [seeding, setSeeding] = useState(false);
