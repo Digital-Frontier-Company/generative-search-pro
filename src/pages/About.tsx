@@ -218,15 +218,16 @@ const About = () => {
                 <CardContent className="text-center">
                   <p className="text-matrix-green/80 mb-6">{member.bio}</p>
                   <div className="flex justify-center space-x-4">
-                    <Button variant="ghost" size="sm" className="text-matrix-green hover:text-matrix-lime">
+                    <Button variant="ghost" size="sm" aria-label={`${member.name} on LinkedIn`} className="text-matrix-green hover:text-matrix-lime">
                       <Linkedin className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-matrix-green hover:text-matrix-lime">
+                    <Button variant="ghost" size="sm" aria-label={`${member.name} on Twitter`} className="text-matrix-green hover:text-matrix-lime">
                       <Twitter className="w-4 h-4" />
                     </Button>
-                    <Button variant="ghost" size="sm" className="text-matrix-green hover:text-matrix-lime">
+                    <Button variant="ghost" size="sm" aria-label={`Email ${member.name}`} className="text-matrix-green hover:text-matrix-lime">
                       <Mail className="w-4 h-4" />
                     </Button>
+
                   </div>
                 </CardContent>
               </Card>
