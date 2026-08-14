@@ -9,6 +9,7 @@ import { Progress } from "@/components/ui/progress";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import Header from "@/components/global/Header";
 import Breadcrumbs from "@/components/global/Breadcrumbs";
+import FaqJsonLd from "@/features/schema/FaqJsonLd";
 import { 
   FileText, 
   BarChart3, 
@@ -497,6 +498,7 @@ Digital marketing continues to evolve rapidly. New technologies and platforms em
 
               <TabsContent value="qa" className="mt-6">
                 <Card className="bg-[#171C36] border-[#4DA3FF]/30">
+                  <FaqJsonLd faqs={analysisResults.qaQuestions} />
                   <CardHeader>
                     <CardTitle className="text-white">Question & Answer Format</CardTitle>
                   </CardHeader>
