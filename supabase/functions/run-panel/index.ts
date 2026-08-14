@@ -18,31 +18,39 @@ import { createClient } from "npm:@supabase/supabase-js@2";
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
 import { DEFAULT_MODELS, queryModel, vendorOf } from "../_shared/aeo-providers.ts";
 import { extractMentions, type BrandSpec } from "../_shared/aeo-extract.ts";
+import { createLogger, heartbeat, Metrics, type Logger } from "../_shared/obs.ts";
 
 declare const Deno: any;
 
 const MAX_CONCURRENCY = 4;
+const HEARTBEAT_MS = 15_000;
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-async function pooled<T>(items: T[], limit: number, fn: (item: T) => Promise<void>) {
-  const queue = [...items];
-  const workers = Array.from({ length: Math.min(limit, queue.length) }, async () => {
+async function pooled<T>(
+  items: T[],
+  limit: number,
+  log: Logger,
+  fn: (item: T, worker: number) => Promise<void>,
+) {
+  const queue = items.map((item, idx) => ({ item, idx }));
+  const workers = Array.from({ length: Math.min(limit, queue.length) }, async (_, worker) => {
     while (queue.length) {
       const next = queue.shift();
       if (next === undefined) break;
       try {
-        await fn(next);
+        await fn(next.item, worker);
       } catch (err) {
-        console.error("worker error:", err);
+        log.error("job.uncaught", { worker, job_idx: next.idx, error: err });
       }
     }
   });
   await Promise.all(workers);
 }
+
 
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
