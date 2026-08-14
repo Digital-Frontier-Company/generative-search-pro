@@ -92,23 +92,36 @@ Deno.serve(async (req: Request) => {
   const panelId: string | undefined = body?.panel_id;
   const dryRun: boolean = Boolean(body?.dry_run);
   if (!panelId || typeof panelId !== "string") {
-    return json({ error: "panel_id required" }, 400);
+    log.warn("request.missing_panel_id");
+    return json({ error: "panel_id required", trace_id: log.trace_id }, 400);
   }
 
-  const { data: panel } = await admin
-    .from("prompt_panels")
-    .select("id,account_id,brand_id,status")
-    .eq("id", panelId)
-    .maybeSingle();
-  if (!panel) return json({ error: "panel not found" }, 404);
+  const runLog = log.child({ panel_id: panelId, user_id: user.id });
 
-  const { data: membership } = await admin
-    .from("account_members")
-    .select("role")
-    .eq("account_id", panel.account_id)
-    .eq("user_id", user.id)
-    .maybeSingle();
-  if (!membership) return json({ error: "Not a member of this account" }, 403);
+  const { data: panel } = await runLog.phase("db.load_panel", () =>
+    admin
+      .from("prompt_panels")
+      .select("id,account_id,brand_id,status")
+      .eq("id", panelId)
+      .maybeSingle()
+  );
+  if (!panel) {
+    runLog.warn("panel.not_found");
+    return json({ error: "panel not found", trace_id: log.trace_id }, 404);
+  }
+
+  const { data: membership } = await runLog.phase("db.check_membership", () =>
+    admin
+      .from("account_members")
+      .select("role")
+      .eq("account_id", panel.account_id)
+      .eq("user_id", user.id)
+      .maybeSingle()
+  );
+  if (!membership) {
+    runLog.warn("auth.not_member", { account_id: panel.account_id });
+    return json({ error: "Not a member of this account", trace_id: log.trace_id }, 403);
+  }
 
   // Sampling floor comes from the database so the methodology has one source
   // of truth.
@@ -120,17 +133,25 @@ Deno.serve(async (req: Request) => {
   const models: string[] = Array.isArray(body?.models) && body.models.length
     ? body.models.filter((m: unknown) => typeof m === "string").slice(0, 6)
     : DEFAULT_MODELS;
-  if (!models.length) return json({ error: "No models configured" }, 400);
+  if (!models.length) {
+    runLog.warn("config.no_models");
+    return json({ error: "No models configured", trace_id: log.trace_id }, 400);
+  }
 
-  const { data: prompts } = await admin
-    .from("prompts").select("id,text").eq("panel_id", panelId).eq("is_active", true);
-  if (!prompts?.length) return json({ error: "panel has no active prompts" }, 400);
+  const { data: prompts } = await runLog.phase("db.load_prompts", () =>
+    admin.from("prompts").select("id,text").eq("panel_id", panelId).eq("is_active", true)
+  );
+  if (!prompts?.length) {
+    runLog.warn("panel.no_active_prompts");
+    return json({ error: "panel has no active prompts", trace_id: log.trace_id }, 400);
+  }
 
   // The full competitor set, not just the client: competitors measured on the
   // same panel are the control group for later causal lift analysis, and cost
   // nothing extra to extract from responses already collected.
-  const { data: brandRows } = await admin
-    .from("brands").select("id,name,aliases,domain").eq("account_id", panel.account_id);
+  const { data: brandRows } = await runLog.phase("db.load_brands", () =>
+    admin.from("brands").select("id,name,aliases,domain").eq("account_id", panel.account_id)
+  );
   const brands: BrandSpec[] = (brandRows ?? []).map((b: any) => ({
     id: b.id, name: b.name, aliases: b.aliases ?? [], domain: b.domain ?? undefined,
   }));
@@ -140,6 +161,17 @@ Deno.serve(async (req: Request) => {
       Array.from({ length: replicates }, (_, i) => ({ prompt: p, model: m, replicate: i })),
     )
   );
+
+  runLog.info("plan.built", {
+    prompts: prompts.length,
+    models,
+    replicates,
+    brands: brands.length,
+    total_calls: jobs.length,
+    concurrency: MAX_CONCURRENCY,
+    dry_run: dryRun,
+  });
+
 
   if (dryRun) {
     return json({
