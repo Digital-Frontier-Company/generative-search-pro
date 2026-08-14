@@ -38,3 +38,6 @@ export const VoiceSearchOptimizer = lazy(() => import('@/features/tso/TSO/VoiceS
 export const AuthorityTracker = lazy(() => import('@/features/tso/TSO/AuthorityTracker'));
 export const CompetitiveAIAnalysis = lazy(() => import('@/features/tso/TSO/CompetitiveAIAnalysis'));
 export const BusinessTypeTemplates = lazy(() => import('@/features/tso/TSO/BusinessTypeTemplates'));
+// AEO measurement
+export const AEOSetup = lazy(() => import('@/features/aeo/AEOSetupPage'));
+export const AEODashboard = lazy(() => import('@/features/aeo/AEODashboardPage'));
