@@ -337,11 +337,18 @@ const AEOSetupPage = () => {
               <div className="divide-y rounded-lg border">
                 {promptsLoading && <div className="p-4 text-sm text-muted-foreground">Loading prompts…</div>}
                 {!promptsLoading && prompts.length === 0 && (
-                  <div className="p-4 text-sm text-muted-foreground">
-                    No prompts yet. A panel needs enough prompts to cover awareness, comparison and
-                    decision intent.
+                  <div className="space-y-3 p-4 text-sm text-muted-foreground">
+                    <p>
+                      No prompts yet. A panel needs enough prompts to cover awareness, comparison and
+                      decision intent.
+                    </p>
+                    <Button variant="outline" size="sm" onClick={seedStarterPrompts} disabled={seeding}>
+                      {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListChecks className="h-4 w-4" />}
+                      Create default starter prompts
+                    </Button>
                   </div>
                 )}
+
                 {prompts.map((prompt) => (
                   <div key={prompt.id} className="flex items-start gap-3 p-3">
                     <Switch
