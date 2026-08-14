@@ -123,15 +123,42 @@ const AEODashboardPage = () => {
     loadData();
   }, [loadData]);
 
-  const runSampling = async () => {
-    if (!panel) return;
-    if (activePrompts === 0) {
-      toast.error("This panel has no active prompts. Add prompts in panel setup first.");
-      return;
+  const seedDefaults = async (): Promise<string | null> => {
+    if (!accountId || !brand) {
+      toast.error("Add a brand in panel setup first.");
+      return null;
     }
+    const result = await ensurePanelWithPrompts({ accountId, brand, existingPanels: panels });
+    if (result.createdPrompts > 0 || result.createdPanel) {
+      toast.success(
+        `Created starter ${result.createdPanel ? "panel and " : ""}${result.createdPrompts} prompts for ${brand.name}.`,
+      );
+      await reload();
+      await loadData();
+    }
+    return result.panelId;
+  };
+
+  const createStarterPanel = async () => {
+    setSeeding(true);
+    try {
+      await seedDefaults();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not create starter prompts.");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const runSampling = async () => {
     setRunning(true);
     try {
-      const result = await invokeTool<any>("run-panel", { panel_id: panel.id });
+      let panelId = panel?.id ?? null;
+      if (!panelId || activePrompts === 0) {
+        panelId = await seedDefaults();
+      }
+      if (!panelId) return;
+      const result = await invokeTool<any>("run-panel", { panel_id: panelId });
       toast.success(`Sampling complete — ${result?.calls_attempted ?? 0} model calls`);
       await loadData();
     } catch (e: any) {
@@ -140,6 +167,7 @@ const AEODashboardPage = () => {
       setRunning(false);
     }
   };
+
 
   const overall = useMemo(() => {
     if (!scores.length) return null;
