@@ -134,6 +134,43 @@ const AEODashboardPage = () => {
     loadData();
   }, [loadData]);
 
+  // Sampling is a durable queue drained by a worker, so the page reports the
+  // batch instead of pretending the request itself is the run.
+  const loadBatch = useCallback(async () => {
+    if (!panel) {
+      setBatch(null);
+      return;
+    }
+    const { data } = await (supabase.from as any)("sampling_batches")
+      .select("id,status,total_jobs,completed_jobs,failed_jobs,created_at,last_heartbeat_at,error")
+      .eq("panel_id", panel.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setBatch((data as BatchRow) ?? null);
+  }, [panel]);
+
+  useEffect(() => {
+    loadBatch();
+  }, [loadBatch]);
+
+  useEffect(() => {
+    if (!batch || (batch.status !== "queued" && batch.status !== "running")) return;
+    const id = setInterval(async () => {
+      await loadBatch();
+    }, 8000);
+    return () => clearInterval(id);
+  }, [batch, loadBatch]);
+
+  // Scores only change when a batch finishes — refresh once on that edge.
+  const wasActive = useRef(false);
+  useEffect(() => {
+    const active = batch?.status === "queued" || batch?.status === "running";
+    if (wasActive.current && !active) loadData();
+    wasActive.current = active;
+  }, [batch?.status, loadData]);
+
+
   const seedDefaults = async (): Promise<string | null> => {
     if (!accountId || !brand) {
       toast.error("Add a brand in panel setup first.");
