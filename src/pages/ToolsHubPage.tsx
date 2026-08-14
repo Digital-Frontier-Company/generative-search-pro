@@ -63,6 +63,10 @@ const ToolsHubPage = () => {
           content="Every analysis, optimization and research tool for generative search in one place."
         />
         <meta property="og:url" content="https://generativesearch.pro/tools" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://generativesearch.pro/og-tools.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://generativesearch.pro/og-tools.jpg" />
       </Helmet>
       <header className="mb-6 space-y-2">
         <h1 className="text-3xl font-semibold tracking-tight">Tools</h1>

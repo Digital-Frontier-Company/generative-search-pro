@@ -12,6 +12,7 @@ import { SmartInput } from '@/components/optimized/SmartInput';
 import { ProgressIndicator, commonStepConfigurations } from '@/components/optimized/ProgressIndicator';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { commonRules } from '@/hooks/useFormValidation';
+import { Helmet } from 'react-helmet-async';
 
 const Auth = () => {
   const [email, setEmail] = useState('');
@@ -118,6 +119,21 @@ const Auth = () => {
   }
 
   return (
+    <>
+      <Helmet>
+        <title>Sign In | Generative Search Pro</title>
+        <meta name="description" content="Sign in to Generative Search Pro to track your AI answer share, audit schema, and improve visibility in AI search results." />
+        <link rel="canonical" href="https://generativesearch.pro/auth" />
+        <meta property="og:title" content="Sign in to Generative Search Pro" />
+        <meta property="og:description" content="Track your AI answer share across ChatGPT, Gemini and AI Overviews." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://generativesearch.pro/auth" />
+        <meta property="og:image" content="https://generativesearch.pro/og-auth.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Sign in to Generative Search Pro" />
+        <meta name="twitter:description" content="Track your AI answer share across ChatGPT, Gemini and AI Overviews." />
+        <meta name="twitter:image" content="https://generativesearch.pro/og-auth.jpg" />
+      </Helmet>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-auth-gradient-start to-auth-gradient-end p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
@@ -277,6 +293,7 @@ const Auth = () => {
         </CardFooter>
       </Card>
     </div>
+    </>
   );
 };
 
