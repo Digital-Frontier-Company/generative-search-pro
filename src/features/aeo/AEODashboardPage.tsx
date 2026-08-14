@@ -223,10 +223,19 @@ const AEODashboardPage = () => {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />}
                 Refresh
               </Button>
-              <Button onClick={runSampling} disabled={!panel || running}>
+              <Button onClick={runSampling} disabled={!panel || running || activePrompts === 0}>
                 {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
                 {running ? "Sampling…" : "Run sampling now"}
               </Button>
+              {panel && activePrompts === 0 && (
+                <span className="text-sm text-muted-foreground">
+                  This panel has no active prompts —{" "}
+                  <Link className="underline" to="/aeo-setup">
+                    add prompts
+                  </Link>
+                  .
+                </span>
+              )}
               {!panel && (
                 <span className="text-sm text-muted-foreground">
                   This brand has no panel yet —{" "}
