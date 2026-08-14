@@ -330,10 +330,14 @@ const AEODashboardPage = () => {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />}
                 Refresh
               </Button>
-              <Button onClick={runSampling} disabled={!brand || running || seeding}>
+              <Button
+                onClick={runSampling}
+                disabled={!brand || running || seeding || batchActive}
+              >
                 {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                {running ? "Sampling…" : "Run sampling now"}
+                {batchActive ? "Sampling in progress…" : running ? "Queueing…" : "Run sampling now"}
               </Button>
+
               {brand && (!panel || activePrompts === 0) && (
                 <>
                   <Button variant="outline" onClick={createStarterPanel} disabled={seeding || running}>
