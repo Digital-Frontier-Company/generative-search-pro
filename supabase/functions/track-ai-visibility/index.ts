@@ -49,12 +49,18 @@ interface Sample {
 async function sampleModel(model: { id: string; label: string }, domain: string, queries: string[], competitors: string[]) {
   const brand = brandFromDomain(domain);
   const samples: Sample[] = [];
+  const errors: string[] = [];
   const competitorHits: Record<string, number> = {};
   for (const c of competitors) competitorHits[c] = 0;
 
   for (const query of queries) {
     const res = await queryModel(model.id, query, { timeoutMs: 90_000 });
     const ok = res.status === "ok";
+    if (!ok) {
+      const msg = `${model.id}: ${res.status}${res.errorMessage ? ` — ${res.errorMessage}` : ""}`;
+      console.error("Model query failed:", msg);
+      errors.push(msg);
+    }
     const text = res.text ?? "";
 
     const mentions = ok
@@ -114,6 +120,7 @@ async function sampleModel(model: { id: string; label: string }, domain: string,
     })),
     competitorHits,
     answeredCount: answered.length,
+    errors,
   };
 }
 
@@ -149,7 +156,11 @@ Deno.serve(async (req: Request) => {
 
     const usable = platforms.filter((p) => p.answeredCount > 0);
     if (usable.length === 0) {
-      return errorResponse("No AI platform returned an answer. Try again shortly.", 502);
+      const detail = platforms.flatMap((p) => p.errors).slice(0, 3).join(" | ");
+      return errorResponse(
+        `No AI platform returned an answer.${detail ? ` Provider said: ${detail}` : ""}`,
+        502,
+      );
     }
 
     const overallScore = Math.round(usable.reduce((s, p) => s + p.score, 0) / usable.length);
@@ -242,7 +253,7 @@ Deno.serve(async (req: Request) => {
         : 0,
       authority_score: overallScore,
       content_optimization: averagePosition > 0 ? Math.max(0, Math.round(100 - averagePosition * 12)) : 0,
-      platform_results: platforms.map(({ competitorHits: _c, citationExamples: _e, ...rest }) => rest),
+      platform_results: platforms.map(({ competitorHits: _c, citationExamples: _e, errors: _err, ...rest }) => rest),
       queries_analyzed: queries,
       recommendations: recommendations.map((r) => r.title),
       analyzed_at: new Date().toISOString(),
@@ -273,7 +284,7 @@ Deno.serve(async (req: Request) => {
       const trend = typeof prevScore === "number"
         ? (p.score > prevScore ? "up" : p.score < prevScore ? "down" : "stable")
         : "stable";
-      const { competitorHits: _c, answeredCount: _a, ...rest } = p;
+      const { competitorHits: _c, answeredCount: _a, errors: _err, ...rest } = p;
       return { ...rest, trend };
     });
 
