@@ -335,7 +335,7 @@ const TechnicalAIReadiness = () => {
                         <div className="space-y-4">
                           {categoryData.findings.length > 0 && (
                             <div>
-                              <h4 className="font-semibold text-matrix-green mb-2">Findings</h4>
+                              <h3 className="font-semibold text-matrix-green mb-2">Findings</h3>
                               <ul className="space-y-1">
                                 {categoryData.findings.map((finding, index) => (
                                   <li key={index} className="text-matrix-green/90 text-sm flex items-start gap-2">
@@ -349,7 +349,7 @@ const TechnicalAIReadiness = () => {
                           
                           {categoryData.recommendations.length > 0 && (
                             <div>
-                              <h4 className="font-semibold text-matrix-green mb-2">Recommendations</h4>
+                              <h3 className="font-semibold text-matrix-green mb-2">Recommendations</h3>
                               <ul className="space-y-1">
                                 {categoryData.recommendations.map((rec, index) => (
                                   <li key={index} className="text-matrix-green/90 text-sm flex items-start gap-2">
