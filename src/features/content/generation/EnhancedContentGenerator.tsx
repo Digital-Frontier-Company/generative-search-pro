@@ -478,6 +478,7 @@ Reading Time: ${generatedContent.metadata.readingTime} minutes`;
                   {/* FAQs */}
                   {generatedContent.metadata.faqs && generatedContent.metadata.faqs.length > 0 && (
                     <Card>
+                      <FaqJsonLd faqs={generatedContent.metadata.faqs} />
                       <CardHeader>
                         <CardTitle className="text-lg">Generated FAQs</CardTitle>
                       </CardHeader>
