@@ -121,7 +121,9 @@ const Auth = () => {
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-auth-gradient-start to-auth-gradient-end p-4">
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
-          <CardTitle className="text-2xl font-bold">Welcome</CardTitle>
+          <CardTitle asChild className="text-2xl font-bold">
+            <h1>Welcome to Generative Search Pro</h1>
+          </CardTitle>
           <CardDescription>
             Sign in to your account or create a new one
           </CardDescription>
