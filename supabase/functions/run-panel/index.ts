@@ -1,55 +1,33 @@
 // ============================================================================
-// run-panel — executes one sampling pass for a prompt panel
+// run-panel — enqueues one sampling pass for a prompt panel
 // ============================================================================
-// For every active prompt in the panel it queries every configured model N
-// times, stores the full response, and derives mentions and citations.
+// For every active prompt in the panel, every configured model must be queried
+// N times. That is the methodological point: a single query to a model is one
+// draw from a distribution, not a measurement.
 //
-// The replicate loop is the entire methodological point: a single query to a
-// model is one draw from a distribution, not a measurement. Identical same-day
-// prompts return source sets overlapping only 34-42%.
-//
-// Concurrency is bounded — an unbounded fan-out here is not a slow job, it is a
-// rate-limit storm that turns real answers into error rows, which then read as
-// non-mentions and depress the score.
+// This function does NO model calls. It validates the caller, expands the plan
+// into durable `sampling_jobs` rows, and kicks the worker. Running the calls
+// inline (even under waitUntil) hits the 150s edge idle timeout as soon as the
+// panel grows, and loses every uncommitted call with it.
 
 // @ts-ignore -- Deno npm import
 import { createClient } from "npm:@supabase/supabase-js@2";
 // @ts-ignore -- Deno npm import
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { DEFAULT_MODELS, queryModel, vendorOf } from "../_shared/aeo-providers.ts";
-import { extractMentions, type BrandSpec } from "../_shared/aeo-extract.ts";
-import { createLogger, heartbeat, Metrics, type Logger } from "../_shared/obs.ts";
+import { DEFAULT_MODELS } from "../_shared/aeo-providers.ts";
+import { type BrandSpec } from "../_shared/aeo-extract.ts";
+import { createLogger } from "../_shared/obs.ts";
+import { kickWorker } from "../_shared/queue.ts";
 
 declare const Deno: any;
 
-const MAX_CONCURRENCY = 4;
-const HEARTBEAT_MS = 15_000;
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), {
     status,
     headers: { ...corsHeaders, "Content-Type": "application/json" },
   });
 
-async function pooled<T>(
-  items: T[],
-  limit: number,
-  log: Logger,
-  fn: (item: T, worker: number) => Promise<void>,
-) {
-  const queue = items.map((item, idx) => ({ item, idx }));
-  const workers = Array.from({ length: Math.min(limit, queue.length) }, async (_, worker) => {
-    while (queue.length) {
-      const next = queue.shift();
-      if (next === undefined) break;
-      try {
-        await fn(next.item, worker);
-      } catch (err) {
-        log.error("job.uncaught", { worker, job_idx: next.idx, error: err });
-      }
-    }
-  });
-  await Promise.all(workers);
-}
+
 
 
 Deno.serve(async (req: Request) => {
