@@ -23,6 +23,7 @@ import {
   ContentLength 
 } from '@/services/enhancedContentService';
 import JsonLdSchema from '@/features/schema/JsonLdSchema';
+import FaqJsonLd from '@/features/schema/FaqJsonLd';
 
 const EnhancedContentGenerator = () => {
   const { user } = useAuth();
