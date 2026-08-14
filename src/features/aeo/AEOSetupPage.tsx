@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Plus, Trash2, Loader2, ListChecks, Building2 } from "lucide-react";
+import { ensurePanelWithPrompts } from "./defaultPrompts";
+
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -39,6 +41,8 @@ const AEOSetupPage = () => {
   const [intentStage, setIntentStage] = useState<string>("consideration");
   const [promptClass, setPromptClass] = useState<string>("category");
   const [savingPrompt, setSavingPrompt] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
 
   useEffect(() => {
     if (!selectedBrand && brands.length) setSelectedBrand(brands[0].id);
@@ -107,7 +111,25 @@ const AEOSetupPage = () => {
     reload();
   };
 
+  const seedStarterPrompts = async () => {
+    const brand = brands.find((b) => b.id === selectedBrand);
+    if (!accountId || !brand) return toast.error("Select a brand first.");
+    setSeeding(true);
+    try {
+      const result = await ensurePanelWithPrompts({ accountId, brand, existingPanels: panels });
+      toast.success(`Added ${result.createdPrompts} starter prompts`);
+      setSelectedPanel(result.panelId);
+      setPrompts(await fetchPrompts(result.panelId));
+      reload();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not create starter prompts.");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   const addPrompt = async () => {
+
     if (!selectedPanel || !promptText.trim()) return;
     setSavingPrompt(true);
     const { error: promptError } = await supabase.from("prompts").insert({
@@ -337,11 +359,18 @@ const AEOSetupPage = () => {
               <div className="divide-y rounded-lg border">
                 {promptsLoading && <div className="p-4 text-sm text-muted-foreground">Loading prompts…</div>}
                 {!promptsLoading && prompts.length === 0 && (
-                  <div className="p-4 text-sm text-muted-foreground">
-                    No prompts yet. A panel needs enough prompts to cover awareness, comparison and
-                    decision intent.
+                  <div className="space-y-3 p-4 text-sm text-muted-foreground">
+                    <p>
+                      No prompts yet. A panel needs enough prompts to cover awareness, comparison and
+                      decision intent.
+                    </p>
+                    <Button variant="outline" size="sm" onClick={seedStarterPrompts} disabled={seeding}>
+                      {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListChecks className="h-4 w-4" />}
+                      Create default starter prompts
+                    </Button>
                   </div>
                 )}
+
                 {prompts.map((prompt) => (
                   <div key={prompt.id} className="flex items-start gap-3 p-3">
                     <Switch

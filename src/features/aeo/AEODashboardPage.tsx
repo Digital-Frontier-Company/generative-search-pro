@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { Activity, AlertTriangle, Loader2, Play, Network } from "lucide-react";
+import { Activity, AlertTriangle, Loader2, Play, Network, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeTool } from "@/lib/toolInvoke";
@@ -13,6 +13,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAeoWorkspace } from "./useAeoWorkspace";
+import { ensurePanelWithPrompts } from "./defaultPrompts";
+
 
 interface WindowScore {
   model: string;
@@ -40,8 +42,17 @@ interface SourceRow {
 const pct = (value: number) => `${(Number(value) * 100).toFixed(1)}%`;
 
 const AEODashboardPage = () => {
-  const { brands, panels, loading: workspaceLoading, error: workspaceError } = useAeoWorkspace();
+  const {
+    accountId,
+    brands,
+    panels,
+    loading: workspaceLoading,
+    error: workspaceError,
+    reload,
+  } = useAeoWorkspace();
   const [brandId, setBrandId] = useState("");
+  const [seeding, setSeeding] = useState(false);
+
   const [windowDays, setWindowDays] = useState("28");
   const [scores, setScores] = useState<WindowScore[]>([]);
   const [sources, setSources] = useState<SourceRow[]>([]);
@@ -123,15 +134,42 @@ const AEODashboardPage = () => {
     loadData();
   }, [loadData]);
 
-  const runSampling = async () => {
-    if (!panel) return;
-    if (activePrompts === 0) {
-      toast.error("This panel has no active prompts. Add prompts in panel setup first.");
-      return;
+  const seedDefaults = async (): Promise<string | null> => {
+    if (!accountId || !brand) {
+      toast.error("Add a brand in panel setup first.");
+      return null;
     }
+    const result = await ensurePanelWithPrompts({ accountId, brand, existingPanels: panels });
+    if (result.createdPrompts > 0 || result.createdPanel) {
+      toast.success(
+        `Created starter ${result.createdPanel ? "panel and " : ""}${result.createdPrompts} prompts for ${brand.name}.`,
+      );
+      await reload();
+      await loadData();
+    }
+    return result.panelId;
+  };
+
+  const createStarterPanel = async () => {
+    setSeeding(true);
+    try {
+      await seedDefaults();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not create starter prompts.");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
+  const runSampling = async () => {
     setRunning(true);
     try {
-      const result = await invokeTool<any>("run-panel", { panel_id: panel.id });
+      let panelId = panel?.id ?? null;
+      if (!panelId || activePrompts === 0) {
+        panelId = await seedDefaults();
+      }
+      if (!panelId) return;
+      const result = await invokeTool<any>("run-panel", { panel_id: panelId });
       toast.success(`Sampling complete — ${result?.calls_attempted ?? 0} model calls`);
       await loadData();
     } catch (e: any) {
@@ -140,6 +178,7 @@ const AEODashboardPage = () => {
       setRunning(false);
     }
   };
+
 
   const overall = useMemo(() => {
     if (!scores.length) return null;
@@ -227,28 +266,26 @@ const AEODashboardPage = () => {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />}
                 Refresh
               </Button>
-              <Button onClick={runSampling} disabled={!panel || running || activePrompts === 0}>
+              <Button onClick={runSampling} disabled={!brand || running || seeding}>
                 {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
                 {running ? "Sampling…" : "Run sampling now"}
               </Button>
-              {panel && activePrompts === 0 && (
-                <span className="text-sm text-muted-foreground">
-                  This panel has no active prompts —{" "}
-                  <Link className="underline" to="/aeo-setup">
-                    add prompts
-                  </Link>
-                  .
-                </span>
+              {brand && (!panel || activePrompts === 0) && (
+                <>
+                  <Button variant="outline" onClick={createStarterPanel} disabled={seeding || running}>
+                    {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListChecks className="h-4 w-4" />}
+                    Create starter prompts
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    No active prompts yet — sampling will auto-create a starter panel, or{" "}
+                    <Link className="underline" to="/aeo-setup">
+                      customise it in setup
+                    </Link>
+                    .
+                  </span>
+                </>
               )}
-              {!panel && (
-                <span className="text-sm text-muted-foreground">
-                  This brand has no panel yet —{" "}
-                  <Link className="underline" to="/aeo-setup">
-                    create one
-                  </Link>
-                  .
-                </span>
-              )}
+
             </CardContent>
           </Card>
 
