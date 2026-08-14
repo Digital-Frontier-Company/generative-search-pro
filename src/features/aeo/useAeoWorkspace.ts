@@ -94,5 +94,17 @@ export async function fetchPrompts(panelId: string): Promise<AeoPrompt[]> {
   return (data ?? []) as AeoPrompt[];
 }
 
-export const INTENT_STAGES = ["awareness", "consideration", "decision"] as const;
-export const PROMPT_CLASSES = ["category", "comparison", "problem", "brand"] as const;
+export const INTENT_STAGES = [
+  "problem_unaware",
+  "solution_seeking",
+  "comparison",
+  "branded",
+  "post_purchase",
+] as const;
+export const PROMPT_CLASSES = [
+  "unbranded",
+  "category",
+  "comparison",
+  "branded",
+  "long_tail",
+] as const;
