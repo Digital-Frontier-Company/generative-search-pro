@@ -23,6 +23,7 @@ import {
   ContentLength 
 } from '@/services/enhancedContentService';
 import JsonLdSchema from '@/features/schema/JsonLdSchema';
+import FaqJsonLd from '@/features/schema/FaqJsonLd';
 
 const EnhancedContentGenerator = () => {
   const { user } = useAuth();
@@ -478,6 +479,7 @@ Reading Time: ${generatedContent.metadata.readingTime} minutes`;
                   {/* FAQs */}
                   {generatedContent.metadata.faqs && generatedContent.metadata.faqs.length > 0 && (
                     <Card>
+                      <FaqJsonLd faqs={generatedContent.metadata.faqs} />
                       <CardHeader>
                         <CardTitle className="text-lg">Generated FAQs</CardTitle>
                       </CardHeader>

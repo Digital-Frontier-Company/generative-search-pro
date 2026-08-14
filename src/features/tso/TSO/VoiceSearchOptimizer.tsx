@@ -26,6 +26,7 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import FaqJsonLd from '@/features/schema/FaqJsonLd';
 
 interface VoiceSearchAnalysis {
   conversationalScore: number;
@@ -375,6 +376,7 @@ const VoiceSearchOptimizer = () => {
               </Card>
 
               <Card className="content-card">
+                <FaqJsonLd faqs={analysis.optimizedContent.questionAnswerPairs} />
                 <CardHeader>
                   <CardTitle className="text-matrix-green flex items-center gap-2">
                     <MessageSquare className="w-5 h-5" />
