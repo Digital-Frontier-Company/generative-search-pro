@@ -134,7 +134,12 @@ Deno.serve(async (req: Request) => {
     ok: 0, error: 0, timeout: 0, filtered: 0, mentions: 0, citations: 0,
   };
 
+  // The sampling loop routinely exceeds the 150s edge idle timeout (prompts ×
+  // models × replicates model calls). Run it as a background task and return
+  // immediately; the client polls the scores tables for results.
+  const work = (async () => {
   await pooled(jobs, MAX_CONCURRENCY, async (job) => {
+
     const result = await queryModel(job.model, job.prompt.text);
 
     const { data: run, error: runErr } = await admin
@@ -202,7 +207,24 @@ Deno.serve(async (req: Request) => {
     }
   });
 
-  await admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) });
+    await admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) });
+    console.log("run-panel finished", { panelId, ...stats });
+  })().catch((err) => console.error("run-panel background failure", err));
 
-  return json({ panel_id: panelId, calls_attempted: jobs.length, ...stats });
+  // @ts-ignore -- EdgeRuntime is provided by the Supabase edge runtime
+  if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(work);
+
+  return json(
+    {
+      panel_id: panelId,
+      status: "running",
+      calls_attempted: jobs.length,
+      prompts: prompts.length,
+      models,
+      replicates,
+      note: "Sampling started in the background — scores refresh when it finishes.",
+    },
+    202,
+  );
+
 });

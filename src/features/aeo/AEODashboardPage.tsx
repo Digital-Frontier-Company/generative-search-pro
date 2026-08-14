@@ -170,8 +170,11 @@ const AEODashboardPage = () => {
       }
       if (!panelId) return;
       const result = await invokeTool<any>("run-panel", { panel_id: panelId });
-      toast.success(`Sampling complete — ${result?.calls_attempted ?? 0} model calls`);
+      toast.success(
+        `Sampling started — ${result?.calls_attempted ?? 0} model calls running in the background. Refresh in a few minutes.`
+      );
       await loadData();
+
     } catch (e: any) {
       toast.error(e?.message ?? "Sampling run failed.");
     } finally {
