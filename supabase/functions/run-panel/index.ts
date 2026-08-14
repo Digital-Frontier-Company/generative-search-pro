@@ -176,6 +176,7 @@ Deno.serve(async (req: Request) => {
   if (dryRun) {
     return json({
       panel_id: panelId,
+      trace_id: log.trace_id,
       prompts: prompts.length,
       models,
       replicates,
@@ -187,90 +188,177 @@ Deno.serve(async (req: Request) => {
   const stats: Record<string, number> = {
     ok: 0, error: 0, timeout: 0, filtered: 0, mentions: 0, citations: 0,
   };
+  const modelMetrics = new Metrics();   // provider latency
+  const dbMetrics = new Metrics();      // persistence latency
+  const errorsByReason: Record<string, number> = {};
+  let completed = 0;
+  let inFlight = 0;
 
   // The sampling loop routinely exceeds the 150s edge idle timeout (prompts ×
   // models × replicates model calls). Run it as a background task and return
   // immediately; the client polls the scores tables for results.
   const work = (async () => {
-  await pooled(jobs, MAX_CONCURRENCY, async (job) => {
+    const bgLog = runLog.child({ scope: "background" });
+    const startedAt = Date.now();
+    bgLog.info("sampling.start", { total_calls: jobs.length });
 
-    const result = await queryModel(job.model, job.prompt.text);
+    // A heartbeat is the difference between "it timed out" and "it timed out
+    // after 38/112 calls, all queued behind one model averaging 22s".
+    const stopHeartbeat = heartbeat(bgLog, HEARTBEAT_MS, () => ({
+      completed,
+      remaining: jobs.length - completed,
+      in_flight: inFlight,
+      calls_per_min: completed
+        ? Math.round((completed / Math.max(1, Date.now() - startedAt)) * 60_000)
+        : 0,
+      model_latency: modelMetrics.summary(),
+      stats: { ...stats },
+    }));
 
-    const { data: run, error: runErr } = await admin
-      .from("runs")
-      .insert({
-        prompt_id: job.prompt.id,
-        model: job.model,
-        provider: vendorOf(job.model),
-        replicate_idx: job.replicate,
-        raw_response: result.text,
-        response_json: result.raw,
-        prompt_tokens: result.promptTokens,
-        output_tokens: result.outputTokens,
-        latency_ms: result.latencyMs,
-        status: result.status,
-        error_message: result.errorMessage,
-      })
-      .select("id").maybeSingle();
+    try {
+      await pooled(jobs, MAX_CONCURRENCY, bgLog, async (job, worker) => {
+        const jobLog = bgLog.child({
+          worker,
+          model: job.model,
+          prompt_id: job.prompt.id,
+          replicate: job.replicate,
+        });
+        inFlight++;
+        try {
+          const result = await queryModel(job.model, job.prompt.text);
+          modelMetrics.observe(result.latencyMs);
+          modelMetrics.count(`model:${job.model}:${result.status}`);
 
-    stats[result.status] = (stats[result.status] ?? 0) + 1;
+          if (result.status !== "ok") {
+            const reason = result.errorMessage?.slice(0, 120) ?? result.status;
+            errorsByReason[reason] = (errorsByReason[reason] ?? 0) + 1;
+            jobLog.warn("model.non_ok", {
+              status: result.status,
+              latency_ms: result.latencyMs,
+              error_message: result.errorMessage,
+            });
+          } else {
+            jobLog.debug("model.ok", {
+              latency_ms: result.latencyMs,
+              output_tokens: result.outputTokens,
+              citations: result.citations.length,
+            });
+          }
 
-    // The unique index on (prompt, model, date, replicate) makes retries safe:
-    // a conflict means the job already ran today, which is not an error.
-    if (runErr || !run) return;
-    if (result.status !== "ok") return;
+          const dbStart = Date.now();
+          const { data: run, error: runErr } = await admin
+            .from("runs")
+            .insert({
+              prompt_id: job.prompt.id,
+              model: job.model,
+              provider: vendorOf(job.model),
+              replicate_idx: job.replicate,
+              raw_response: result.text,
+              response_json: result.raw,
+              prompt_tokens: result.promptTokens,
+              output_tokens: result.outputTokens,
+              latency_ms: result.latencyMs,
+              status: result.status,
+              error_message: result.errorMessage,
+            })
+            .select("id").maybeSingle();
 
-    const mentions = extractMentions(result.text, brands);
-    if (mentions.length) {
-      await admin.from("mentions").insert(
-        mentions.map((m) => ({
-          run_id: run.id,
-          brand_id: m.brandId,
-          position: m.position,
-          sentiment: m.sentiment,
-          verbatim: m.verbatim.slice(0, 500),
-          is_endorsed: m.isEndorsed,
-        })),
+          stats[result.status] = (stats[result.status] ?? 0) + 1;
+
+          // The unique index on (prompt, model, date, replicate) makes retries
+          // safe: a conflict means the job already ran today, not an error.
+          if (runErr || !run) {
+            dbMetrics.count("runs.insert_skipped");
+            jobLog.info("runs.insert_skipped", { error: runErr?.message });
+            return;
+          }
+          if (result.status !== "ok") return;
+
+          const mentions = extractMentions(result.text, brands);
+          if (mentions.length) {
+            const { error: mErr } = await admin.from("mentions").insert(
+              mentions.map((m) => ({
+                run_id: run.id,
+                brand_id: m.brandId,
+                position: m.position,
+                sentiment: m.sentiment,
+                verbatim: m.verbatim.slice(0, 500),
+                is_endorsed: m.isEndorsed,
+              })),
+            );
+            if (mErr) jobLog.error("mentions.insert_failed", { error: mErr.message });
+            else stats.mentions += mentions.length;
+          }
+
+          if (result.citations.length) {
+            // Upsert the source node first so manual classification
+            // (source_type, accessibility) survives re-crawls.
+            for (const c of result.citations) {
+              if (!c.domain) continue;
+              await admin.from("sources")
+                .upsert({ account_id: panel.account_id, domain: c.domain }, { onConflict: "account_id,domain" });
+            }
+            const { data: srcs } = await admin
+              .from("sources").select("id,domain").eq("account_id", panel.account_id);
+            const srcByDomain = new Map((srcs ?? []).map((s: any) => [s.domain, s.id]));
+
+            const { error: cErr } = await admin.from("citations").insert(
+              result.citations.map((c) => ({
+                run_id: run.id,
+                source_id: srcByDomain.get(c.domain) ?? null,
+                url: c.url,
+                domain: c.domain,
+                rank: c.rank,
+                anchor_context: c.anchorContext?.slice(0, 1000),
+              })),
+            );
+            if (cErr) jobLog.error("citations.insert_failed", { error: cErr.message });
+            else stats.citations += result.citations.length;
+          }
+
+          dbMetrics.observe(Date.now() - dbStart);
+        } finally {
+          inFlight--;
+          completed++;
+        }
+      });
+
+      await bgLog.phase("db.refresh_scores_daily", () =>
+        admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) })
       );
-      stats.mentions += mentions.length;
+
+      bgLog.info("sampling.finished", {
+        duration_ms: Date.now() - startedAt,
+        total_calls: jobs.length,
+        completed,
+        stats: { ...stats },
+        model_latency: modelMetrics.summary(),
+        db_latency: dbMetrics.summary(),
+        errors_by_reason: errorsByReason,
+      });
+    } catch (err) {
+      bgLog.error("sampling.failed", {
+        error: err,
+        duration_ms: Date.now() - startedAt,
+        completed,
+        remaining: jobs.length - completed,
+        stats: { ...stats },
+        model_latency: modelMetrics.summary(),
+      });
+    } finally {
+      stopHeartbeat();
     }
-
-    if (result.citations.length) {
-      // Upsert the source node first so manual classification (source_type,
-      // accessibility) survives re-crawls.
-      for (const c of result.citations) {
-        if (!c.domain) continue;
-        await admin.from("sources")
-          .upsert({ account_id: panel.account_id, domain: c.domain }, { onConflict: "account_id,domain" });
-      }
-      const { data: srcs } = await admin
-        .from("sources").select("id,domain").eq("account_id", panel.account_id);
-      const srcByDomain = new Map((srcs ?? []).map((s: any) => [s.domain, s.id]));
-
-      await admin.from("citations").insert(
-        result.citations.map((c) => ({
-          run_id: run.id,
-          source_id: srcByDomain.get(c.domain) ?? null,
-          url: c.url,
-          domain: c.domain,
-          rank: c.rank,
-          anchor_context: c.anchorContext?.slice(0, 1000),
-        })),
-      );
-      stats.citations += result.citations.length;
-    }
-  });
-
-    await admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) });
-    console.log("run-panel finished", { panelId, ...stats });
-  })().catch((err) => console.error("run-panel background failure", err));
+  })();
 
   // @ts-ignore -- EdgeRuntime is provided by the Supabase edge runtime
   if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(work);
 
+  runLog.info("request.accepted", { total_calls: jobs.length, duration_ms: log.elapsed() });
+
   return json(
     {
       panel_id: panelId,
+      trace_id: log.trace_id,
       status: "running",
       calls_attempted: jobs.length,
       prompts: prompts.length,
@@ -280,5 +368,7 @@ Deno.serve(async (req: Request) => {
     },
     202,
   );
+});
+
 
 });
