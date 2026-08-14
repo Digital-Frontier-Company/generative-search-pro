@@ -266,28 +266,26 @@ const AEODashboardPage = () => {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />}
                 Refresh
               </Button>
-              <Button onClick={runSampling} disabled={!panel || running || activePrompts === 0}>
+              <Button onClick={runSampling} disabled={!brand || running || seeding}>
                 {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
                 {running ? "Sampling…" : "Run sampling now"}
               </Button>
-              {panel && activePrompts === 0 && (
-                <span className="text-sm text-muted-foreground">
-                  This panel has no active prompts —{" "}
-                  <Link className="underline" to="/aeo-setup">
-                    add prompts
-                  </Link>
-                  .
-                </span>
+              {brand && (!panel || activePrompts === 0) && (
+                <>
+                  <Button variant="outline" onClick={createStarterPanel} disabled={seeding || running}>
+                    {seeding ? <Loader2 className="h-4 w-4 animate-spin" /> : <ListChecks className="h-4 w-4" />}
+                    Create starter prompts
+                  </Button>
+                  <span className="text-sm text-muted-foreground">
+                    No active prompts yet — sampling will auto-create a starter panel, or{" "}
+                    <Link className="underline" to="/aeo-setup">
+                      customise it in setup
+                    </Link>
+                    .
+                  </span>
+                </>
               )}
-              {!panel && (
-                <span className="text-sm text-muted-foreground">
-                  This brand has no panel yet —{" "}
-                  <Link className="underline" to="/aeo-setup">
-                    create one
-                  </Link>
-                  .
-                </span>
-              )}
+
             </CardContent>
           </Card>
 
