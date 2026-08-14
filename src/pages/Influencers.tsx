@@ -27,6 +27,15 @@ const Influencers = () => {
         <title>AI Marketplace for Creators | Monetize Your Influence</title>
         <meta name="description" content="Get brand deals, align with the right campaigns, and showcase results with AI-powered analytics." />
         <link rel="canonical" href={`${window.location.origin}/influencers`} />
+        <meta property="og:title" content="Monetize Your Influence with AI" />
+        <meta property="og:description" content="Get brand deals, align with the right campaigns, and showcase results with AI-powered analytics." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://generativesearch.pro/influencers" />
+        <meta property="og:image" content="https://generativesearch.pro/og-influencers.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="Monetize Your Influence with AI" />
+        <meta name="twitter:description" content="Get brand deals, align with the right campaigns, and showcase results with AI-powered analytics." />
+        <meta name="twitter:image" content="https://generativesearch.pro/og-influencers.jpg" />
       </Helmet>
       <JsonLdSchema schema={schema} />
       <Header />

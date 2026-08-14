@@ -113,6 +113,10 @@ const Resources = () => {
           content="Learn Answer Engine Optimization with guides, tutorials and answers to common AEO questions."
         />
         <meta property="og:url" content="https://generativesearch.pro/resources" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://generativesearch.pro/og-resources.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://generativesearch.pro/og-resources.jpg" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",

@@ -83,6 +83,10 @@ const About = () => {
           content="Our mission, team, and milestones building Answer Engine Optimization tools for AI-powered search."
         />
         <meta property="og:url" content="https://generativesearch.pro/about" />
+        <meta property="og:type" content="website" />
+        <meta property="og:image" content="https://generativesearch.pro/og-about.jpg" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:image" content="https://generativesearch.pro/og-about.jpg" />
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
