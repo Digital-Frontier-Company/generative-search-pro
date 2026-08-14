@@ -42,8 +42,17 @@ interface SourceRow {
 const pct = (value: number) => `${(Number(value) * 100).toFixed(1)}%`;
 
 const AEODashboardPage = () => {
-  const { brands, panels, loading: workspaceLoading, error: workspaceError } = useAeoWorkspace();
+  const {
+    accountId,
+    brands,
+    panels,
+    loading: workspaceLoading,
+    error: workspaceError,
+    reload,
+  } = useAeoWorkspace();
   const [brandId, setBrandId] = useState("");
+  const [seeding, setSeeding] = useState(false);
+
   const [windowDays, setWindowDays] = useState("28");
   const [scores, setScores] = useState<WindowScore[]>([]);
   const [sources, setSources] = useState<SourceRow[]>([]);
