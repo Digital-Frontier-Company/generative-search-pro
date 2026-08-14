@@ -1,289 +1,301 @@
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+// ============================================================================
+// track-ai-visibility — real AI answer sampling (no simulation)
+// ============================================================================
+// Sends real queries to live models through the Lovable AI Gateway, then
+// measures whether the domain is actually named / cited in the answers.
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+import { corsHeaders, json, errorResponse, readBody, serviceClient, getUserId } from "../_shared/http.ts";
+import { queryModel } from "../_shared/aeo-providers.ts";
+import { extractMentions, domainOf } from "../_shared/aeo-extract.ts";
+
+declare const Deno: any;
+
+const DEFAULT_MODELS: Array<{ id: string; label: string }> = [
+  { id: "google/gemini-3.6-flash", label: "Gemini" },
+  { id: "openai/gpt-5-mini", label: "ChatGPT" },
+];
+
+const MAX_QUERIES = 6;
+
+function cleanDomain(input: string): string {
+  return input.trim().replace(/^https?:\/\//i, "").replace(/^www\./i, "").replace(/\/.*$/, "").toLowerCase();
 }
 
-serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders })
-  }
+function brandFromDomain(domain: string): string {
+  return domain.split(".")[0].replace(/[-_]/g, " ");
+}
 
-  try {
-    const { domain, user_id, target_queries = [], platforms = [], include_competitive_analysis = false, include_sentiment_analysis = false } = await req.json()
-    
-    if (!domain || !user_id) {
-      throw new Error('Domain and user_id are required')
-    }
-
-    console.log('Tracking AI visibility for domain:', domain)
-    
-    // Initialize Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
-    
-    // Generate queries if not provided
-    const queriesToAnalyze = target_queries.length > 0 
-      ? target_queries 
-      : generateQueriesFromDomain(domain);
-
-    // Simulation gating: this function currently uses simulated platform queries
-    const allowSim = Deno.env.get('ALLOW_SIMULATION') === 'true'
-    if (!allowSim) {
-      return new Response(JSON.stringify({ error: 'AI visibility tracking requires live integrations. Simulation is disabled.' }), { status: 501, headers: { ...corsHeaders, 'Content-Type': 'application/json' } })
-    }
-
-    // Track visibility across each platform (simulated)
-    const platformResults = await Promise.all(
-      platforms.map(platform => trackPlatformVisibility(platform, domain, queriesToAnalyze))
-    );
-
-    // Calculate overall metrics
-    const metrics = calculateVisibilityMetrics(platformResults, domain);
-
-    // Store results in database
-    await storeVisibilityResults({
-      user_id,
-      domain,
-      metrics,
-      platform_results: platformResults,
-      queries: queriesToAnalyze
-    }, supabaseUrl, supabaseKey);
-
-    return new Response(
-      JSON.stringify({
-        success: true,
-        metrics,
-        queries_analyzed: queriesToAnalyze.length,
-        platforms_tracked: platforms.length,
-        timestamp: new Date().toISOString()
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-    
-  } catch (error) {
-    console.error('Error in track-ai-visibility:', error)
-    return new Response(
-      JSON.stringify({ error: error.message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-  }
-})
-
-function generateQueriesFromDomain(domain: string): string[] {
-  // Extract business context from domain
-  const domainName = domain.replace(/^https?:\/\//, '').replace(/^www\./, '').split('.')[0];
-  
-  const baseQueries = [
-    `what is ${domainName}`,
-    `${domainName} reviews`,
-    `${domainName} features`,
-    `how to use ${domainName}`,
-    `${domainName} vs competitors`,
-    `${domainName} pricing`,
-    `${domainName} benefits`,
-    `best ${domainName} alternative`,
-    `${domainName} tutorial`,
-    `${domainName} problems`
+function buildQueries(domain: string): string[] {
+  const brand = brandFromDomain(domain);
+  return [
+    `What is ${brand} (${domain}) and what do they do?`,
+    `Is ${brand} a good option? What do reviews say?`,
+    `What are the best alternatives to ${brand}?`,
+    `How much does ${brand} cost and who is it for?`,
+    `Who are the leading providers in the same space as ${brand}?`,
+    `What problems do customers report with ${brand}?`,
   ];
-
-  // Industry-specific queries based on domain patterns
-  if (domain.includes('saas') || domain.includes('software') || domain.includes('app')) {
-    baseQueries.push(
-      `${domainName} integration`,
-      `${domainName} API`,
-      `${domainName} security`,
-      `${domainName} enterprise`
-    );
-  }
-
-  if (domain.includes('ecommerce') || domain.includes('shop') || domain.includes('store')) {
-    baseQueries.push(
-      `${domainName} products`,
-      `${domainName} shipping`,
-      `${domainName} return policy`,
-      `${domainName} deals`
-    );
-  }
-
-  return baseQueries;
 }
 
-async function trackPlatformVisibility(platform: string, domain: string, queries: string[]) {
-  const platformData = {
-    platform,
-    citationRate: 0,
-    averagePosition: 0,
-    mentionFrequency: 0,
-    sentiment: 'neutral' as 'positive' | 'neutral' | 'negative',
-    crawlFrequency: 0,
-    lastCrawled: new Date().toISOString(),
-    competitorShare: 0,
-    trending: 'stable' as 'up' | 'down' | 'stable'
-  };
+interface Sample {
+  query: string;
+  text: string;
+  ok: boolean;
+  cited: boolean;
+  position: number | null;
+  citationDomains: string[];
+}
 
-  let totalCitations = 0;
-  let totalPositions = 0;
-  let positionCount = 0;
+async function sampleModel(model: { id: string; label: string }, domain: string, queries: string[], competitors: string[]) {
+  const brand = brandFromDomain(domain);
+  const samples: Sample[] = [];
+  const competitorHits: Record<string, number> = {};
+  for (const c of competitors) competitorHits[c] = 0;
 
-  try {
-    // Check a sample of queries for this platform
-    for (const query of queries.slice(0, 5)) {
-      const result = await simulatePlatformQuery(platform, query, domain);
-      
-      if (result.cited) {
-        totalCitations++;
-        totalPositions += result.position;
-        positionCount++;
+  for (const query of queries) {
+    const res = await queryModel(model.id, query, { timeoutMs: 90_000 });
+    const ok = res.status === "ok";
+    const text = res.text ?? "";
+
+    const mentions = ok
+      ? extractMentions(text, [{ id: domain, name: brand, aliases: [domain], domain }])
+      : [];
+    const citationDomains = (res.citations ?? []).map((c) => c.domain);
+    const citedByUrl = citationDomains.some((d) => d === domain || d.endsWith(`.${domain}`));
+    const cited = mentions.length > 0 || citedByUrl;
+
+    // Position = order of the brand among all named brands/citations in the answer
+    let position: number | null = null;
+    if (cited) {
+      if (mentions.length > 0) {
+        position = mentions[0].position;
+      } else {
+        const idx = citationDomains.findIndex((d) => d === domain || d.endsWith(`.${domain}`));
+        position = idx >= 0 ? idx + 1 : null;
       }
     }
 
-    // Calculate metrics
-    platformData.citationRate = Math.round((totalCitations / Math.min(queries.length, 5)) * 100);
-    platformData.averagePosition = positionCount > 0 ? Math.round(totalPositions / positionCount) : 0;
-    platformData.mentionFrequency = Math.round(Math.random() * 10) + 1; // Simulated weekly mentions
-    platformData.crawlFrequency = Math.min(100, platformData.citationRate + Math.round(Math.random() * 20));
-    platformData.competitorShare = Math.round(Math.random() * 30) + 10; // 10-40% market share
-    
-    // Determine sentiment based on citation rate
-    if (platformData.citationRate > 70) {
-      platformData.sentiment = 'positive';
-    } else if (platformData.citationRate < 30) {
-      platformData.sentiment = 'negative';
+    if (ok) {
+      for (const c of competitors) {
+        const hit = extractMentions(text, [{ id: c, name: brandFromDomain(c), aliases: [c], domain: c }]);
+        if (hit.length > 0) competitorHits[c] += 1;
+      }
     }
 
-    // Determine trending based on random simulation (would be based on historical data in real implementation)
-    const trendValue = Math.random();
-    if (trendValue > 0.6) platformData.trending = 'up';
-    else if (trendValue < 0.4) platformData.trending = 'down';
-
-  } catch (error) {
-    console.error(`Error tracking ${platform}:`, error);
+    samples.push({ query, text, ok, cited, position, citationDomains });
   }
 
-  return platformData;
-}
+  const answered = samples.filter((s) => s.ok);
+  const citedSamples = samples.filter((s) => s.cited);
+  const positions = citedSamples.map((s) => s.position).filter((p): p is number => typeof p === "number");
 
-async function simulatePlatformQuery(platform: string, query: string, domain: string) {
-  // Simulate platform-specific query analysis
-  // In a real implementation, this would use actual APIs or scraping
-  
-  const domainAuthority = getDomainAuthority(domain);
-  const queryComplexity = query.split(' ').length > 5 ? 0.6 : 0.4;
-  
-  // Platform-specific citation probabilities
-  const platformMultipliers = {
-    'chatgpt': 0.8,
-    'perplexity': 0.9,
-    'gemini': 0.7,
-    'claude': 0.75,
-    'copilot': 0.6
-  };
-
-  const baseProb = Math.min(0.9, domainAuthority + queryComplexity * 0.3);
-  const platformProb = baseProb * (platformMultipliers[platform] || 0.7);
-  
-  const cited = Math.random() < platformProb;
-  const position = cited ? Math.floor(Math.random() * 5) + 1 : 0;
-
-  return { cited, position };
-}
-
-function getDomainAuthority(domain: string): number {
-  // Simulate domain authority based on domain characteristics
-  if (domain.includes('.gov')) return 0.9;
-  if (domain.includes('.edu')) return 0.8;
-  if (domain.includes('.org')) return 0.6;
-  if (domain.length < 10) return 0.4; // Short domains often have higher authority
-  return 0.5;
-}
-
-function calculateVisibilityMetrics(platformResults: any[], domain: string) {
-  const totalPlatforms = platformResults.length;
-  
-  // Calculate overall score
-  const avgCitationRate = platformResults.reduce((sum, p) => sum + p.citationRate, 0) / totalPlatforms;
-  const avgPosition = platformResults.filter(p => p.averagePosition > 0).reduce((sum, p) => sum + (10 - p.averagePosition), 0) / totalPlatforms;
-  const overallScore = Math.round((avgCitationRate + avgPosition * 2) / 3);
-
-  // Calculate authority score based on multiple factors
-  const authorityScore = Math.round(
-    (avgCitationRate * 0.4) + 
-    (avgPosition * 0.3) + 
-    (getDomainAuthority(domain) * 100 * 0.3)
-  );
-
-  // Calculate content optimization score
-  const contentOptimization = Math.round(
-    platformResults.reduce((sum, p) => sum + p.crawlFrequency, 0) / totalPlatforms
-  );
-
-  // Generate recommendations
-  const recommendations = generateRecommendations(platformResults, overallScore);
+  const citationRate = answered.length ? Math.round((citedSamples.length / answered.length) * 100) : 0;
+  const avgPosition = positions.length
+    ? Math.round((positions.reduce((a, b) => a + b, 0) / positions.length) * 10) / 10
+    : 0;
+  const positionBonus = avgPosition > 0 ? Math.max(0, (6 - Math.min(avgPosition, 6)) / 5) * 25 : 0;
+  const score = Math.min(100, Math.round(citationRate * 0.75 + positionBonus));
 
   return {
-    overallScore,
-    citationPotential: avgCitationRate,
-    authorityScore,
-    contentOptimization,
-    platforms: platformResults,
-    recommendations,
-    lastAnalyzed: new Date().toISOString()
+    platform: model.label,
+    model: model.id,
+    score,
+    citations: citedSamples.length,
+    responseRate: answered.length ? Math.round((answered.length / samples.length) * 100) : 0,
+    avgPosition,
+    trend: "stable" as const,
+    lastChecked: new Date().toISOString(),
+    sampleQueries: queries,
+    citationExamples: samples.map((s) => ({
+      query: s.query,
+      response: s.text ? s.text.slice(0, 1200) : "No answer returned by the model for this query.",
+      cited: s.cited,
+      position: s.position ?? undefined,
+    })),
+    competitorHits,
+    answeredCount: answered.length,
   };
 }
 
-function generateRecommendations(platformResults: any[], overallScore: number): string[] {
-  const recommendations: string[] = [];
+Deno.serve(async (req: Request) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
 
-  if (overallScore < 50) {
-    recommendations.push("Improve content structure with clear headings and FAQ sections to increase AI citation potential");
-    recommendations.push("Implement comprehensive schema markup (Article, FAQ, Organization) to help AI systems understand your content");
-  }
-
-  const lowPerformingPlatforms = platformResults.filter(p => p.citationRate < 30);
-  if (lowPerformingPlatforms.length > 0) {
-    recommendations.push(`Focus optimization efforts on ${lowPerformingPlatforms.map(p => p.platform).join(', ')} - these platforms show low citation rates`);
-  }
-
-  const avgPosition = platformResults.reduce((sum, p) => sum + p.averagePosition, 0) / platformResults.length;
-  if (avgPosition > 3) {
-    recommendations.push("Create more authoritative, comprehensive content to improve citation positioning in AI responses");
-  }
-
-  if (platformResults.some(p => p.crawlFrequency < 50)) {
-    recommendations.push("Optimize technical SEO (page speed, mobile responsiveness, clean HTML) to improve AI crawler accessibility");
-  }
-
-  recommendations.push("Regularly update content with latest information and industry insights to maintain AI platform relevance");
-  recommendations.push("Build topical authority by creating content clusters around your core expertise areas");
-
-  return recommendations;
-}
-
-async function storeVisibilityResults(data: any, supabaseUrl: string, supabaseKey: string) {
   try {
-    await fetch(`${supabaseUrl}/rest/v1/ai_visibility_tracking`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${supabaseKey}`,
-        'Content-Type': 'application/json',
-        'apikey': supabaseKey,
+    if (!Deno.env.get("LOVABLE_API_KEY")) {
+      return errorResponse("AI gateway is not configured (LOVABLE_API_KEY missing).", 500);
+    }
+
+    const userId = await getUserId(req);
+    if (!userId) return errorResponse("Authentication required", 401);
+
+    const body = await readBody<any>(req);
+    const rawDomain = String(body.domain ?? "").trim();
+    if (!rawDomain) return errorResponse("Domain is required", 400);
+    const domain = cleanDomain(rawDomain);
+
+    const competitors: string[] = Array.isArray(body.competitors)
+      ? body.competitors.map((c: string) => cleanDomain(String(c))).filter(Boolean).slice(0, 5)
+      : [];
+
+    const queries: string[] = (Array.isArray(body.target_queries) && body.target_queries.length
+      ? body.target_queries.map((q: string) => String(q))
+      : buildQueries(domain)
+    ).slice(0, MAX_QUERIES);
+
+    console.log("Tracking AI visibility (live) for", domain, "queries:", queries.length);
+
+    const models = DEFAULT_MODELS;
+    const platforms = await Promise.all(models.map((m) => sampleModel(m, domain, queries, competitors)));
+
+    const usable = platforms.filter((p) => p.answeredCount > 0);
+    if (usable.length === 0) {
+      return errorResponse("No AI platform returned an answer. Try again shortly.", 502);
+    }
+
+    const overallScore = Math.round(usable.reduce((s, p) => s + p.score, 0) / usable.length);
+    const totalCitations = platforms.reduce((s, p) => s + p.citations, 0);
+    const posList = usable.filter((p) => p.avgPosition > 0).map((p) => p.avgPosition);
+    const averagePosition = posList.length
+      ? Math.round((posList.reduce((a, b) => a + b, 0) / posList.length) * 10) / 10
+      : 0;
+
+    const totalAnswers = usable.reduce((s, p) => s + p.answeredCount, 0);
+    const competitorComparison = competitors.map((c) => {
+      const hits = platforms.reduce((s, p) => s + (p.competitorHits[c] ?? 0), 0);
+      const cScore = totalAnswers ? Math.round((hits / totalAnswers) * 100) : 0;
+      return { competitor: c, score: cScore, difference: overallScore - cScore };
+    });
+
+    // Source domains the models actually leaned on
+    const sourceCounts: Record<string, number> = {};
+    for (const p of platforms) {
+      for (const ex of p.citationExamples) {
+        for (const url of (ex.response.match(/https?:\/\/[^\s<>()\[\]"'`]+/gi) ?? [])) {
+          const d = domainOf(url);
+          if (d && d !== domain) sourceCounts[d] = (sourceCounts[d] ?? 0) + 1;
+        }
+      }
+    }
+    const topSources = Object.entries(sourceCounts)
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([d, count]) => ({ domain: d, count }));
+
+    const recommendations: Array<{ type: string; title: string; description: string; priority: "high" | "medium" | "low"; expectedImpact: string }> = [];
+
+    if (overallScore < 40) {
+      recommendations.push({
+        type: "authority",
+        title: "Build third-party coverage models can cite",
+        description: `${domain} was named in only ${totalCitations} of ${totalAnswers} sampled answers. Models cite pages they can verify — directory listings, review sites and press mentions move this number more than on-site copy.`,
+        priority: "high",
+        expectedImpact: "Higher citation rate across all engines",
+      });
+    }
+    const weak = usable.filter((p) => p.score < 40).map((p) => p.platform);
+    if (weak.length) {
+      recommendations.push({
+        type: "platform",
+        title: `Close the gap on ${weak.join(", ")}`,
+        description: `These engines answered but did not surface ${domain}. Publish direct, question-shaped answers for the queries where competitors appeared.`,
+        priority: "high",
+        expectedImpact: "Platform-specific visibility gains",
+      });
+    }
+    if (averagePosition > 3) {
+      recommendations.push({
+        type: "positioning",
+        title: "Improve placement inside answers",
+        description: `Average mention position is ${averagePosition}. Being named later in an answer converts far worse than being named first — strengthen category-defining content.`,
+        priority: "medium",
+        expectedImpact: "Earlier placement in AI answers",
+      });
+    }
+    if (topSources.length) {
+      recommendations.push({
+        type: "sources",
+        title: "Get placed on the sources models rely on",
+        description: `The models cited these domains most: ${topSources.slice(0, 4).map((s) => s.domain).join(", ")}. Presence on those pages is the fastest route into the answers.`,
+        priority: "high",
+        expectedImpact: "Direct citation lift",
+      });
+    }
+    const beaten = competitorComparison.filter((c) => c.difference < 0);
+    if (beaten.length) {
+      recommendations.push({
+        type: "competitive",
+        title: `Competitors outrank you: ${beaten.map((c) => c.competitor).join(", ")}`,
+        description: "These domains were named more often than yours in the same sampled answers. Review how they are described and match that coverage.",
+        priority: "medium",
+        expectedImpact: "Share-of-answer recovery",
+      });
+    }
+
+    // Persist + build the trend from real prior runs
+    const db = serviceClient();
+    await db.from("ai_visibility_tracking").insert({
+      user_id: userId,
+      domain,
+      overall_score: overallScore,
+      citation_potential: usable.length
+        ? Math.round(usable.reduce((s, p) => s + (p.answeredCount ? (p.citations / p.answeredCount) * 100 : 0), 0) / usable.length)
+        : 0,
+      authority_score: overallScore,
+      content_optimization: averagePosition > 0 ? Math.max(0, Math.round(100 - averagePosition * 12)) : 0,
+      platform_results: platforms.map(({ competitorHits: _c, citationExamples: _e, ...rest }) => rest),
+      queries_analyzed: queries,
+      recommendations: recommendations.map((r) => r.title),
+      analyzed_at: new Date().toISOString(),
+    });
+
+    const { data: history } = await db
+      .from("ai_visibility_tracking")
+      .select("analyzed_at, overall_score, platform_results")
+      .eq("user_id", userId)
+      .eq("domain", domain)
+      .order("analyzed_at", { ascending: false })
+      .limit(10);
+
+    const trends = (history ?? []).map((row: any) => ({
+      date: new Date(row.analyzed_at).toLocaleDateString(),
+      overallScore: row.overall_score ?? 0,
+      citations: Array.isArray(row.platform_results)
+        ? row.platform_results.reduce((s: number, p: any) => s + (p?.citations ?? 0), 0)
+        : 0,
+    }));
+
+    // Trend direction from the previous run of the same domain
+    const prev = (history ?? [])[1];
+    const withTrend = platforms.map((p) => {
+      const prevScore = Array.isArray(prev?.platform_results)
+        ? prev.platform_results.find((x: any) => x?.platform === p.platform)?.score
+        : undefined;
+      const trend = typeof prevScore === "number"
+        ? (p.score > prevScore ? "up" : p.score < prevScore ? "down" : "stable")
+        : "stable";
+      const { competitorHits: _c, answeredCount: _a, ...rest } = p;
+      return { ...rest, trend };
+    });
+
+    return json({
+      success: true,
+      visibility: {
+        domain,
+        overallScore,
+        totalCitations,
+        averagePosition,
+        trackingQueries: queries.length,
+        platforms: withTrend,
+        competitorComparison,
+        topSources,
+        recommendations,
+        trends,
+        lastAnalyzed: new Date().toISOString(),
       },
-      body: JSON.stringify({
-        user_id: data.user_id,
-        domain: data.domain,
-        overall_score: data.metrics.overallScore,
-        citation_potential: data.metrics.citationPotential,
-        authority_score: data.metrics.authorityScore,
-        content_optimization: data.metrics.contentOptimization,
-        platform_results: data.platform_results,
-        queries_analyzed: data.queries,
-        recommendations: data.metrics.recommendations,
-        analyzed_at: new Date().toISOString()
-      }),
     });
   } catch (error) {
-    console.error('Failed to store visibility results:', error);
+    console.error("Error in track-ai-visibility:", error);
+    const message = error instanceof Error ? error.message : String(error);
+    return errorResponse(message, 500);
   }
-}
+});
