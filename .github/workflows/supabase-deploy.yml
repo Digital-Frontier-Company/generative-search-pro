@@ -15,8 +15,10 @@ jobs:
       - name: Install Supabase CLI
         run: |
           curl -L -o supabase.tar.gz https://github.com/supabase/cli/releases/latest/download/supabase_linux_amd64.tar.gz
-          tar -xzf supabase.tar.gz
-          sudo mv supabase /usr/local/bin/supabase
+          tmp_dir="$(mktemp -d)"
+          tar -xzf supabase.tar.gz -C "$tmp_dir"
+          sudo install -m 0755 "$tmp_dir/supabase" /usr/local/bin/supabase
+          rm -rf "$tmp_dir" supabase.tar.gz
           supabase --version
 
       - name: Deploy Edge Functions
@@ -31,4 +33,3 @@ jobs:
           supabase login --token "$SUPABASE_ACCESS_TOKEN"
           supabase link --project-ref "$SUPABASE_PROJECT_REF"
           supabase functions deploy --all
-
