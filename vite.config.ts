@@ -4,6 +4,7 @@ import path from "path";
 import { componentTagger } from "lovable-tagger";
 import { VitePWA } from "vite-plugin-pwa";
 import { splitVendorChunkPlugin } from 'vite';
+import { compression } from "vite-plugin-compression2";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode, command }) => ({
@@ -75,6 +76,9 @@ export default defineConfig(({ mode, command }) => ({
         ]
       }
     }),
+    // Emit pre-compressed .gz and .br assets so hosts can serve them directly
+    compression({ algorithms: ['gzip'], exclude: [/\.(br|gz)$/], threshold: 1024 }),
+    compression({ algorithms: ['brotliCompress'], exclude: [/\.(br|gz)$/], threshold: 1024 }),
     mode === 'development' &&
     componentTagger(),
   ].filter(Boolean),
