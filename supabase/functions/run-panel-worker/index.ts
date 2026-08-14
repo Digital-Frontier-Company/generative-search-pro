@@ -112,11 +112,7 @@ Deno.serve(async (req: Request) => {
   }));
 
   const { data: promptRows } = await admin
-    .from("prompts").select("id,text").in(
-      "id",
-      // Load prompts lazily per round would N+1; the panel's set is small.
-      (await admin.from("prompts").select("id").eq("panel_id", batch.panel_id)).data?.map((p: any) => p.id) ?? [],
-    );
+    .from("prompts").select("id,text").eq("panel_id", batch.panel_id);
   const promptText = new Map((promptRows ?? []).map((p: any) => [p.id, p.text]));
 
   const stats: Record<string, number> = { ok: 0, error: 0, timeout: 0, filtered: 0, mentions: 0, citations: 0 };
