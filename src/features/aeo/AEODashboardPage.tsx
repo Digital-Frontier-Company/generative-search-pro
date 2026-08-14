@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { Activity, AlertTriangle, Loader2, Play, Network } from "lucide-react";
+import { Activity, AlertTriangle, Loader2, Play, Network, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { invokeTool } from "@/lib/toolInvoke";
