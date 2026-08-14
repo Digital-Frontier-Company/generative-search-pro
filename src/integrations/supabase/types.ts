@@ -1610,6 +1610,7 @@ export type Database = {
         }[]
       }
       current_account_ids: { Args: never; Returns: string[] }
+      ensure_account: { Args: { p_name?: string }; Returns: string }
       get_page_parents: {
         Args: { page_id: number }
         Returns: {
