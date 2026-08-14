@@ -175,6 +175,13 @@ const AEODashboardPage = () => {
   }, [batch, loadBatch]);
 
   // Scores only change when a batch finishes — refresh once on that edge.
+  const batchActive = batch?.status === "queued" || batch?.status === "running";
+  const batchStalled = Boolean(
+    batchActive &&
+      batch?.last_heartbeat_at &&
+      Date.now() - new Date(batch.last_heartbeat_at).getTime() > 3 * 60_000,
+  );
+
   const wasActive = useRef(false);
   useEffect(() => {
     const active = batch?.status === "queued" || batch?.status === "running";
@@ -356,6 +363,40 @@ const AEODashboardPage = () => {
 
             </CardContent>
           </Card>
+
+          {batch && (batchActive || batch.status === "failed") && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Sampling batch</CardTitle>
+                <CardDescription>
+                  {batchActive
+                    ? "Model calls are processed by a background worker in small slices, so nothing runs against the request timeout."
+                    : batch.error ?? "The last batch failed."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Progress
+                  value={
+                    batch.total_jobs
+                      ? ((batch.completed_jobs + batch.failed_jobs) / batch.total_jobs) * 100
+                      : 0
+                  }
+                />
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <Badge variant="outline">{batch.status}</Badge>
+                  <span>
+                    {batch.completed_jobs + batch.failed_jobs} / {batch.total_jobs} calls
+                  </span>
+                  {batch.failed_jobs > 0 && <span>{batch.failed_jobs} failed</span>}
+                  {batchStalled && (
+                    <Button size="sm" variant="outline" onClick={resumeBatch}>
+                      Resume worker
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {alerts.length > 0 && (
             <Card className="border-amber-500/40">
