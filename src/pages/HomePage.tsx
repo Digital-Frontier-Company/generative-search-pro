@@ -201,7 +201,7 @@ const Index = () => {
       <Header />
 
       {/* Main Content */}
-      <main className="container mx-auto p-6">
+      <div className="container mx-auto p-6">
         {/* Hero Section */}
         <section className="mb-12">
           <div className="flex flex-col md:flex-row items-center justify-between">
@@ -917,7 +917,7 @@ const Index = () => {
             </p>
           </div>
         </section>
-      </main>
+      </div>
       
       <Footer />
     </div>
