@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Activity, AlertTriangle, Loader2, Play, Network, ListChecks } from "lucide-react";
@@ -39,6 +39,17 @@ interface SourceRow {
   leverage_rank: number;
 }
 
+interface BatchRow {
+  id: string;
+  status: string;
+  total_jobs: number;
+  completed_jobs: number;
+  failed_jobs: number;
+  created_at: string;
+  last_heartbeat_at: string | null;
+  error: string | null;
+}
+
 const pct = (value: number) => `${(Number(value) * 100).toFixed(1)}%`;
 
 const AEODashboardPage = () => {
@@ -61,6 +72,7 @@ const AEODashboardPage = () => {
   const [activePrompts, setActivePrompts] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
+  const [batch, setBatch] = useState<BatchRow | null>(null);
 
   useEffect(() => {
     if (!brandId && brands.length) setBrandId(brands.find((b) => b.is_client)?.id ?? brands[0].id);
@@ -134,6 +146,50 @@ const AEODashboardPage = () => {
     loadData();
   }, [loadData]);
 
+  // Sampling is a durable queue drained by a worker, so the page reports the
+  // batch instead of pretending the request itself is the run.
+  const loadBatch = useCallback(async () => {
+    if (!panel) {
+      setBatch(null);
+      return;
+    }
+    const { data } = await (supabase.from as any)("sampling_batches")
+      .select("id,status,total_jobs,completed_jobs,failed_jobs,created_at,last_heartbeat_at,error")
+      .eq("panel_id", panel.id)
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    setBatch((data as BatchRow) ?? null);
+  }, [panel]);
+
+  useEffect(() => {
+    loadBatch();
+  }, [loadBatch]);
+
+  useEffect(() => {
+    if (!batch || (batch.status !== "queued" && batch.status !== "running")) return;
+    const id = setInterval(async () => {
+      await loadBatch();
+    }, 8000);
+    return () => clearInterval(id);
+  }, [batch, loadBatch]);
+
+  // Scores only change when a batch finishes — refresh once on that edge.
+  const batchActive = batch?.status === "queued" || batch?.status === "running";
+  const batchStalled = Boolean(
+    batchActive &&
+      batch?.last_heartbeat_at &&
+      Date.now() - new Date(batch.last_heartbeat_at).getTime() > 3 * 60_000,
+  );
+
+  const wasActive = useRef(false);
+  useEffect(() => {
+    const active = batch?.status === "queued" || batch?.status === "running";
+    if (wasActive.current && !active) loadData();
+    wasActive.current = active;
+  }, [batch?.status, loadData]);
+
+
   const seedDefaults = async (): Promise<string | null> => {
     if (!accountId || !brand) {
       toast.error("Add a brand in panel setup first.");
@@ -171,16 +227,28 @@ const AEODashboardPage = () => {
       if (!panelId) return;
       const result = await invokeTool<any>("run-panel", { panel_id: panelId });
       toast.success(
-        `Sampling started — ${result?.calls_attempted ?? 0} model calls running in the background. Refresh in a few minutes.`
+        `Sampling queued — ${result?.calls_attempted ?? 0} model calls are draining in the background.`
       );
-      await loadData();
-
+      await Promise.all([loadData(), loadBatch()]);
     } catch (e: any) {
       toast.error(e?.message ?? "Sampling run failed.");
     } finally {
       setRunning(false);
     }
   };
+
+  const resumeBatch = async () => {
+    if (!panel) return;
+    try {
+      await invokeTool<any>("run-panel", { panel_id: panel.id });
+      toast.success("Worker resumed.");
+      await loadBatch();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not resume the worker.");
+    }
+  };
+
+
 
 
   const overall = useMemo(() => {
@@ -269,10 +337,14 @@ const AEODashboardPage = () => {
                 {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Activity className="h-4 w-4" />}
                 Refresh
               </Button>
-              <Button onClick={runSampling} disabled={!brand || running || seeding}>
+              <Button
+                onClick={runSampling}
+                disabled={!brand || running || seeding || batchActive}
+              >
                 {running ? <Loader2 className="h-4 w-4 animate-spin" /> : <Play className="h-4 w-4" />}
-                {running ? "Sampling…" : "Run sampling now"}
+                {batchActive ? "Sampling in progress…" : running ? "Queueing…" : "Run sampling now"}
               </Button>
+
               {brand && (!panel || activePrompts === 0) && (
                 <>
                   <Button variant="outline" onClick={createStarterPanel} disabled={seeding || running}>
@@ -291,6 +363,40 @@ const AEODashboardPage = () => {
 
             </CardContent>
           </Card>
+
+          {batch && (batchActive || batch.status === "failed") && (
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-base">Sampling batch</CardTitle>
+                <CardDescription>
+                  {batchActive
+                    ? "Model calls are processed by a background worker in small slices, so nothing runs against the request timeout."
+                    : batch.error ?? "The last batch failed."}
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                <Progress
+                  value={
+                    batch.total_jobs
+                      ? ((batch.completed_jobs + batch.failed_jobs) / batch.total_jobs) * 100
+                      : 0
+                  }
+                />
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <Badge variant="outline">{batch.status}</Badge>
+                  <span>
+                    {batch.completed_jobs + batch.failed_jobs} / {batch.total_jobs} calls
+                  </span>
+                  {batch.failed_jobs > 0 && <span>{batch.failed_jobs} failed</span>}
+                  {batchStalled && (
+                    <Button size="sm" variant="outline" onClick={resumeBatch}>
+                      Resume worker
+                    </Button>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
           {alerts.length > 0 && (
             <Card className="border-amber-500/40">
