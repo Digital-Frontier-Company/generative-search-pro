@@ -124,19 +124,16 @@ Deno.serve(async (req: Request) => {
     return json({ error: "panel has no active prompts", trace_id: log.trace_id }, 400);
   }
 
-  // The full competitor set, not just the client: competitors measured on the
-  // same panel are the control group for later causal lift analysis, and cost
-  // nothing extra to extract from responses already collected.
-  const { data: brandRows } = await runLog.phase("db.load_brands", () =>
-    admin.from("brands").select("id,name,aliases,domain").eq("account_id", panel.account_id)
-  );
-  const brands: BrandSpec[] = (brandRows ?? []).map((b: any) => ({
-    id: b.id, name: b.name, aliases: b.aliases ?? [], domain: b.domain ?? undefined,
-  }));
+  // The full competitor set is loaded by the worker; here we only need a count
+  // for the plan log.
+  const { count: brandCount } = await admin
+    .from("brands")
+    .select("id", { count: "exact", head: true })
+    .eq("account_id", panel.account_id);
 
   const jobs = prompts.flatMap((p: any) =>
     models.flatMap((m) =>
-      Array.from({ length: replicates }, (_, i) => ({ prompt: p, model: m, replicate: i })),
+      Array.from({ length: replicates }, (_, i) => ({ prompt_id: p.id, model: m, replicate_idx: i })),
     )
   );
 
@@ -144,12 +141,10 @@ Deno.serve(async (req: Request) => {
     prompts: prompts.length,
     models,
     replicates,
-    brands: brands.length,
+    brands: brandCount ?? 0,
     total_calls: jobs.length,
-    concurrency: MAX_CONCURRENCY,
     dry_run: dryRun,
   });
-
 
   if (dryRun) {
     return json({
@@ -159,192 +154,97 @@ Deno.serve(async (req: Request) => {
       models,
       replicates,
       total_calls: jobs.length,
-      note: "dry_run — nothing executed",
+      note: "dry_run — nothing enqueued",
     });
   }
 
-  const stats: Record<string, number> = {
-    ok: 0, error: 0, timeout: 0, filtered: 0, mentions: 0, citations: 0,
-  };
-  const modelMetrics = new Metrics();   // provider latency
-  const dbMetrics = new Metrics();      // persistence latency
-  const errorsByReason: Record<string, number> = {};
-  let completed = 0;
-  let inFlight = 0;
+  // Refuse to stack a second batch on top of a live one: duplicate runs collide
+  // on the (prompt, model, date, replicate) index and just burn quota.
+  const { data: openBatch } = await admin
+    .from("sampling_batches")
+    .select("id,status,total_jobs,completed_jobs,failed_jobs")
+    .eq("panel_id", panelId)
+    .in("status", ["queued", "running"])
+    .order("created_at", { ascending: false })
+    .maybeSingle();
 
-  // The sampling loop routinely exceeds the 150s edge idle timeout (prompts ×
-  // models × replicates model calls). Run it as a background task and return
-  // immediately; the client polls the scores tables for results.
-  const work = (async () => {
-    const bgLog = runLog.child({ scope: "background" });
-    const startedAt = Date.now();
-    bgLog.info("sampling.start", { total_calls: jobs.length });
+  if (openBatch) {
+    runLog.info("batch.already_running", { batch_id: openBatch.id });
+    kickWorker(openBatch.id, "resume");
+    return json(
+      {
+        panel_id: panelId,
+        batch_id: openBatch.id,
+        trace_id: log.trace_id,
+        status: "running",
+        calls_attempted: openBatch.total_jobs,
+        completed: openBatch.completed_jobs,
+        failed: openBatch.failed_jobs,
+        note: "A sampling batch is already running for this panel — resumed it instead of starting a second one.",
+      },
+      202,
+    );
+  }
 
-    // A heartbeat is the difference between "it timed out" and "it timed out
-    // after 38/112 calls, all queued behind one model averaging 22s".
-    const stopHeartbeat = heartbeat(bgLog, HEARTBEAT_MS, () => ({
-      completed,
-      remaining: jobs.length - completed,
-      in_flight: inFlight,
-      calls_per_min: completed
-        ? Math.round((completed / Math.max(1, Date.now() - startedAt)) * 60_000)
-        : 0,
-      model_latency: modelMetrics.summary(),
-      stats: { ...stats },
-    }));
+  const { data: batch, error: batchErr } = await admin
+    .from("sampling_batches")
+    .insert({
+      account_id: panel.account_id,
+      panel_id: panelId,
+      status: "queued",
+      total_jobs: jobs.length,
+      replicates,
+      models,
+      trace_id: log.trace_id,
+      created_by: user.id,
+    })
+    .select("id")
+    .single();
 
-    try {
-      await pooled(jobs, MAX_CONCURRENCY, bgLog, async (job, worker) => {
-        const jobLog = bgLog.child({
-          worker,
-          model: job.model,
-          prompt_id: job.prompt.id,
-          replicate: job.replicate,
-        });
-        inFlight++;
-        try {
-          const result = await queryModel(job.model, job.prompt.text);
-          modelMetrics.observe(result.latencyMs);
-          modelMetrics.count(`model:${job.model}:${result.status}`);
+  if (batchErr || !batch) {
+    runLog.error("batch.insert_failed", { error: batchErr?.message });
+    return json({ error: "Could not queue sampling batch", trace_id: log.trace_id }, 500);
+  }
 
-          if (result.status !== "ok") {
-            const reason = result.errorMessage?.slice(0, 120) ?? result.status;
-            errorsByReason[reason] = (errorsByReason[reason] ?? 0) + 1;
-            jobLog.warn("model.non_ok", {
-              status: result.status,
-              latency_ms: result.latencyMs,
-              error_message: result.errorMessage,
-            });
-          } else {
-            jobLog.debug("model.ok", {
-              latency_ms: result.latencyMs,
-              output_tokens: result.outputTokens,
-              citations: result.citations.length,
-            });
-          }
-
-          const dbStart = Date.now();
-          const { data: run, error: runErr } = await admin
-            .from("runs")
-            .insert({
-              prompt_id: job.prompt.id,
-              model: job.model,
-              provider: vendorOf(job.model),
-              replicate_idx: job.replicate,
-              raw_response: result.text,
-              response_json: result.raw,
-              prompt_tokens: result.promptTokens,
-              output_tokens: result.outputTokens,
-              latency_ms: result.latencyMs,
-              status: result.status,
-              error_message: result.errorMessage,
-            })
-            .select("id").maybeSingle();
-
-          stats[result.status] = (stats[result.status] ?? 0) + 1;
-
-          // The unique index on (prompt, model, date, replicate) makes retries
-          // safe: a conflict means the job already ran today, not an error.
-          if (runErr || !run) {
-            dbMetrics.count("runs.insert_skipped");
-            jobLog.info("runs.insert_skipped", { error: runErr?.message });
-            return;
-          }
-          if (result.status !== "ok") return;
-
-          const mentions = extractMentions(result.text, brands);
-          if (mentions.length) {
-            const { error: mErr } = await admin.from("mentions").insert(
-              mentions.map((m) => ({
-                run_id: run.id,
-                brand_id: m.brandId,
-                position: m.position,
-                sentiment: m.sentiment,
-                verbatim: m.verbatim.slice(0, 500),
-                is_endorsed: m.isEndorsed,
-              })),
-            );
-            if (mErr) jobLog.error("mentions.insert_failed", { error: mErr.message });
-            else stats.mentions += mentions.length;
-          }
-
-          if (result.citations.length) {
-            // Upsert the source node first so manual classification
-            // (source_type, accessibility) survives re-crawls.
-            for (const c of result.citations) {
-              if (!c.domain) continue;
-              await admin.from("sources")
-                .upsert({ account_id: panel.account_id, domain: c.domain }, { onConflict: "account_id,domain" });
-            }
-            const { data: srcs } = await admin
-              .from("sources").select("id,domain").eq("account_id", panel.account_id);
-            const srcByDomain = new Map((srcs ?? []).map((s: any) => [s.domain, s.id]));
-
-            const { error: cErr } = await admin.from("citations").insert(
-              result.citations.map((c) => ({
-                run_id: run.id,
-                source_id: srcByDomain.get(c.domain) ?? null,
-                url: c.url,
-                domain: c.domain,
-                rank: c.rank,
-                anchor_context: c.anchorContext?.slice(0, 1000),
-              })),
-            );
-            if (cErr) jobLog.error("citations.insert_failed", { error: cErr.message });
-            else stats.citations += result.citations.length;
-          }
-
-          dbMetrics.observe(Date.now() - dbStart);
-        } finally {
-          inFlight--;
-          completed++;
-        }
-      });
-
-      await bgLog.phase("db.refresh_scores_daily", () =>
-        admin.rpc("refresh_scores_daily", { p_date: new Date().toISOString().slice(0, 10) })
-      );
-
-      bgLog.info("sampling.finished", {
-        duration_ms: Date.now() - startedAt,
-        total_calls: jobs.length,
-        completed,
-        stats: { ...stats },
-        model_latency: modelMetrics.summary(),
-        db_latency: dbMetrics.summary(),
-        errors_by_reason: errorsByReason,
-      });
-    } catch (err) {
-      bgLog.error("sampling.failed", {
-        error: err,
-        duration_ms: Date.now() - startedAt,
-        completed,
-        remaining: jobs.length - completed,
-        stats: { ...stats },
-        model_latency: modelMetrics.summary(),
-      });
-    } finally {
-      stopHeartbeat();
+  // Chunked insert: a single statement with thousands of rows is its own
+  // timeout risk.
+  const CHUNK = 500;
+  for (let i = 0; i < jobs.length; i += CHUNK) {
+    const { error: jobsErr } = await admin
+      .from("sampling_jobs")
+      .insert(jobs.slice(i, i + CHUNK).map((j) => ({ ...j, batch_id: batch.id })));
+    if (jobsErr) {
+      runLog.error("jobs.insert_failed", { error: jobsErr.message, offset: i });
+      await admin
+        .from("sampling_batches")
+        .update({ status: "failed", error: jobsErr.message, finished_at: new Date().toISOString() })
+        .eq("id", batch.id);
+      return json({ error: "Could not queue sampling jobs", trace_id: log.trace_id }, 500);
     }
-  })();
+  }
 
-  // @ts-ignore -- EdgeRuntime is provided by the Supabase edge runtime
-  if (typeof EdgeRuntime !== "undefined") EdgeRuntime.waitUntil(work);
+  kickWorker(batch.id, "enqueue");
 
-  runLog.info("request.accepted", { total_calls: jobs.length, duration_ms: log.elapsed() });
+  runLog.info("request.accepted", {
+    batch_id: batch.id,
+    total_calls: jobs.length,
+    duration_ms: log.elapsed(),
+  });
 
   return json(
     {
       panel_id: panelId,
+      batch_id: batch.id,
       trace_id: log.trace_id,
-      status: "running",
+      status: "queued",
       calls_attempted: jobs.length,
       prompts: prompts.length,
       models,
       replicates,
-      note: "Sampling started in the background — scores refresh when it finishes.",
+      note: "Sampling queued — a background worker drains it and scores refresh when it finishes.",
     },
     202,
   );
 });
+
 
