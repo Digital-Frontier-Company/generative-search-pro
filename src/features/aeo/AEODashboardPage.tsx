@@ -97,13 +97,20 @@ const AEODashboardPage = () => {
             .is("resolved_at", null)
             .order("detected_at", { ascending: false })
             .limit(5),
+          supabase
+            .from("prompts")
+            .select("id", { count: "exact", head: true })
+            .eq("panel_id", panel.id)
+            .eq("is_active", true),
         ]);
         if (sourceRes.error) throw sourceRes.error;
         setSources((sourceRes.data ?? []) as SourceRow[]);
         setAlerts(alertRes.data ?? []);
+        setActivePrompts(promptRes.count ?? 0);
       } else {
         setSources([]);
         setAlerts([]);
+        setActivePrompts(null);
       }
     } catch (e: any) {
       toast.error(e?.message ?? "Could not load measurements.");
