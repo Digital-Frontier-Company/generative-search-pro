@@ -39,6 +39,8 @@ const AEOSetupPage = () => {
   const [intentStage, setIntentStage] = useState<string>("consideration");
   const [promptClass, setPromptClass] = useState<string>("category");
   const [savingPrompt, setSavingPrompt] = useState(false);
+  const [seeding, setSeeding] = useState(false);
+
 
   useEffect(() => {
     if (!selectedBrand && brands.length) setSelectedBrand(brands[0].id);
