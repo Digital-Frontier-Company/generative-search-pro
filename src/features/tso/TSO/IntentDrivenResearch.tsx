@@ -450,15 +450,25 @@ const IntentDrivenResearch = () => {
                           <div className="bg-secondary/30 p-3 rounded border">
                             <p className="text-sm text-matrix-green/80 mb-2">Suggested Content:</p>
                             <p className="text-matrix-green/90 text-sm">{gap.suggestedContent}</p>
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => copyToClipboard(gap.suggestedContent)}
-                              className="border-matrix-green/30 text-matrix-green hover:bg-matrix-green/10 mt-2"
-                            >
-                              <Copy className="w-3 h-3 mr-1" />
-                              Copy
-                            </Button>
+                            <div className="flex flex-wrap gap-2 mt-2">
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                onClick={() => copyToClipboard(gap.suggestedContent)}
+                                className="border-matrix-green/30 text-matrix-green hover:bg-matrix-green/10"
+                              >
+                                <Copy className="w-3 h-3 mr-1" />
+                                Copy
+                              </Button>
+                              <AddToPlanButton
+                                domain={researchData.domain}
+                                title={gap.topic}
+                                description={gap.suggestedContent || gap.gap}
+                                priority={gap.priority}
+                                source="Content gap"
+                              />
+                            </div>
+
                           </div>
                         </div>
                       </div>
@@ -565,10 +575,20 @@ const IntentDrivenResearch = () => {
                             </Badge>
                           </div>
                           <p className="text-matrix-green/90 mb-2">{rec.description}</p>
-                          <div className="flex items-center gap-2 text-sm text-matrix-green/70">
-                            <Zap className="w-3 h-3" />
-                            <span>Expected Impact: {rec.estimatedImpact}</span>
+                          <div className="flex flex-wrap items-center gap-3 text-sm text-matrix-green/70">
+                            <span className="flex items-center gap-2">
+                              <Zap className="w-3 h-3" />
+                              Expected Impact: {rec.estimatedImpact}
+                            </span>
+                            <AddToPlanButton
+                              domain={researchData.domain}
+                              title={rec.title}
+                              description={rec.description}
+                              priority={rec.priority}
+                              source={rec.type}
+                            />
                           </div>
+
                         </div>
                       </div>
                     </div>
@@ -590,7 +610,12 @@ const IntentDrivenResearch = () => {
             </Card>
           )}
         </TabsContent>
+
+        <TabsContent value="plan">
+          <ActionPlanPanel domain={domain || defaultDomain || undefined} />
+        </TabsContent>
       </Tabs>
+
 
       {researchData && (
         <div className="text-center text-sm text-matrix-green/60 mt-6">
