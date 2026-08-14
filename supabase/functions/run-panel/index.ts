@@ -56,24 +56,38 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   if (req.method !== "POST") return json({ error: "POST only" }, 405);
 
+  const log = createLogger("run-panel");
+  log.info("request.received", { method: req.method });
+
   const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
   const admin = createClient(supabaseUrl, Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!);
 
   // Caller must be a signed-in member of the panel's account.
   const authHeader = req.headers.get("Authorization") ?? "";
   const token = authHeader.replace(/^Bearer\s+/i, "");
-  if (!token) return json({ error: "Missing Authorization header" }, 401);
+  if (!token) {
+    log.warn("auth.missing_header");
+    return json({ error: "Missing Authorization header", trace_id: log.trace_id }, 401);
+  }
 
-  const { data: userData, error: userErr } = await admin.auth.getUser(token);
+  const { data: userData, error: userErr } = await log.phase(
+    "auth.getUser",
+    () => admin.auth.getUser(token),
+  );
   const user = userData?.user;
-  if (userErr || !user) return json({ error: "Invalid or expired session" }, 401);
+  if (userErr || !user) {
+    log.warn("auth.invalid_session", { error: userErr });
+    return json({ error: "Invalid or expired session", trace_id: log.trace_id }, 401);
+  }
 
   let body: any;
   try {
     body = await req.json();
   } catch {
-    return json({ error: "Invalid JSON body" }, 400);
+    log.warn("request.invalid_json");
+    return json({ error: "Invalid JSON body", trace_id: log.trace_id }, 400);
   }
+
 
   const panelId: string | undefined = body?.panel_id;
   const dryRun: boolean = Boolean(body?.dry_run);
