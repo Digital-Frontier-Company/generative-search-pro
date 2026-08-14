@@ -219,3 +219,46 @@ export const generateArticleSchema = (
     "@id": url
   }
 });
+
+// --- FAQ helpers -----------------------------------------------------------
+
+export interface FaqItem {
+  question: string;
+  answer: string;
+}
+
+/** Strip markup/whitespace so JSON-LD answers stay plain text. */
+const toPlainText = (value: string): string =>
+  value.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
+
+/**
+ * Build a schema.org FAQPage object from rendered question/answer pairs.
+ * Returns null when there is nothing valid to mark up.
+ */
+export const buildFaqSchema = (
+  faqs: Array<Partial<FaqItem>> | undefined | null,
+  limit = 10
+): FAQSchema | null => {
+  const entries = (faqs ?? [])
+    .map((faq) => ({
+      question: toPlainText(String(faq?.question ?? "")),
+      answer: toPlainText(String(faq?.answer ?? "")),
+    }))
+    .filter((faq) => faq.question.length > 0 && faq.answer.length > 0)
+    .slice(0, limit);
+
+  if (entries.length === 0) return null;
+
+  return {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: entries.map((faq) => ({
+      "@type": "Question",
+      name: faq.question,
+      acceptedAnswer: {
+        "@type": "Answer",
+        text: faq.answer,
+      },
+    })),
+  };
+};
