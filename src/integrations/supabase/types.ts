@@ -1047,6 +1047,145 @@ export type Database = {
           },
         ]
       }
+      sampling_batches: {
+        Row: {
+          account_id: string
+          completed_jobs: number
+          created_at: string
+          created_by: string | null
+          error: string | null
+          failed_jobs: number
+          finished_at: string | null
+          id: string
+          last_heartbeat_at: string | null
+          models: Json
+          panel_id: string
+          replicates: number
+          started_at: string | null
+          status: string
+          total_jobs: number
+          trace_id: string | null
+        }
+        Insert: {
+          account_id: string
+          completed_jobs?: number
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          failed_jobs?: number
+          finished_at?: string | null
+          id?: string
+          last_heartbeat_at?: string | null
+          models?: Json
+          panel_id: string
+          replicates?: number
+          started_at?: string | null
+          status?: string
+          total_jobs?: number
+          trace_id?: string | null
+        }
+        Update: {
+          account_id?: string
+          completed_jobs?: number
+          created_at?: string
+          created_by?: string | null
+          error?: string | null
+          failed_jobs?: number
+          finished_at?: string | null
+          id?: string
+          last_heartbeat_at?: string | null
+          models?: Json
+          panel_id?: string
+          replicates?: number
+          started_at?: string | null
+          status?: string
+          total_jobs?: number
+          trace_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sampling_batches_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sampling_batches_panel_id_fkey"
+            columns: ["panel_id"]
+            isOneToOne: false
+            referencedRelation: "prompt_panels"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sampling_batches_panel_id_fkey"
+            columns: ["panel_id"]
+            isOneToOne: false
+            referencedRelation: "v_answer_share_daily"
+            referencedColumns: ["panel_id"]
+          },
+        ]
+      }
+      sampling_jobs: {
+        Row: {
+          attempts: number
+          batch_id: string
+          claimed_at: string | null
+          created_at: string
+          error: string | null
+          finished_at: string | null
+          id: string
+          model: string
+          prompt_id: string
+          replicate_idx: number
+          status: string
+          worker: string | null
+        }
+        Insert: {
+          attempts?: number
+          batch_id: string
+          claimed_at?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model: string
+          prompt_id: string
+          replicate_idx?: number
+          status?: string
+          worker?: string | null
+        }
+        Update: {
+          attempts?: number
+          batch_id?: string
+          claimed_at?: string | null
+          created_at?: string
+          error?: string | null
+          finished_at?: string | null
+          id?: string
+          model?: string
+          prompt_id?: string
+          replicate_idx?: number
+          status?: string
+          worker?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sampling_jobs_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "sampling_batches"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sampling_jobs_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "prompts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       schema_analyses: {
         Row: {
           ai_visibility_score: number | null
@@ -1609,6 +1748,16 @@ export type Database = {
           within_expected_band: boolean
         }[]
       }
+      claim_sampling_jobs: {
+        Args: { p_batch: string; p_limit: number; p_worker: string }
+        Returns: {
+          attempts: number
+          job_id: string
+          model: string
+          prompt_id: string
+          replicate_idx: number
+        }[]
+      }
       current_account_ids: { Args: never; Returns: string[] }
       ensure_account: { Args: { p_name?: string }; Returns: string }
       get_page_parents: {
@@ -1649,7 +1798,21 @@ export type Database = {
       }
       postgres_fdw_handler: { Args: never; Returns: unknown }
       refresh_scores_daily: { Args: { p_date?: string }; Returns: number }
+      requeue_stale_sampling_jobs: {
+        Args: { p_stale_minutes?: number }
+        Returns: number
+      }
       set_openai_key: { Args: { api_key: string }; Returns: undefined }
+      settle_sampling_batch: {
+        Args: { p_batch: string }
+        Returns: {
+          completed: number
+          failed: number
+          pending: number
+          status: string
+          total: number
+        }[]
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
       source_graph: {
