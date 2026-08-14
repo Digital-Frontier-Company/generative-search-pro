@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Activity, AlertTriangle, Loader2, Play, Network, ListChecks } from "lucide-react";
@@ -39,6 +39,17 @@ interface SourceRow {
   leverage_rank: number;
 }
 
+interface BatchRow {
+  id: string;
+  status: string;
+  total_jobs: number;
+  completed_jobs: number;
+  failed_jobs: number;
+  created_at: string;
+  last_heartbeat_at: string | null;
+  error: string | null;
+}
+
 const pct = (value: number) => `${(Number(value) * 100).toFixed(1)}%`;
 
 const AEODashboardPage = () => {
@@ -61,6 +72,7 @@ const AEODashboardPage = () => {
   const [activePrompts, setActivePrompts] = useState<number | null>(null);
   const [loading, setLoading] = useState(false);
   const [running, setRunning] = useState(false);
+  const [batch, setBatch] = useState<BatchRow | null>(null);
 
   useEffect(() => {
     if (!brandId && brands.length) setBrandId(brands.find((b) => b.is_client)?.id ?? brands[0].id);
