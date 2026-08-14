@@ -29,7 +29,7 @@ function App() {
                   <SidebarInset>
                     <header className="sticky top-0 z-40 flex h-12 items-center border-b bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60">
                       <SidebarTrigger className="ml-2" aria-label="Toggle sidebar" />
-                      <h1 className="sr-only">Navigation</h1>
+                      <span className="sr-only">Navigation</span>
                       <div className="ml-auto mr-3 flex items-center gap-2" aria-label="Active domain selector">
                         <DomainSwitcher />
                       </div>
