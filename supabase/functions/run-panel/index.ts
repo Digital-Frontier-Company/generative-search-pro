@@ -134,7 +134,12 @@ Deno.serve(async (req: Request) => {
     ok: 0, error: 0, timeout: 0, filtered: 0, mentions: 0, citations: 0,
   };
 
+  // The sampling loop routinely exceeds the 150s edge idle timeout (prompts ×
+  // models × replicates model calls). Run it as a background task and return
+  // immediately; the client polls the scores tables for results.
+  const work = (async () => {
   await pooled(jobs, MAX_CONCURRENCY, async (job) => {
+
     const result = await queryModel(job.model, job.prompt.text);
 
     const { data: run, error: runErr } = await admin
