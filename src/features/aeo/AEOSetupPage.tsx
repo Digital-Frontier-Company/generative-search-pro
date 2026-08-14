@@ -107,7 +107,25 @@ const AEOSetupPage = () => {
     reload();
   };
 
+  const seedStarterPrompts = async () => {
+    const brand = brands.find((b) => b.id === selectedBrand);
+    if (!accountId || !brand) return toast.error("Select a brand first.");
+    setSeeding(true);
+    try {
+      const result = await ensurePanelWithPrompts({ accountId, brand, existingPanels: panels });
+      toast.success(`Added ${result.createdPrompts} starter prompts`);
+      setSelectedPanel(result.panelId);
+      setPrompts(await fetchPrompts(result.panelId));
+      reload();
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not create starter prompts.");
+    } finally {
+      setSeeding(false);
+    }
+  };
+
   const addPrompt = async () => {
+
     if (!selectedPanel || !promptText.trim()) return;
     setSavingPrompt(true);
     const { error: promptError } = await supabase.from("prompts").insert({
