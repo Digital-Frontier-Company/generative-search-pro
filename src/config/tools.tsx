@@ -121,9 +121,9 @@ export const TOOLS: ToolDefinition[] = [
   },
   {
     id: "citations",
-    title: "Citation Checker",
-    description: "Check whether AI answers cite your pages for key queries.",
-    outcome: "Query-by-query citation results with the URLs that won.",
+    title: "Citation Hub",
+    description: "Every citation workflow: query checks, assistants, voice, monitoring, attribution and opportunities.",
+    outcome: "One place to see who gets cited, where, and what to fix.",
     path: "/citation-checker",
     category: "visibility",
     icon: CheckSquare,
