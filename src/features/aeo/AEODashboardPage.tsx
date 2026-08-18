@@ -14,6 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAeoWorkspace } from "./useAeoWorkspace";
 import { ensurePanelWithPrompts } from "./defaultPrompts";
+import ProofTimelinePanel from "./panels/ProofTimelinePanel";
+import ChangeLogPanel from "./panels/ChangeLogPanel";
 
 
 interface WindowScore {
@@ -495,6 +497,17 @@ const AEODashboardPage = () => {
               ))}
             </CardContent>
           </Card>
+
+          <ProofTimelinePanel
+            promptCount={activePrompts ?? 0}
+            replicatesPerDay={
+              (floor ?? 8) * Math.max(1, new Set(scores.map((s) => s.model)).size)
+            }
+            baseline={overall?.share ?? 0}
+          />
+
+          <ChangeLogPanel accountId={accountId} brandId={brandId} />
+
 
           <Card>
             <CardHeader>
