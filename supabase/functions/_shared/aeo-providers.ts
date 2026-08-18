@@ -12,7 +12,7 @@
 // @ts-ignore -- Deno npm import
 import { streamText } from "npm:ai@5";
 import { createLovableAiGatewayProvider, gatewayKey } from "./ai-gateway.ts";
-import { extractCitations, type ExtractedCitation } from "./aeo-extract.ts";
+import { domainOf, extractCitations, type ExtractedCitation } from "./aeo-extract.ts";
 
 export interface ProviderResponse {
   text: string;
