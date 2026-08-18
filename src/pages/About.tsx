@@ -113,6 +113,13 @@ const About = () => {
       <section className="py-16 md:py-24 hero-gradient">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
+            <img
+              src="/og-about.jpg"
+              alt="About Generative Search Pro — the team building Answer Engine Optimization tools"
+              width={1200}
+              height={630}
+              className="w-full max-w-3xl mx-auto mb-10 rounded-xl border border-border shadow-xl"
+            />
             <h1 className="text-4xl md:text-6xl font-bold mb-6 text-matrix-green drop-shadow-[0_0_10px_rgba(0,255,65,0.4)]">
               Pioneering the Future of 
               <span className="gradient-text block">AI Search Optimization</span>
