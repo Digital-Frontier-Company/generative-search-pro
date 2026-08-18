@@ -28,6 +28,15 @@ export interface ProviderResponse {
 export const DEFAULT_MODELS = ["google/gemini-3.6-flash"];
 
 /**
+ * Assistants to sample when the caller does not name any: the gateway models
+ * plus whichever direct-key providers are actually configured. An unconfigured
+ * provider is left out rather than sampled into a wall of errors.
+ */
+export function availableModels(): string[] {
+  return MODEL_CATALOG.filter((m) => !m.secret || Boolean(Deno.env.get(m.secret))).map((m) => m.id);
+}
+
+/**
  * Assistants we can sample today. `via` decides the transport: gateway models go
  * through the Lovable AI Gateway, the others hold their own API key because the
  * gateway does not carry them.
