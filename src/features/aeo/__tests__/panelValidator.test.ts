@@ -44,8 +44,8 @@ describe("panel validator", () => {
   });
 
   it("catches near-duplicate prompts regardless of word order and punctuation", () => {
-    expect(normaliseForDedupe("What is the best CRM?")).toBe(
-      normaliseForDedupe("the best crm, what is it"),
+    expect(normaliseForDedupe("What is the best CRM tool?")).toBe(
+      normaliseForDedupe("the best crm tool, what is"),
     );
     const result = validatePanel(
       [...goodPanel, p("Best CRM for team size 0?"), p("best crm for team size 0")],
