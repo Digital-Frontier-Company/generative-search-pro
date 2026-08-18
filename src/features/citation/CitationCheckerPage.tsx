@@ -13,6 +13,7 @@ import VoiceCitations from "@/features/citation/panels/VoiceCitations";
 import CitationOpportunities from "@/features/citation/panels/CitationOpportunities";
 import SourceValidator from "@/features/citation/panels/SourceValidator";
 import SourceGraphPanel from "@/features/citation/panels/SourceGraphPanel";
+import CompetitorTeardownPanel from "@/features/citation/panels/CompetitorTeardownPanel";
 
 const TABS = [
   { value: "check", label: "Check a query" },
@@ -22,6 +23,7 @@ const TABS = [
   { value: "attribution", label: "Attribution" },
   { value: "languages", label: "Languages" },
   { value: "graph", label: "Source graph" },
+  { value: "teardown", label: "Competitor teardown" },
   { value: "opportunities", label: "Opportunities" },
   { value: "sources", label: "Source validator" },
 ];
@@ -91,6 +93,9 @@ const CitationCheckerPage = () => {
           </TabsContent>
           <TabsContent value="graph" className="mt-6">
             <SourceGraphPanel />
+          </TabsContent>
+          <TabsContent value="teardown" className="mt-6">
+            <CompetitorTeardownPanel />
           </TabsContent>
           <TabsContent value="opportunities" className="mt-6">
             <CitationOpportunities />
