@@ -55,7 +55,15 @@ const Influencers = () => {
                 <Button variant="outline" onClick={() => navigate("/brands")}>For Brands</Button>
               </div>
             </div>
-            <div className="md:w-1/2 flex justify-center">
+            <div className="md:w-1/2 flex flex-col items-center gap-6">
+              <img
+                src="/og-influencers.jpg"
+                alt="Monetize your influence with AI — GenerativeSearch.pro"
+                width={1200}
+                height={630}
+                loading="lazy"
+                className="w-full max-w-md rounded-lg border border-border shadow-lg"
+              />
               <div className="relative w-full max-w-md border border-border rounded-lg p-6 bg-card">
                 <h3 className="text-primary font-semibold mb-2">Why creators love us</h3>
                 <ul className="list-disc pl-5 text-muted-foreground space-y-2">
