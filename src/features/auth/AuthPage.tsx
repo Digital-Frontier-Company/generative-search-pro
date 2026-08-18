@@ -135,7 +135,14 @@ const Auth = () => {
         <meta name="twitter:image" content="https://generativesearch.pro/og-auth.jpg" />
       </Helmet>
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-auth-gradient-start to-auth-gradient-end p-4">
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md overflow-hidden">
+        <img
+          src="/og-auth.jpg"
+          alt="Sign in to Generative Search Pro and track your AI answer share"
+          width={1200}
+          height={630}
+          className="w-full border-b border-border"
+        />
         <CardHeader className="text-center">
           <h1 className="text-2xl font-bold leading-none tracking-tight">
             Welcome to Generative Search Pro
