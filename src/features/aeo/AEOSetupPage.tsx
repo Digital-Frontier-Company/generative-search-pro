@@ -397,6 +397,12 @@ const AEOSetupPage = () => {
                 ))}
               </div>
 
+              <PanelHealthCard
+                prompts={prompts}
+                brandName={brands.find((b) => b.id === selectedBrand)?.name ?? ""}
+                brandAliases={brands.find((b) => b.id === selectedBrand)?.aliases ?? []}
+              />
+
               <Button asChild variant="secondary">
                 <Link to="/aeo-dashboard">View measurement dashboard</Link>
               </Button>
