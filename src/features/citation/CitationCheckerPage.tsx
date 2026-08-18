@@ -94,6 +94,9 @@ const CitationCheckerPage = () => {
           <TabsContent value="graph" className="mt-6">
             <SourceGraphPanel />
           </TabsContent>
+          <TabsContent value="teardown" className="mt-6">
+            <CompetitorTeardownPanel />
+          </TabsContent>
           <TabsContent value="opportunities" className="mt-6">
             <CitationOpportunities />
           </TabsContent>
