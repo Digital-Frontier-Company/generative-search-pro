@@ -14,6 +14,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useAeoWorkspace } from "./useAeoWorkspace";
 import { ensurePanelWithPrompts } from "./defaultPrompts";
+import ProofTimelinePanel from "./panels/ProofTimelinePanel";
+import ChangeLogPanel from "./panels/ChangeLogPanel";
 
 
 interface WindowScore {
