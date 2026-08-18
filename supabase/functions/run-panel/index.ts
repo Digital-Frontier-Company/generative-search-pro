@@ -14,7 +14,7 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 // @ts-ignore -- Deno npm import
 import { corsHeaders } from "npm:@supabase/supabase-js@2/cors";
-import { DEFAULT_MODELS } from "../_shared/aeo-providers.ts";
+import { availableModels } from "../_shared/aeo-providers.ts";
 
 import { createLogger } from "../_shared/obs.ts";
 import { kickWorker } from "../_shared/queue.ts";
@@ -110,7 +110,7 @@ Deno.serve(async (req: Request) => {
 
   const models: string[] = Array.isArray(body?.models) && body.models.length
     ? body.models.filter((m: unknown) => typeof m === "string").slice(0, 6)
-    : DEFAULT_MODELS;
+    : availableModels();
   if (!models.length) {
     runLog.warn("config.no_models");
     return json({ error: "No models configured", trace_id: log.trace_id }, 400);
