@@ -3,6 +3,7 @@ import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
 import { Plus, Trash2, Loader2, ListChecks, Building2 } from "lucide-react";
 import { ensurePanelWithPrompts } from "./defaultPrompts";
+import PanelHealthCard from "./panels/PanelHealthCard";
 
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
