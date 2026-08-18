@@ -498,6 +498,17 @@ const AEODashboardPage = () => {
             </CardContent>
           </Card>
 
+          <ProofTimelinePanel
+            promptCount={activePrompts ?? 0}
+            replicatesPerDay={
+              (floor ?? 8) * Math.max(1, new Set(scores.map((s) => s.model)).size)
+            }
+            baseline={overall?.share ?? 0}
+          />
+
+          <ChangeLogPanel accountId={accountId} brandId={brandId} />
+
+
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
