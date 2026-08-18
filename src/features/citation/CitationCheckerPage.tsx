@@ -12,6 +12,7 @@ import AIPlatformCitations from "@/features/citation/panels/AIPlatformCitations"
 import VoiceCitations from "@/features/citation/panels/VoiceCitations";
 import CitationOpportunities from "@/features/citation/panels/CitationOpportunities";
 import SourceValidator from "@/features/citation/panels/SourceValidator";
+import SourceGraphPanel from "@/features/citation/panels/SourceGraphPanel";
 
 const TABS = [
   { value: "check", label: "Check a query" },
@@ -20,6 +21,7 @@ const TABS = [
   { value: "monitoring", label: "Monitoring" },
   { value: "attribution", label: "Attribution" },
   { value: "languages", label: "Languages" },
+  { value: "graph", label: "Source graph" },
   { value: "opportunities", label: "Opportunities" },
   { value: "sources", label: "Source validator" },
 ];
@@ -86,6 +88,9 @@ const CitationCheckerPage = () => {
           </TabsContent>
           <TabsContent value="languages" className="mt-6">
             <MultiLanguageCitationMonitor />
+          </TabsContent>
+          <TabsContent value="graph" className="mt-6">
+            <SourceGraphPanel />
           </TabsContent>
           <TabsContent value="opportunities" className="mt-6">
             <CitationOpportunities />
